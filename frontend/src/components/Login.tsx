@@ -35,24 +35,24 @@ function Login() {
                 <form
                 onSubmit={(event)=>handleSubmit(event)}
                 method='post'>
-                    <label htmlFor='username'>Username:</label>
+                    <label htmlFor='username'>Username</label>
                         <input 
                             type='text'
                             name='username'
                             id='username'
-                            placeholder='Username'
                             autoComplete='on'
                             value={formData}
                             onChange={(event) => setFormData(event.target.value)}
                             />
+
                     <section>
                         {errorMessage !== "" ? 
-                        <><p aria-live='assertive'>{errorMessage}</p>
+                        <><p id='error-message' aria-live='assertive'>{errorMessage}</p>
                         </> : <></> } 
                     </section>
                     <button className='primary'>Sign In</button>
             </form>
-            <div>
+            <div id='alt'>
                 <p>Don't have an account? </p>
                 <Link to='/register'>Sign Up</Link>
             </div>
