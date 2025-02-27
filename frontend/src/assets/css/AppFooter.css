@@ -6,12 +6,6 @@ footer {
     background-color: #1e1e1e;
 }
 
-
 footer p, li {
     display: inline;
-}
-
-footer ul {
-    margin: 2em;
-    text-align: center;
 }

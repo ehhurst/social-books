@@ -1,0 +1,17 @@
+header {
+    width: 100vw;
+    height: 10vh;
+    background-color: #1e1e1e;
+    border-bottom-style: solid;
+}
+
+header div#header-container-left {
+    float: left;
+    width: 33.33%;
+}
+
+header img {
+    width: 30%;
+    margin: 1em;
+    max-height: 8vh;
+}
