@@ -1,6 +1,11 @@
+import '../assets/css/Home.css'
 
 function Home() {
-    return(<></>);
+    return(
+        <div id='home-container'>
+
+        </div>
+    );
 }
 
 export default Home;
