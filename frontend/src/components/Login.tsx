@@ -1,21 +1,22 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { useState, FormEvent } from 'react';
 import axios from 'axios'
 import '../assets/css/global.css'
 import '../assets/css/Login.css'
-import { useState, FormEvent } from 'react';
+
 
 function Login() {
     const [formData, setFormData] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
 
-    // handles submission of form data
+
     async function handleSubmit(event:FormEvent) {
         event.preventDefault();
         if (formData === "") {setErrorMessage("Username is required. Please enter your username.")}
         else {
             setErrorMessage("") //not needed?
-            const result = await axios.post("api/login", event, { // need type for result ?
+            await axios.post("api/login", event, { // need type for result ?
                 headers: {
                         "Content-type": "application/json",
                     }
@@ -56,6 +57,7 @@ function Login() {
                     <Link to='/register'>Sign Up</Link>
                 </div>
             </div>
+
         </div>
     );
 }
