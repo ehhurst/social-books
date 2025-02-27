@@ -3,15 +3,35 @@ header {
     height: 10vh;
     background-color: #1e1e1e;
     border-bottom-style: solid;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
-header div#header-container-left {
-    float: left;
-    width: 33.33%;
-}
-
+/* Logo styles */
 header img {
-    width: 30%;
-    margin: 1em;
-    max-height: 8vh;
+    width: 50%;
+    margin-left: 2em;
+    max-height: 9vh;
 }
+
+button {
+    width: 6em;
+    height: 2em;
+    margin: 1em;
+}
+
+
+/* Nav styles specific to the header */
+header ul p {
+    display: none;
+}
+
+header ul {
+    display: inline;
+}
+
+header li {
+    margin: 0.5em;
+}
+

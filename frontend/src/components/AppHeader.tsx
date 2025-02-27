@@ -8,16 +8,15 @@ import NavBar from './NavBar';
 function AppHeader() {
     return(
         <header>
-            <div id='header-container-left'>
-                <Link to="/">
-                    <img src={AppLogo}
-                    alt="Logo"/>
-                </Link>
-            </div>
-            <div id='header-container-right'>
+            <Link to="/">
+                <img src={AppLogo}
+                alt="Logo"/>
+            </Link>
+            <div>
+                <p>Search Bar Goes Here</p>
                 <NavBar/>
-                <button id='primary'>Sign In</button>
-                <button id='secondary'>Register</button>
+                <button className='primary'>Sign In</button>
+                <button className='secondary'>Register</button>
             </div>
         </header>
     );
