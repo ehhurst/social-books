@@ -83,6 +83,10 @@ button.secondary:hover {
     border: solid var(--light-accent-color);
 }
 
+div#container {
+    min-height: 78.3vh;
+}
+
 /* For large text sizes, you typically want to decrease your line height. */
 h1,
 h2,
