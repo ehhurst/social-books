@@ -50,6 +50,7 @@ a:hover {
     color: var(--light-accent-color)
 }
 
+/* Button styles */
 button {
     border-radius: 8px;
     border: thin solid var(--light-primary-color);
@@ -81,6 +82,10 @@ button.secondary:hover {
     background-color: var(--light-primary-color);
     color: var(--light-accent-color);
     border: solid var(--light-accent-color);
+}
+
+div#container {
+    min-height: 78.3vh;
 }
 
 /* For large text sizes, you typically want to decrease your line height. */
