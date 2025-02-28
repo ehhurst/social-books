@@ -4,6 +4,7 @@ import '../assets/css/SearchBar.css'
 function SearchBar() {
     return(
     <search>
+        
 
     </search>
     );
