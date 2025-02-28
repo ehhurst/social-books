@@ -50,6 +50,7 @@ a:hover {
     color: var(--light-accent-color)
 }
 
+/* Button styles */
 button {
     border-radius: 8px;
     border: thin solid var(--light-primary-color);

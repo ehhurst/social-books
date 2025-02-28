@@ -15,7 +15,7 @@ function AppHeader() {
                 alt="Logo"/>
             </Link>
             <div>
-                <p>Search Bar Goes Here</p>
+                <p id="search">Search Bar Goes Here</p>
                 <NavBar/>
                 <button className='primary' onClick={() => nav("login")}>Sign In</button>
                 <button className='secondary' onClick={() => nav("register")}>Register</button>

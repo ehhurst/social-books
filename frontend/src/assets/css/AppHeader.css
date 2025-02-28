@@ -23,15 +23,14 @@ button {
 
 
 /* Nav styles specific to the header */
-header ul p {
+header nav ul p {
     display: none;
 }
 
-header ul {
+header ul, header nav {
     display: inline;
 }
 
 header li {
     margin: 0.5em;
-}
-
+} 
