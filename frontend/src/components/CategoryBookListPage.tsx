@@ -9,7 +9,7 @@ function CategoryBookListPage() {
     const [books, setBooks] = useState([]);
 
     useEffect(() => {
-        axios.get('...api/categories/name/${category}/books')
+        axios.get(`...api/${category}/books`)
         .then((response) => setBooks(response.data))
         .catch(console.error)
     }, [category]);

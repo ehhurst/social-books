@@ -7,7 +7,7 @@ function NavBar() {
             <ul>
                 <li><Link to='/'>Home</Link>         <p> | </p></li>
                 <li><Link to='#'>Books</Link>        <p> | </p> </li>
-                <li><Link to='#'>Book Clubs</Link>   <p> | </p></li>
+                <li><Link to='/books'>Book Clubs</Link>   <p> | </p></li>
                 <li><Link to='#'>Competitions</Link> <p> | </p></li>
                 <li><Link to='#'>Contact</Link>               </li>
             </ul>

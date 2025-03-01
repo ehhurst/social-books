@@ -84,7 +84,7 @@ button.secondary:hover {
     border: solid var(--light-accent-color);
 }
 
-div#container {
+main {
     min-height: 78.3vh;
 }
 

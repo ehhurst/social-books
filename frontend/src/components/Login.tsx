@@ -31,7 +31,7 @@ function Login() {
     }
 
     return(
-        <div id='container'>
+        <main>
             <div id='login-form'>
                 <form
                     onSubmit={(event)=>handleSubmit(event)}
@@ -58,7 +58,7 @@ function Login() {
                 </div>
             </div>
 
-        </div>
+        </main>
     );
 }
 
