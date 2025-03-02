@@ -1,0 +1,12 @@
+ ul {
+    margin: 2em 0 1em 0;
+    text-align: center;
+}
+
+p, li {
+    display: inline;
+}
+
+a:hover {
+    text-decoration: underline;
+}

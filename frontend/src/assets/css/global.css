@@ -11,6 +11,10 @@
 
     --light-primary-color: #eaeee6;
     --dark-primary-color: #20232d;
+
+    --error-color: rgb(229, 82, 82);
+    font-family: Arial, Helvetica, sans-serif;
+
 }
 
 div#root {
@@ -31,7 +35,7 @@ h1, h2, h3, p, div {
 
 /* Remove list styling */
 ol,
-ul {
+ul, form ul {
     list-style: none;
     padding: 0;
     margin: 0;
@@ -46,6 +50,7 @@ a:hover {
     color: var(--light-accent-color)
 }
 
+/* Button styles */
 button {
     border-radius: 8px;
     border: thin solid var(--light-primary-color);
@@ -79,6 +84,21 @@ button.secondary:hover {
     border: solid var(--light-accent-color);
 }
 
+div#container {
+    min-height: 78.3vh;
+}
+
+/* For large text sizes, you typically want to decrease your line height. */
+h1,
+h2,
+h3 {
+    line-height: 1;
+}
+
+/* For small text sizes, you typically want to increase your line height. */
+p {
+    line-height: 1.5;
+}
 
 @media (prefers-color-scheme: light) {
     :root {
