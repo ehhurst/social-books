@@ -15,6 +15,12 @@ For mac:
 
 I (emily) can't speak for the windows process, but I believe one differece would be to omit the source command and just run venv/Scripts/activate. 
 
+For frontend, you also may need to run the following:
+- npm install react-router-dom
+- npm install @fortawesome/react-fontawesome
+- npm install @fortawesome/free-solid-svg-icons
+- npm install axios
+
 
 
 
