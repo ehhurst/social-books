@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 function CategoryBookBox(props:BookItem) {
     return(
         <div id="category-book-box">
-            <Link to='/${isbn}'>
+            <Link to={`${props.title}`}>
                 <div id="book-image">
                     <img src={`https://covers.openlibrary.org/b/isbn/${props.isbn}-S.jpg`} alt="Book cover image"/>
                 </div>
