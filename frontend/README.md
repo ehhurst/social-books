@@ -1,3 +1,30 @@
+# To run server for use on frontend
+For mac:
+  First, we need to start the server
+  1. Make sure you have python and flask installed on your machine
+  2. cd into backend folder
+  3. run: source venv/Scripts/activate (google suggests running source venv/bin/activate, but this didn't work for me)
+  4. try to run python3 server.py
+        - if you get a file not found error, try to install flask and flask_cors by running pip3 install flask and pip3 install flask_cors
+  5. now you should be able to run python3 server.py and get a success message indicating that the server is running
+  Now we need to start the client
+  1. Open a new terminal
+  2. cd into frontend folder
+  3. run npm run dev, you should get a url where the client is running
+
+
+I (emily) can't speak for the windows process, but I believe one differece would be to omit the Source command and just run venv/Scripts/activate. 
+
+
+
+
+
+
+
+
+
+
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
