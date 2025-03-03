@@ -1,0 +1,36 @@
+header {
+    width: 100vw;
+    height: 6vh;
+    background-color: #1e1e1e;
+    border-bottom-style: solid;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Logo styles */
+header img {
+    width: 50%;
+    margin-left: 2em;
+    max-height: 6vh;
+}
+
+button {
+    width: 6em;
+    height: 2.5em;
+    margin: 0.5em;
+}
+
+
+/* Nav styles specific to the header */
+header nav ul p {
+    display: none;
+}
+
+header ul, header nav {
+    display: inline;
+}
+
+header li {
+    margin: 0.5em;
+} 

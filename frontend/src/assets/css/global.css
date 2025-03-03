@@ -1,0 +1,115 @@
+:root {
+    color-scheme: light dark;
+    background-color: #20232d;
+
+    --default-font-color: #eaeee6;
+    --secondary-font-color: #20232d;
+
+    --light-accent-color: #829584;
+    --main-color: #577678;
+    --dark-accent-color: #6f7588;
+
+    --light-primary-color: #eaeee6;
+    --dark-primary-color: #20232d;
+
+    --error-color: rgb(229, 82, 82);
+    font-family: Arial, Helvetica, sans-serif;
+
+}
+
+div#root {
+    color: var(--default-font-color);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+/* Browser Resets */
+
+h1, h2, h3, p, div {
+    margin: 0;
+}
+
+
+/* Remove list styling */
+ol,
+ul, form ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+a {
+    color: #eaeee6;
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--light-accent-color)
+}
+
+/* Button styles */
+button {
+    border-radius: 8px;
+    border: thin solid var(--light-primary-color);
+    color: var(--default-font-color);
+    box-shadow:rgb(from color r g b);
+}
+
+button:hover {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button.primary {
+    background-color: var(--main-color);
+}
+
+button.secondary {
+    background-color: var(--light-accent-color);
+}
+
+/* creates an inverted button on hover */
+button.primary:hover {
+    background-color: var(--light-primary-color);
+    color: var(--main-color);
+    border: solid var(--main-color);
+}
+
+button.secondary:hover {
+    background-color: var(--light-primary-color);
+    color: var(--light-accent-color);
+    border: solid var(--light-accent-color);
+}
+
+main {
+    min-height: 78.3vh;
+}
+
+/* For large text sizes, you typically want to decrease your line height. */
+h1,
+h2,
+h3 {
+    line-height: 1;
+}
+
+/* For small text sizes, you typically want to increase your line height. */
+p {
+    line-height: 1.5;
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+      color: var(--secondary-font-color);
+      background-color: var(--light-primary-color);
+    }
+
+  }
+
+
+@media all and (min-width: 378px) {
+
+
+}
