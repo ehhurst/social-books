@@ -1,6 +1,6 @@
 import requests
 import json
-
+# This file is only for reference and is not meant to be run. It contains snippets of code that may be helpful.
 book_url = input("Please enter the url for the book")
 ## Assuming that request will be a get request, how to confirm?
 response = requests.get(book_url)
