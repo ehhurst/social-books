@@ -1,6 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, FormEvent } from 'react';
 import axios from 'axios'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import '../assets/css/global.css'
 import '../assets/css/Login.css'
 
@@ -15,7 +17,7 @@ function Login() {
         event.preventDefault();
         if (formData === "") {setErrorMessage("Username is required. Please enter your username.")}
         else {
-            setErrorMessage("") //not needed?
+            setErrorMessage("") 
             await axios.post("api/login", event, { // need type for result ?
                 headers: {
                         "Content-type": "application/json",
@@ -26,7 +28,11 @@ function Login() {
                     navigate("/reader-profile");
 
                 })
-                .catch((error) => console.log(error));
+                .catch((error) => {
+                    console.log(error); 
+                    setFormData("");
+                    setErrorMessage("The username you entered is not connected to an account. Please try again.")
+                });
         } 
     }
 
@@ -47,7 +53,7 @@ function Login() {
                             />
                     <section>
                         {errorMessage !== "" ? 
-                        <><p id='error-message' aria-live='assertive'>{errorMessage}</p>
+                        <><p id='error-message' aria-live='assertive'><FontAwesomeIcon icon={faTriangleExclamation}/> {errorMessage} </p>
                         </> : <></> } 
                     </section>
                     <button className='primary'>Sign In</button>
