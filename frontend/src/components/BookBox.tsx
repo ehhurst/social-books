@@ -5,13 +5,13 @@ import { BookItem } from '../types';
 function BookBox(props:BookItem) {
     //avg adult reads 1 page per minute
     // get num pages per hour
-    function calcReadTime() {
-        if (props.readTime % 60 === 0) {
-            return (props.readTime)
-        }
-        const mod = props.readTime %60;
-        const hrs = props.readTime / 60;
-    }
+    // function calcReadTime() {
+    //     if (props.readTime % 60 === 0) {
+    //         return (props.readTime)
+    //     }
+    //     const mod = props.readTime %60;
+    //     const hrs = props.readTime / 60;
+    // }
 
     const isbn = props.isbn; 
     return(
@@ -36,7 +36,7 @@ function BookBox(props:BookItem) {
                     
                     <tr>
                         <td>Estimated Read Time</td>
-                        <td>{calcReadTime()}</td>
+                        <td>{props.readTime}</td>
                     </tr>
                 </table>
 
