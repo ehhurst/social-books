@@ -1,7 +1,7 @@
 # To run server for use on frontend
 For mac:
   First, we need to start the server
-  1. Make sure you have python and flask installed on your machine
+  1. Make sure you have python and flask installed on your machine (I used brew)
   2. cd backend
   3. run: source venv/Scripts/activate (google suggests running source venv/bin/activate, but this didn't work for me)
   4. try to run python3 server.py
