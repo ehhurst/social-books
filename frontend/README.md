@@ -4,8 +4,8 @@ For mac:
   1. Make sure you have python and flask installed on your machine (I used brew)
   2. cd backend
   3. now we need to activate the python virtual evironment (venv). run: source venv/Scripts/activate (google suggests running source venv/bin/activate, but this didn't work for me)
-  4. try to run python3 server.py
-        - if you get a file not found error, try to install flask and flask_cors by running pip3 install flask and pip3 install flask_cors (could also be flask-cors or python3-flask-cors)
+  4. try to run python3 server.py to start the server
+        - if you get a file not found error or issues with import statements in server.py, try to install flask and flask_cors by running pip3 install flask and pip3 install flask_cors (could also be flask-cors or python3-flask-cors)
   5. now you should be able to run python3 server.py and get a success message indicating that the server is running
 
   
