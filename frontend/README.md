@@ -5,17 +5,18 @@ For mac:
   2. cd backend
   3. run: source venv/Scripts/activate (google suggests running source venv/bin/activate, but this didn't work for me)
   4. try to run python3 server.py
-        - if you get a file not found error, try to install flask and flask_cors by running pip3 install flask and pip3 install flask_cors
+        - if you get a file not found error, try to install flask and flask_cors by running pip3 install flask and pip3 install flask_cors (could also be flask-cors or python3-flask-cors)
   5. now you should be able to run python3 server.py and get a success message indicating that the server is running
   Now we need to start the client
   1. Open a new terminal
   2. cd frontend
-  3. run npm run dev, you should get a url where the client is running
+  3. run npm install to install all package dependencies
+  4. run npm run dev, which should create a url where the client is running
 
 
 I (emily) can't speak for the windows process, but I believe one differece would be to omit the source command and just run venv/Scripts/activate. 
 
-For frontend, you also may need to run the following:
+For frontend, you also may need to run the following (if you run npm install in #3 above you shouldn't have to do this):
 - npm install react-router-dom
 - npm install @fortawesome/react-fontawesome
 - npm install @fortawesome/free-solid-svg-icons
