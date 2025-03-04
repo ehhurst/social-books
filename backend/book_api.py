@@ -78,6 +78,16 @@ def parse_books(data):
     for doc in data.get('docs', []):
         work_id = doc.get('key').split('/')[-1]
         title = doc.get('title')
+        
+        # Retrieving reading time estimate
+        editions_url = f'https://openlibrary.org/works/{work_id}/editions.json'
+        pages_response = requests.get(editions_url)
+        pages_response.raise_for_status()  # Raises an HTTPError for bad responses
+        pages_data = pages_response.json()
+        pagenum = pages_data.get('number_of_pages')[0]
+        reading_time = pagenum * 2
+        
+        
         author = doc.get('author_name', ['Unknown'])[0]
         description = parse_description(work_id)
         cover_edition_key = doc.get('cover_edition_key')
@@ -91,7 +101,8 @@ def parse_books(data):
             'description': description,
             'img_S': img_S,
             'img_M': img_M,
-            'img_L': img_L
+            'img_L': img_L,
+            'reading_time' : reading_time
         }
         books.append(book)
     return books
