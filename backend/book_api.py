@@ -1,7 +1,7 @@
 import requests
 from flask import Flask, request, jsonify
 
-def fetch_books_from_api(query=None, title=None, author=None, subject=None, limit=1):
+def fetch_books_from_api(query=None, title=None, author=None, subject=None, limit=None):
     """
     Fetch books from the public API based on the search query, title, author, or subject.
     
@@ -25,7 +25,11 @@ def fetch_books_from_api(query=None, title=None, author=None, subject=None, limi
         params['author'] = author
     if subject:
         params['subject'] = subject
-    params['limit'] = limit
+    if limit:
+        params['limit'] = limit
+    else:
+        params['limit'] = 1
+    
     params['editions.sort'] = "new" # Super hacky fix, not sure if this works. Should return newest book.
 
     try:
