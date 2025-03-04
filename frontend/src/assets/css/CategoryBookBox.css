@@ -12,9 +12,10 @@ div#category-book-box {
     align-content: center;
 }
 
-div > * {
+div#category-book-box > * {
     color: var(--secondary-font-color)
 }
+
 a#author-link, a#description-link {
     color: var(--light-accent-color)
 }
