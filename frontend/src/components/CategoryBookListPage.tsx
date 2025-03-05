@@ -8,7 +8,7 @@ import '../assets/css/global.css'
 
 
 function CategoryBookListPage() {
-    const category = ""
+    const category = "fiction"
     const [bookList, setBookList] = useState([]);
 
     useEffect(() => {
