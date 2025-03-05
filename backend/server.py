@@ -61,8 +61,8 @@ def db_connect():
 
     return conn
 
-@app.route("/users/get/<string:user_id>", methods=["GET"])
-def return_user_data(user_id):
+@app.route("/users/get/<string:username>", methods=["GET"])
+def return_user_data(username):
     """ Returns the user data as a json object. 
     Not sure of the format here, might need more work. """
     conn = db_connect()
@@ -70,23 +70,24 @@ def return_user_data(user_id):
         SELECT * FROM reader_profiles
         NATURAL JOIN shelved_books
         NATURAL JOIN reviews
-        WHERE profile_id = ?
+        WHERE username = ?
     """
     # executes this query, fetches one user
-    user = conn.execute(query, (user_id,)).fetchone()
+    user = conn.execute(query, (username,)).fetchone()
     conn.close()
 
     # Return the user info as a json dictionary, should return whole tuple info
     if user:
         return jsonify(dict(user))
     else:
-        return jsonify({"error": f"user {user_id} not found"}), 404 #NOT FOUND
+        return jsonify({"error": f"user {username} not found"}), 404 #NOT FOUND
+ 
     
-@app.route("/users/add/<string:user_id>", methods=["POST"])
-def add_user(user_id):
+@app.route("/users/add/<string:username>", methods=["POST"])
+def add_user(username):
     """ Adds a user to the database """
 
-    if not user_id:
+    if not username:
         return jsonify({"error": "no username given"}), 400 #BAD REQUEST
     
     conn = db_connect()
@@ -96,40 +97,42 @@ def add_user(user_id):
     # Later on we want to change this from an error to some sort of front-end behavior
     # That's for further on this week
     try:
-        query = "INSERT INTO profile_id (user_id) VALUES (?)"
-        cursor.execute(query, (user_id,))
+        query = "INSERT INTO reader_profiles (username) VALUES (?)"
+        cursor.execute(query, (username,))
         conn.commit()
     except sqlite3.IntegrityError:
         conn.close()
-        return jsonify({"error": f"user {user_id} already exists"}), 409 #CONFLICT
+        return jsonify({"error": f"user {username} already exists"}), 409 #CONFLICT
     
     conn.close()
 
-    return jsonify({"message": f"user {user_id} added successfully"}), 201 #CREATED
+    return jsonify({"message": f"user {username} added successfully"}), 201 #CREATED
 
-@app.route("/users/delete/<string:user_id>", methods=["DELETE"])
-def delete_user(user_id):
+
+@app.route("/users/delete/<string:username>", methods=["DELETE"])
+def delete_user(username):
     """ Removes a user from the database """
     conn = db_connect()
     cursor = conn.cursor()
 
-    if not user_id:
+    if not username:
         return jsonify({"error": "no username given for deletion"}), 400 #BAD_REQUEST
     
-    query = "SELECT profile_id FROM reader_profiles WHERE profile_id = ?"
-    cursor.execute(query, (user_id,))
+    query = "SELECT username FROM reader_profiles WHERE username = ?"
+    cursor.execute(query, (username,))
     user = cursor.fetchone()
 
     if not user:
         conn.close()
         return jsonify({"error": "user not found for deletion"}), 404 #NOT FOUND
 
-    deletion_query = "DELETE FROM reader_profiles WHERE profile_id = ?"
-    cursor.execute(deletion_query, (user_id,))
+    deletion_query = "DELETE FROM reader_profiles WHERE username = ?"
+    cursor.execute(deletion_query, (username,))
     conn.commit()
     conn.close()
 
-    return jsonify({"message": f"user {user_id} deleted successfully"}), 200 #OK
+    return jsonify({"message": f"user {username} deleted successfully"}), 200 #OK
+
 
 @app.route("/users/<string:user_id>/reviews/add", methods=["POST"])
 def add_review(user_id):
@@ -167,6 +170,7 @@ def add_review(user_id):
     
     conn.close()
     return jsonify({"message": "Review added successfully", "user_id" : user_id}), 201 #CREATED
+
 
 @app.route("/users/<string:review_id>/reviews/delete", methods=["DELETE"])
 def remove_review(review_id):
