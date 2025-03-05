@@ -18,23 +18,23 @@ function Login() {
         if (formData === "") {setErrorMessage("Username is required. Please enter your username.")}
         else {
             setErrorMessage("") 
-            await axios.post("api/login", event, { // need type for result ?
+            await axios.get(`http://127.0.0.1:5000/users/get/${formData}`, {
                 headers: {
-                        "Content-type": "application/json",
-                    }
-                })
-                .then((response) => {
+                            "Content-type": "application/json",
+                        }
+                }).then((response) => {
                     console.log(response.data);
+                    localStorage.setItem('username', JSON.stringify(response.data));
                     navigate("/reader-profile");
 
-                })
-                .catch((error) => {
+                }).catch((error) => {
                     console.log(error); 
                     setFormData("");
                     setErrorMessage("The username you entered is not connected to an account. Please try again.")
                 });
+            }           
         } 
-    }
+    
 
     return(
         <main>

@@ -18,15 +18,13 @@ function Register() {
         if (formData === "") {setErrorMessage("Username is required. Please enter your username.")}
         else {
             setErrorMessage("") 
-            await axios.post("api/login", event, { // need type for result ?
-                headers: {
-                        "Content-type": "application/json",
-                    }
-                })
+            await axios.post(`http://127.0.0.1:5000/users/add/${formData}`)
+
                 .then((response) => {
                     console.log(response.data);
+                    localStorage.setItem('username', JSON.stringify(response.data));
                     navigate("/reader-profile");
-
+                    // console.log(JSON.parse(localStorage.getItem('username') || "")) remove later
                 })
                 .catch((error) => {
                     console.log(error); 
