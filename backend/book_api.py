@@ -1,7 +1,7 @@
 import requests
 from flask import Flask, request, jsonify
 
-def fetch_books_from_api(query=None, title=None, author=None, subject=None, limit=None):
+def fetch_books_from_api(query=None, title=None, author=None, subject=None, limit=1):
     """
     Fetch books from the public API based on the search query, title, author, or subject.
     
@@ -25,12 +25,8 @@ def fetch_books_from_api(query=None, title=None, author=None, subject=None, limi
         params['author'] = author
     if subject:
         params['subject'] = subject
-    if limit:
-        params['limit'] = limit
-    else:
-        params['limit'] = 1
-    
-    params['editions.sort'] = "new" # Super hacky fix, not sure if this works. Should return newest book.
+    params['limit'] = limit
+    params['sort'] = "new" # Sort by newest books
 
     try:
         response = requests.get(api_url, params=params)
@@ -64,6 +60,22 @@ def parse_description(work_id):
     except requests.exceptions.RequestException as e:
         return f'Error fetching description: {str(e)}'
 
+def estimate_reading_time(work_id):
+    """
+    Estimate the reading time of a book based on the number of pages.
+    
+    Args:
+        work_id (str): The Work ID of the book.
+    
+    Returns:
+        int: The estimated reading time in minutes.
+    """
+    editions_url = f'https://openlibrary.org/works/{work_id}/editions.json?limit=1&sort=new'
+    pages_response = requests.get(editions_url)
+    pages_response.raise_for_status()  # Raises an HTTPError for bad responses
+    pages_data = pages_response.json()
+    # need parsing logic here to get number of pages.
+
 def parse_books(data):
     """
     Parse the JSON response to extract book title, author, cover_edition_key and Work ID.
@@ -79,15 +91,7 @@ def parse_books(data):
         work_id = doc.get('key').split('/')[-1]
         title = doc.get('title')
         
-        # Retrieving reading time estimate
-        editions_url = f'https://openlibrary.org/works/{work_id}/editions.json'
-        pages_response = requests.get(editions_url)
-        pages_response.raise_for_status()  # Raises an HTTPError for bad responses
-        pages_data = pages_response.json()
-        pagenum = pages_data.get('number_of_pages')[0]
-        reading_time = pagenum * 2
-        
-        
+        # Retrieving reading time estimate -- not implemented yet
         author = doc.get('author_name', ['Unknown'])[0]
         description = parse_description(work_id)
         cover_edition_key = doc.get('cover_edition_key')
@@ -101,8 +105,8 @@ def parse_books(data):
             'description': description,
             'img_S': img_S,
             'img_M': img_M,
-            'img_L': img_L,
-            'reading_time' : reading_time
+            'img_L': img_L
+            # 'reading_time' : reading_time
         }
         books.append(book)
     return books

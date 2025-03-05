@@ -37,12 +37,13 @@ def search_books():
     title = request.args.get('title')
     author = request.args.get('author')
     subject = request.args.get('subject')
+    limit = request.args.get('limit')
 
     if not (query or title or author or subject):
         return jsonify({'error': 'Missing search parameter'}), 400
 
     # Use the fetch_books_from_api function to get the search results
-    data = fetch_books_from_api(query=query, title=title, author=author, subject=subject)
+    data = fetch_books_from_api(query=query, title=title, author=author, subject=subject, limit=limit)
     parsed_data = parse_books(data)
     return jsonify(parsed_data)
 
