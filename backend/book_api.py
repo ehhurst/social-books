@@ -1,6 +1,12 @@
 import requests
 from flask import Flask, request, jsonify
 
+url = "https://openlibrary.org/search.json?q=test"
+headers = {
+    "User-Agent": "ShelfLife/0.1 (connorb24@vt.edu)"
+}
+response = requests.get(url, headers=headers)
+
 def fetch_books_from_api(query=None, title=None, author=None, subject=None, limit=1):
     """
     Fetch books from the public API based on the search query, title, author, or subject.

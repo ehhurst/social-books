@@ -63,13 +63,11 @@ def db_connect():
 
 @app.route("/users/get/<string:username>", methods=["GET"])
 def return_user_data(username):
-    """ Returns the user data as a json object. 
+    """ Returns the username as a json object. 
     Not sure of the format here, might need more work. """
     conn = db_connect()
     query = """
         SELECT * FROM reader_profiles
-        LEFT OUTER JOIN shelved_books
-        LEFT OUTER JOIN reviews
         WHERE reader_profiles.username = ?
     """
     # executes this query, fetches one user
@@ -135,6 +133,7 @@ def delete_user(username):
     return jsonify({"message": f"user {username} deleted successfully"}), 200 #OK
 
 
+# NOTE: doesn't look like review IDs are being generated. don't see them being inserted
 @app.route("/users/<string:user_id>/reviews/add", methods=["POST"])
 def add_review(user_id):
     """ Adds a review. Content of the review needs to be in the POST query.
@@ -142,7 +141,7 @@ def add_review(user_id):
     conn = db_connect()
     cursor = conn.cursor()
 
-    find_user_query = "SELECT profile_id FROM reader_profiles WHERE profile_id = ?"
+    find_user_query = "SELECT username FROM reader_profiles WHERE username = ?" # replaced profile_id with uesrname
     reviewer = cursor.execute(find_user_query, (user_id,))
 
     if not reviewer:
@@ -150,21 +149,21 @@ def add_review(user_id):
         return jsonify({"error":f"user {user_id} not found, not updating reviews"}), 400 #BAD REQUEST
     
     r_metadata = request.json
-    book_id = r_metadata.get("book_id")
-    rating = r_metadata.get("rating")
+    olid = r_metadata.get("olid") #NOTE: Connor changed to olid (previously book_id)
+    rating = r_metadata.get("star_rating")
     text = r_metadata.get("review_text")
 
-    if not book_id or not rating or not text:
+    if not olid or not rating or not text:
         conn.close()
-        return jsonify({"error": "Book_id, rating, or text is bad"}), 400 #BAD REQUEST
+        return jsonify({"error": "olid, rating, or text is bad"}), 400 #BAD REQUEST
     
     if not (1 <= rating <= 5):
         conn.close()
         return jsonify({"error": "rating is out of 1-5 range"}), 412 #PRECONDITION FAILED
     
     try:
-        query = "INSERT INTO reviews (user_id, book_id, rating, review_text) VALUES (?, ?, ?, ?)"
-        cursor.execute(query, (user_id, book_id, rating, text))
+        query = "INSERT INTO reviews (username, olid, star_rating, review_text) VALUES (?, ?, ?, ?)"
+        cursor.execute(query, (user_id, olid, rating, text))
         conn.commit()
     except sqlite3.Error as error:
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
@@ -193,6 +192,30 @@ def remove_review(review_id):
     conn.close()
 
     return jsonify({"message": f"user {review_id} deleted successfully"}), 200 #OK
+
+
+# NOTE: Connor addition
+# NOTE: Returning "all" reviews probably isn't a great idea for
+#       load times, but gets the job done for now
+# GET all reviews associated with a book
+@app.route("/reviews/get/<string:olid>", methods=["GET"])
+def return_review_data(olid):
+    """ Returns the book's reviews as a JSON object. """
+    conn = db_connect()
+    query = """
+        SELECT * FROM reviews
+        WHERE reviews.olid = ?
+    """
+    # executes this query, fetches one user
+    reviews = conn.execute(query, (olid,)).fetchone()
+    conn.close()
+
+    # Return the book review info as a json dictionary, should return whole tuple info
+    if reviews:
+        return jsonify(dict(reviews))
+    else:
+        return jsonify({"error": f"user {olid} not found"}), 404 #NOT FOUND
+ 
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
