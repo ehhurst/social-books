@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
 import '../assets/css/global.css'
 import '../assets/css/Home.css'
+import { faStar, faStarHalf } from "@fortawesome/free-solid-svg-icons";
 
 
 
@@ -26,33 +27,43 @@ function Home() {
     <main>
       <div id="home-container-top">
         <div id='hero-image-container'>
-          <img src="" alt="Image of books"/>
+
           <h1>Welcome to ShelfLife</h1>
           <h2>Connect through your reading journey</h2>
         </div>
       </div>
         
       <div id='home-container-bottom'>
+
         <div id="description-review-container">
-            <div id='site-description-container'>
-            
+          <div id='site-description-container'>
             <h3><FontAwesomeIcon icon={faBookOpen}/> ShelfLife</h3>
             <p> is...Site description paragraph goes here</p>
           </div>
           <div id="example-review-container-background">
             <div id="example-review-container">
               <div id="book-image-container">
-                <img src="https://covers.openlibrary.org/b/isbn/9780743273565-M.jpg" alt="Book cover" width={"75px"}/>
+                <img src="https://covers.openlibrary.org/b/isbn/9780743273565-M.jpg" alt="Book cover" height={'85px'}/>
               </div>
-              <div>
-                <h3>The Great Gatsby</h3>
-                <h4>F. Scott Fitzgerald</h4>
+              <div id="review-info">
+                <div>
+                  <h3>The Great Gatsby</h3>
+                  <p>by</p>
+                  <h4>F. Scott Fitzgerald</h4>
+                </div>
                 <div id="review-content">
-                  <h4>UserName</h4>
-                  <p>Stars</p>
-                  <p>Review content..</p>
+                  <h5 id="username">UserName</h5>
+                    <div id="star-rating">
+                      <FontAwesomeIcon icon={faStar} color={"var(--dark-accent-color"} size={"xs"}/>
+                      <FontAwesomeIcon icon={faStar} color={"var(--dark-accent-color"} size={"xs"}/>
+                      <FontAwesomeIcon icon={faStar} color={"var(--dark-accent-color"} size={"xs"}/>
+                      <FontAwesomeIcon icon={faStar} color={"var(--dark-accent-color"} size={"xs"}/>
+                      <FontAwesomeIcon icon={faStarHalf} color={"var(--dark-accent-color"} size={"xs"}/>
+                    </div>
+                    <p>Review content..</p>
                 </div>
               </div>
+              
             </div>
           </div>
         </div>
@@ -66,27 +77,6 @@ function Home() {
       </div> 
       
     </main>
-
-    // <div>
-    //   <h1>Enter Book ISBN</h1>
-    //   <input 
-    //     type="text" 
-    //     value={isbn} 
-    //     onChange={(e) => setIsbn(e.target.value)} 
-    //     placeholder="Enter ISBN"
-    //   />
-    //   <button onClick={handleSubmit}>Get Book Info</button>
-
-    //   {bookData && (
-    //     <div>
-    //       {bookData.error ? (
-    //         <p style={{ color: "red" }}>{bookData.error}</p>
-    //       ) : (
-    //         <p>Title: {bookData.title}, Author: {bookData.author}</p>
-    //       )}
-    //     </div>
-    //   )}
-    // </div>
   );
 }
 
