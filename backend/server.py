@@ -208,7 +208,7 @@ def remove_review(review_id):
 #       load times, but gets the job done for now
 # GET all reviews associated with a book
 @app.route("/reviews/get/<string:olid>", methods=["GET"])
-def return_view_data(olid):
+def return_review_data(olid):
     """ Returns the book's reviews as a JSON object. """
     conn = db_connect()
     query = """
