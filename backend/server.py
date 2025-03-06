@@ -151,11 +151,11 @@ def add_review(user_id):
         return jsonify({"error":f"user {user_id} not found, not updating reviews"}), 400 #BAD REQUEST
     
     r_metadata = request.json
-    book_id = r_metadata.get("olid") #NOTE: Connor changed to olid (previously book_id)
+    olid = r_metadata.get("olid") #NOTE: Connor changed to olid (previously book_id)
     rating = r_metadata.get("rating")
     text = r_metadata.get("review_text")
 
-    if not book_id or not rating or not text:
+    if not olid or not rating or not text:
         conn.close()
         return jsonify({"error": "olid, rating, or text is bad"}), 400 #BAD REQUEST
     
@@ -164,8 +164,8 @@ def add_review(user_id):
         return jsonify({"error": "rating is out of 1-5 range"}), 412 #PRECONDITION FAILED
     
     try:
-        query = "INSERT INTO reviews (user_id, book_id, rating, review_text) VALUES (?, ?, ?, ?)"
-        cursor.execute(query, (user_id, book_id, rating, text))
+        query = "INSERT INTO reviews (user_id, olid, rating, review_text) VALUES (?, ?, ?, ?)"
+        cursor.execute(query, (user_id, olid, rating, text))
         conn.commit()
     except sqlite3.Error as error:
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
