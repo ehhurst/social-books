@@ -12,7 +12,7 @@ function SearchBar() {
         e.preventDefault();
         if (searchTerm.trim() === "")  return; // Don't navigate if search term is empty
 
-        navigate(`/books?search=${encodeURIComponent(searchTerm)}`);
+        navigate(`/books?search=${encodeURIComponent(searchTerm)}&limit=9`);
     };
 
         return(
