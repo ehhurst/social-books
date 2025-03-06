@@ -58,17 +58,13 @@ div#example-review-container-background{
     background-color: var(--main-color);
     border-radius: 8px;
     padding: 1.5%;
-    
-
 }
+
 div#example-review-container {
     background-color: var(--light-primary-color);
     border-radius: 8px;
     height: max-content;
 }
-
-
-
 
 
 /*Call to action styling */
