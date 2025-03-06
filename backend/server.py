@@ -152,7 +152,7 @@ def add_review(user_id):
     
     r_metadata = request.json
     olid = r_metadata.get("olid") #NOTE: Connor changed to olid (previously book_id)
-    rating = r_metadata.get("rating")
+    rating = r_metadata.get("star_rating")
     text = r_metadata.get("review_text")
 
     if not olid or not rating or not text:
@@ -164,7 +164,7 @@ def add_review(user_id):
         return jsonify({"error": "rating is out of 1-5 range"}), 412 #PRECONDITION FAILED
     
     try:
-        query = "INSERT INTO reviews (user_id, olid, rating, review_text) VALUES (?, ?, ?, ?)"
+        query = "INSERT INTO reviews (username, olid, star_rating, review_text) VALUES (?, ?, ?, ?)"
         cursor.execute(query, (user_id, olid, rating, text))
         conn.commit()
     except sqlite3.Error as error:
@@ -200,7 +200,7 @@ def remove_review(review_id):
 # NOTE: Returning "all" reviews probably isn't a great idea for
 #       load times, but gets the job done for now
 # GET all reviews associated with a book
-@app.route("/books/get/<string:olid>", methods=["GET"])
+@app.route("/reviews/get/<string:olid>", methods=["GET"])
 def return_user_data(olid):
     """ Returns the book's reviews as a JSON object. """
     conn = db_connect()
