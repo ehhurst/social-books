@@ -135,6 +135,7 @@ def delete_user(username):
     return jsonify({"message": f"user {username} deleted successfully"}), 200 #OK
 
 
+# NOTE: doesn't look like review IDs are being generated. don't see them being inserted
 @app.route("/users/<string:user_id>/reviews/add", methods=["POST"])
 def add_review(user_id):
     """ Adds a review. Content of the review needs to be in the POST query.
@@ -142,7 +143,7 @@ def add_review(user_id):
     conn = db_connect()
     cursor = conn.cursor()
 
-    find_user_query = "SELECT profile_id FROM reader_profiles WHERE profile_id = ?"
+    find_user_query = "SELECT username FROM reader_profiles WHERE username = ?" # replaced profile_id with uesrname
     reviewer = cursor.execute(find_user_query, (user_id,))
 
     if not reviewer:
@@ -150,13 +151,13 @@ def add_review(user_id):
         return jsonify({"error":f"user {user_id} not found, not updating reviews"}), 400 #BAD REQUEST
     
     r_metadata = request.json
-    book_id = r_metadata.get("book_id")
+    book_id = r_metadata.get("olid") #NOTE: Connor changed to olid (previously book_id)
     rating = r_metadata.get("rating")
     text = r_metadata.get("review_text")
 
     if not book_id or not rating or not text:
         conn.close()
-        return jsonify({"error": "Book_id, rating, or text is bad"}), 400 #BAD REQUEST
+        return jsonify({"error": "olid, rating, or text is bad"}), 400 #BAD REQUEST
     
     if not (1 <= rating <= 5):
         conn.close()
