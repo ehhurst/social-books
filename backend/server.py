@@ -68,9 +68,9 @@ def return_user_data(username):
     conn = db_connect()
     query = """
         SELECT * FROM reader_profiles
-        NATURAL JOIN shelved_books
-        NATURAL JOIN reviews
-        WHERE username = ?
+        LEFT OUTER JOIN shelved_books
+        LEFT OUTER JOIN reviews
+        WHERE reader_profiles.username = ?
     """
     # executes this query, fetches one user
     user = conn.execute(query, (username,)).fetchone()
@@ -114,6 +114,7 @@ def delete_user(username):
     """ Removes a user from the database """
     conn = db_connect()
     cursor = conn.cursor()
+
 
     if not username:
         return jsonify({"error": "no username given for deletion"}), 400 #BAD_REQUEST
