@@ -39,6 +39,7 @@ div#description-review-container {
     display: flex;
     justify-content: space-evenly;
     align-items: center;
+    padding: 3% 0 1% 0;
 }
 
 div#site-description-container {
@@ -57,14 +58,73 @@ div#site-description-container h3 {
 div#example-review-container-background{
     background-color: var(--main-color);
     border-radius: 8px;
-    padding: 1.5%;
+    padding: 1.25%;
 }
 
 div#example-review-container {
     background-color: var(--light-primary-color);
+    padding: 1em;
     border-radius: 8px;
+    display: grid;
+    grid-template-columns: 0.75fr 1.25fr;
+    align-items: center;
     height: max-content;
 }
+
+
+div#book-image-container {
+    background-color: #82958453;
+    border-radius: 8px;
+    width: 80%;
+    height: 120%;
+    justify-content: center;;
+}
+
+div#example-review-container h3 {
+    color: var(--main-color);
+    font-size: 1em;
+}
+div#example-review-container h4 {
+    color: var(--light-accent-color);
+    font-size: 0.75em;
+    display: inline;
+}
+
+div#review-info {
+    padding-left: 0.5em;
+}
+
+
+div#review-info p {
+    color: var(--secondary-font-color);
+    padding-bottom: 0.5em;
+    font-size: 0.75em;
+}
+
+div#review-content {
+    width: 100%;
+    border-top-style: solid;
+    border-width: thin;
+    margin: 0.25em 0 0 0;
+    padding: 0.25em 0 0 0;
+    border-color: grey;
+
+
+    display: inline;
+    float: left;
+}
+
+h5#username{
+    padding: 0.25em 0.5em 0 0;
+    color: var(--light-accent-color);
+    font-size: 0.75em;
+    margin: 0;
+    width: max-content;
+    float: left;
+    
+}
+
+
 
 
 /*Call to action styling */
