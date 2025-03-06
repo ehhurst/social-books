@@ -194,5 +194,29 @@ def remove_review(review_id):
 
     return jsonify({"message": f"user {review_id} deleted successfully"}), 200 #OK
 
+
+# NOTE: Connor addition
+# NOTE: Returning "all" reviews probably isn't a great idea for
+#       load times, but gets the job done for now
+# GET all reviews associated with a book
+@app.route("/books/get/<string:olid>", methods=["GET"])
+def return_user_data(olid):
+    """ Returns the book's reviews as a JSON object. """
+    conn = db_connect()
+    query = """
+        SELECT * FROM reviews
+        WHERE reviews.olid = ?
+    """
+    # executes this query, fetches one user
+    reviews = conn.execute(query, (olid,)).fetchone()
+    conn.close()
+
+    # Return the book review info as a json dictionary, should return whole tuple info
+    if reviews:
+        return jsonify(dict(reviews))
+    else:
+        return jsonify({"error": f"user {olid} not found"}), 404 #NOT FOUND
+ 
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
