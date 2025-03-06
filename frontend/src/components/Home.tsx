@@ -1,42 +1,82 @@
-import { useState } from "react";
-import axios from "axios";
+import { faBookOpen } from "@fortawesome/free-solid-svg-icons/faBookOpen";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useNavigate } from "react-router-dom";
+import '../assets/css/global.css'
+import '../assets/css/Home.css'
+import { faStar, faStarHalf } from "@fortawesome/free-solid-svg-icons";
+
+
 
 function Home() {
-  const [isbn, setIsbn] = useState("");
-  const [bookData, setBookData] = useState<{ title?: string; author?: string; error?: string } | null>(null);
+  const nav = useNavigate();
+  // const [isbn, setIsbn] = useState("");
+  // const [bookData, setBookData] = useState<{ title?: string; author?: string; error?: string } | null>(null);
 
-  const handleSubmit = async () => {
-    try {
-      const response = await axios.post("http://127.0.0.1:5000/parse", {
-        [isbn]: { title: "Sample Title", author: "Sample Author" }  // Simulating book data
-      });
-      setBookData(response.data);
-    } catch (error) {
-      setBookData({ error: "Failed to fetch book details" });
-    }
-  };
+  // const handleSubmit = async () => {
+  //   try {
+  //     const response = await axios.post("http://127.0.0.1:5000/parse", {
+  //       [isbn]: { title: "Sample Title", author: "Sample Author" }  // Simulating book data
+  //     });
+  //     setBookData(response.data);
+  //   } catch (error) {
+  //     setBookData({ error: "Failed to fetch book details" });
+  //   }
+  // };
 
   return (
-    <div>
-      <h1>Enter Book ISBN</h1>
-      <input 
-        type="text" 
-        value={isbn} 
-        onChange={(e) => setIsbn(e.target.value)} 
-        placeholder="Enter ISBN"
-      />
-      <button onClick={handleSubmit}>Get Book Info</button>
+    <main>
+      <div id="home-container-top">
+        <div id='hero-image-container'>
 
-      {bookData && (
-        <div>
-          {bookData.error ? (
-            <p style={{ color: "red" }}>{bookData.error}</p>
-          ) : (
-            <p>Title: {bookData.title}, Author: {bookData.author}</p>
-          )}
+          <h1>Welcome to ShelfLife</h1>
+          <h2>Connect through your reading journey</h2>
         </div>
-      )}
-    </div>
+      </div>
+        
+      <div id='home-container-bottom'>
+
+        <div id="description-review-container">
+          <div id='site-description-container'>
+            <h3><FontAwesomeIcon icon={faBookOpen}/> ShelfLife</h3>
+            <p> is...Site description paragraph goes here</p>
+          </div>
+          <div id="example-review-container-background">
+            <div id="example-review-container">
+              <div id="book-image-container">
+                <img src="https://covers.openlibrary.org/b/isbn/9780743273565-M.jpg" alt="Book cover" height={'85px'}/>
+              </div>
+              <div id="review-info">
+                <div>
+                  <h3>The Great Gatsby</h3>
+                  <p>by</p>
+                  <h4>F. Scott Fitzgerald</h4>
+                </div>
+                <div id="review-content">
+                  <h5 id="username">UserName</h5>
+                    <div id="star-rating">
+                      <FontAwesomeIcon icon={faStar} color={"var(--dark-accent-color"} size={"xs"}/>
+                      <FontAwesomeIcon icon={faStar} color={"var(--dark-accent-color"} size={"xs"}/>
+                      <FontAwesomeIcon icon={faStar} color={"var(--dark-accent-color"} size={"xs"}/>
+                      <FontAwesomeIcon icon={faStar} color={"var(--dark-accent-color"} size={"xs"}/>
+                      <FontAwesomeIcon icon={faStarHalf} color={"var(--dark-accent-color"} size={"xs"}/>
+                    </div>
+                    <p>Review content..</p>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+        <div id="cta-buttons">
+          <p>Ready to get started?</p>
+          <div>
+            <button className='primary' onClick={() => nav("login")}>Sign In</button>
+            <button className='secondary' onClick={() => nav("register")}>Register</button>
+          </div>
+        </div>
+      </div> 
+      
+    </main>
   );
 }
 
