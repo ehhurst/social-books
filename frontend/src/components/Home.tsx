@@ -1,7 +1,9 @@
 import { faBookOpen } from "@fortawesome/free-solid-svg-icons/faBookOpen";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
+import '../assets/css/global.css'
 import '../assets/css/Home.css'
+
 
 
 function Home() {
@@ -31,14 +33,27 @@ function Home() {
       </div>
         
       <div id='home-container-bottom'>
-        <div>
+        <div id="description-review-container">
             <div id='site-description-container'>
             
             <h3><FontAwesomeIcon icon={faBookOpen}/> ShelfLife</h3>
             <p> is...Site description paragraph goes here</p>
           </div>
-          <div id="example-review-container">
-
+          <div id="example-review-container-background">
+            <div id="example-review-container">
+              <div id="book-image-container">
+                <img src="https://covers.openlibrary.org/b/isbn/9780743273565-M.jpg" alt="Book cover" width={"75px"}/>
+              </div>
+              <div>
+                <h3>The Great Gatsby</h3>
+                <h4>F. Scott Fitzgerald</h4>
+                <div id="review-content">
+                  <h4>UserName</h4>
+                  <p>Stars</p>
+                  <p>Review content..</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div id="cta-buttons">
