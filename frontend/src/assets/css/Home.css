@@ -1,0 +1,59 @@
+/*styles for the top of the home page*/
+div#home-container-top {
+    height: 30vh;
+    padding: 3%;
+}
+
+div#hero-image-container {
+    background-color: var(--light-primary-color);
+    float: top;
+    color: var(--secondary-font-color);
+    height: 30vh;
+    text-align-last: center;
+    align-content: center;
+}
+
+h1 {
+    font-size: 3.5em;
+}
+h2{
+    color: var(--light-accent-color);
+    padding-top: 1%;
+    font-weight: normal;
+}
+/* end styles for top of home page*/
+
+
+/*Styles for the bottom of the home page*/
+div#home-container-bottom {
+    background-color: var(--light-primary-color);
+    height: 40vh;
+    /*padding*/
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+div#site-description-container {
+    background-color: var(--dark-accent-color);
+    padding: 5%;
+    border-radius: 8px;
+    width: 100%;
+}
+div#site-description-container h3 {
+    font-size: 1.5em;
+
+}
+
+div#cta-buttons {
+    text-align: center;
+    padding-top: 5%;
+}
+
+div#cta-buttons p {
+    color: var(--secondary-font-color)
+
+}
+
+
