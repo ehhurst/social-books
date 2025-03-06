@@ -13,7 +13,7 @@ function CategoryBookBox(props:BookItem) {
         <div id="category-book-box">
                 <div id="book-image-container">
                     <Link id="image-link" to={`${props.title}`}>
-                        <img src={`https://covers.openlibrary.org/b/isbn/${props.work_ID}-M.jpg`} alt="Book cover image"/>
+                        <img src={props.img_M} alt="Book cover image"/>
                     </Link>
                 </div>
                 <div id="book-info-container">
@@ -23,7 +23,7 @@ function CategoryBookBox(props:BookItem) {
                         </Link>
                         <h4>by <Link id="author-link" to={`${props.author}`}>{props.author}</Link></h4>
                     </div>
-                    <p>{preview} ...<Link id="description-link" to={`${props.title}`}>See more</Link></p>
+                    <p>{preview} ...<Link id="description-link" to={`${props.description}`}>See more</Link></p>
                 </div>
         </div>
     );
