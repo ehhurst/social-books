@@ -43,7 +43,7 @@ function Home() {
           <div id="example-review-container-background">
             <div id="example-review-container">
               <div id="book-image-container">
-                <img src="https://covers.openlibrary.org/b/isbn/9780743273565-M.jpg" alt="Book cover" height={'85px'}/>
+                <img src="https://covers.openlibrary.org/b/isbn/9780743273565-M.jpg" alt="Book cover" height={'120px'}/>
               </div>
               <div id="review-info">
                 <div>
@@ -60,7 +60,7 @@ function Home() {
                       <FontAwesomeIcon icon={faStar} color={"var(--dark-accent-color"} size={"xs"}/>
                       <FontAwesomeIcon icon={faStarHalf} color={"var(--dark-accent-color"} size={"xs"}/>
                     </div>
-                    <p>Review content..</p>
+                    <p>One of the most influential novels of the last century, Fitzgerald's The Great Gatsby takes the mask off the Art Deco era's glamorous facade.</p>
                 </div>
               </div>
               
