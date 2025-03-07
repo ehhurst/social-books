@@ -16,8 +16,9 @@ function App() {
           <Route path="/" element={<Home/>}/>
           <Route path='/login' element={<Login/>}/>
           <Route path='/register' element={<Register/>}/>
-          <Route path='/books' element={<CategoryBookListPage/>}>
-            <Route path=':book_id' element={<BookDetailPage/>}/>
+          <Route path='/books' element={<CategoryBookListPage/>}/>
+          <Route path='/book' element={<BookDetailPage/>}>
+            <Route path=':work_id' element={<BookDetailPage/>}/>
             </Route>
           <Route path='/reader-profile' element={<ReaderProfilePage/>}/>
         </Routes>

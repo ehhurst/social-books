@@ -1,12 +1,12 @@
 header {
-    width: 100vw;
-    height: 6vh;
+    width: 97vw;
+    max-height: 6vh;
     background-color: #1e1e1e;
     border-bottom-style: solid;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 1.5em;
+    padding: 1em;
 }
 
 /* Logo styles */
@@ -27,37 +27,14 @@ header img {
 
  /* Navigation and buttons container */
 .header-content {  
+    width: 85%;
     display: flex;
     align-items: center;
-    gap:10px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap:0.5em;
 }
 
-/* Search bar styles */
-.search-bar {
-    flex-grow: 1;
-    max-width: 300px;
-    display: flex;
-    align-items: center;
-    /* background-color: white; */
-    border-radius: 4px;
-    padding: 5px;
-}
-
-.search-bar input {
-    width: 100%;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.search-bar button {
-    /* background-color: #007bff; */
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 5px 10px;
-    cursor: pointer;
-}
 button {
     width: 6em;
     height: 2.5em;

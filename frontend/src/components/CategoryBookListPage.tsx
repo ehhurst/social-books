@@ -24,7 +24,7 @@ function CategoryBookListPage() {
         const fetchBooks = async () => {
             try {
                 const queryParam = searchTerm ? `q=${searchTerm}` : `subject=${category || "fiction"}`;
-                const response = await axios.get(`http://127.0.0.1:5000/search?${queryParam}`, {
+                const response = await axios.get(`http://127.0.0.1:5000/search?${queryParam}&limit=9`, {
                     headers: { "Content-Type": "application/json" }
                 });
                 setBookList(response.data);
@@ -38,17 +38,6 @@ function CategoryBookListPage() {
 
         fetchBooks();
     }, [category, searchTerm]); // Re-fetch books when category or search term changes
-    
-    // useEffect(() => {
-    //     axios.get(`http://127.0.0.1:5000/search?subject=${category}`,           
-    //         {headers: {
-    //         "Content-Type": "application/json"
-    //     }
-    //   })
-    //     .then((response) => setBookList(response.data))
-    //     .catch(console.error)
-    //     }, [category]);
-
 
     return(
         <main>

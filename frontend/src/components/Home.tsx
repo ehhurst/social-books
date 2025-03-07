@@ -9,19 +9,6 @@ import { faStar, faStarHalf } from "@fortawesome/free-solid-svg-icons";
 
 function Home() {
   const nav = useNavigate();
-  // const [isbn, setIsbn] = useState("");
-  // const [bookData, setBookData] = useState<{ title?: string; author?: string; error?: string } | null>(null);
-
-  // const handleSubmit = async () => {
-  //   try {
-  //     const response = await axios.post("http://127.0.0.1:5000/parse", {
-  //       [isbn]: { title: "Sample Title", author: "Sample Author" }  // Simulating book data
-  //     });
-  //     setBookData(response.data);
-  //   } catch (error) {
-  //     setBookData({ error: "Failed to fetch book details" });
-  //   }
-  // };
 
   return (
     <main>
@@ -34,7 +21,6 @@ function Home() {
       </div>
         
       <div id='home-container-bottom'>
-
         <div id="description-review-container">
           <div id='site-description-container'>
             <h3><FontAwesomeIcon icon={faBookOpen}/> ShelfLife</h3>
@@ -43,7 +29,7 @@ function Home() {
           <div id="example-review-container-background">
             <div id="example-review-container">
               <div id="book-image-container">
-                <img src="https://covers.openlibrary.org/b/isbn/9780743273565-M.jpg" alt="Book cover" height={'85px'}/>
+                <img src="https://covers.openlibrary.org/b/isbn/9780743273565-M.jpg" alt="Book cover" height={'120px'}/>
               </div>
               <div id="review-info">
                 <div>
@@ -60,10 +46,9 @@ function Home() {
                       <FontAwesomeIcon icon={faStar} color={"var(--dark-accent-color"} size={"xs"}/>
                       <FontAwesomeIcon icon={faStarHalf} color={"var(--dark-accent-color"} size={"xs"}/>
                     </div>
-                    <p>Review content..</p>
+                    <p>One of the most influential novels of the last century, Fitzgerald's The Great Gatsby takes the mask off the Art Deco era's glamorous facade.</p>
                 </div>
               </div>
-              
             </div>
           </div>
         </div>

@@ -29,7 +29,7 @@ function Register() {
                 .catch((error) => {
                     console.log(error); 
                     setFormData("");
-                    setErrorMessage("The username you entered is not connected to an account. Please try again.")
+                    setErrorMessage("The username you entered is already connected to an account. Please try to sign in instead.")
                 });
         } 
     }
