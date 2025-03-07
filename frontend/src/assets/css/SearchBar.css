@@ -3,8 +3,6 @@ div#search-container {
     display: flex;
     align-items: center;
     padding-right: 1vw;
-
-
 }
 
 form#search-bar {
