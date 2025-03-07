@@ -1,4 +1,4 @@
-div#container {
+div#book-container {
     background-color: var(--light-primary-color);
     margin: 5%;
     border-radius: 8px;
@@ -7,37 +7,37 @@ div#container {
     padding: 1em;
 }
 
-div#book-description {
+div#book-info-container {
     padding: 1em;
 }
 
-div#book-image-container {
+div#book-image {
     background-color: var(--dark-accent-color);
     width: 40vw;
 
 }
-div#book-image-container img {
+div#book-image img {
     border-radius: 8px;
 }
 
-div#book-description h1 {
+div#book-info-container h1 {
     color: var(--main-color);
     font-size: 2em;
 }
 
-div#book-description h2 {
+div#book-info-container h2 {
     color: var(--light-accent-color);
     float: left;
 }
 
-div#book-description p {
+div#book-info-container p {
     color: var(--secondary-font-color);
     float: left;
 
 
 }
 
-div#book-description p#description {
+div#book-info-container p#description {
     border-top-width: thin;
     border-width: thin;
     border-top: grey;
@@ -47,7 +47,3 @@ div#book-description p#description {
     padding-top: 1em;
 }
 
-button.primary button.secondary {
-    
-    
-}

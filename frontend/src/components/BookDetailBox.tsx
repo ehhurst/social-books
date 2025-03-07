@@ -8,13 +8,13 @@ function BookDetailBox(props:BookItem) {
 
 
     return(
-    <div id="container">
-        <div id="book-image-container">
+    <div id="book-container">
+        <div id="book-image">
             <div>
                 <img src={`https://covers.openlibrary.org/b/id/6498519-M.jpg`} alt='Book Cover Image'/>
             </div>
         </div>
-        <div id="book-description">
+        <div id="book-info-container">
             <h1>{props.title}</h1>
             <p>by</p>
             <h2>{props.author}</h2>
