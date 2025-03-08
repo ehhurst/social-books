@@ -18,7 +18,7 @@ function Login() {
         if (formData === "") {setErrorMessage("Username is required. Please enter your username.")}
         else {
             setErrorMessage("") 
-            await axios.get(`http://127.0.0.1:5000/users/get/${formData}`, {
+            await axios.get(`http://34.238.53.95/api/users/get/${formData}`, {
                 headers: {
                             "Content-type": "application/json",
                         }

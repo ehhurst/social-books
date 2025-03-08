@@ -18,7 +18,7 @@ function Register() {
         if (formData === "") {setErrorMessage("Username is required. Please enter your username.")}
         else {
             setErrorMessage("") 
-            await axios.post(`http://127.0.0.1:5000/users/add/${formData}`)
+            await axios.post(`http://34.238.53.95/api/users/add/${formData}`)
 
                 .then((response) => {
                     console.log(response.data);

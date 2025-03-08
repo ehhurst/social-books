@@ -1,10 +1,10 @@
-import { Link, useNavigate } from 'react-router-dom';
+// import { Link, useNavigate } from 'react-router-dom';
 import '../assets/css/BookDetailBox.css'
 
 import { BookItem } from '../types';
 
 function BookDetailBox(props:BookItem) {
-    const nav = useNavigate();
+    // const nav = useNavigate();
 
 
     return(

@@ -24,7 +24,7 @@ function CategoryBookListPage() {
         const fetchBooks = async () => {
             try {
                 const queryParam = searchTerm ? `q=${searchTerm}` : `subject=${category || "fiction"}`;
-                const response = await axios.get(`http://127.0.0.1:5000/search?${queryParam}&limit=9`, {
+                const response = await axios.get(`http://34.238.53.95/api/search?${queryParam}&limit=9`, {
                     headers: { "Content-Type": "application/json" }
                 });
                 setBookList(response.data);

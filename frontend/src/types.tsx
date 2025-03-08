@@ -8,7 +8,7 @@ export interface BookItem {
     img_S : string;
     img_M : string,
     img_L: string,
-    reading_Time: number;
+    reading_Time?: number;
 }
 
 export interface Review {
