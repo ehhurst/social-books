@@ -107,7 +107,7 @@ def parse_books(data):
         book = {
             'title': title,
             'author': author,
-            'Work_ID': work_id,
+            'work_ID': work_id,
             'description': description,
             'img_S': img_S,
             'img_M': img_M,
