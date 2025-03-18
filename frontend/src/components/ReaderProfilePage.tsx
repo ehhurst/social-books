@@ -8,7 +8,7 @@ function ReaderProfilePage() {
 
 
     async function handleSubmit() {
-        await axios.delete(`http://34.238.53.95/api/users/delete/${username}`)
+        await axios.delete(`http://127.0.0.1:5000/users/delete/${username}`)
         .then((response) => {
             console.log(response.data)
         }).catch((error) => console.log(error))     
