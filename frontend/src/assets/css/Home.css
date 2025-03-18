@@ -1,0 +1,143 @@
+/*styles for the top of the home page*/
+div#home-container-top {
+    height: 30vh;
+    padding: 3%;
+}
+
+div#hero-image-container {
+    background-color: var(--light-primary-color);
+    float: top;
+    color: var(--secondary-font-color);
+    height: 30vh;
+    text-align-last: center;
+    align-content: center;
+}
+
+h1 {
+    font-size: 3.5em;
+}
+h2{
+    color: var(--light-accent-color);
+    padding-top: 1%;
+    font-weight: normal;
+}
+/* end styles for top of home page*/
+
+
+/*Styles for the bottom of the home page*/
+div#home-container-bottom {
+    background-color: var(--light-primary-color);
+    height: 40vh;
+    /*padding*/
+    display: flex;
+    flex-direction: column;
+    /* /* align-items: center; */
+    /* justify-content: center; */ 
+}
+
+div#description-review-container {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 2% 0 1% 0;
+}
+
+div#site-description-container {
+    background-color: var(--dark-accent-color);
+    padding: 2%;
+    border-radius: 8px;
+    width: max-content;
+    height:max-content;
+}
+
+div#site-description-container h3 {
+    font-size: 1.5em;
+}
+
+/*Example review styling*/
+div#example-review-container-background{
+    background-color: var(--main-color);
+    border-radius: 8px;
+    padding: 1.25%;
+}
+
+div#example-review-container {
+    background-color: var(--light-primary-color);
+    padding: 1em;
+    border-radius: 8px;
+    display: grid;
+    grid-template-columns: 0.6fr 1.4fr;
+    align-items: center;
+    max-width: 26vw;
+    height: max-content;
+
+    
+}
+
+
+div#book-image-container {
+    background-color: #82958453;
+    border-radius: 8px;
+    height: 120%;
+    max-width: 85%;
+    justify-content: center;;
+}
+
+div#example-review-container h3 {
+    color: var(--main-color);
+    font-size: 1em;
+}
+div#example-review-container h4 {
+    color: var(--light-accent-color);
+    font-size: 0.75em;
+    display: inline;
+}
+
+div#review-info {
+    padding-left: 0.5em;
+}
+
+
+div#review-info p {
+    color: var(--secondary-font-color);
+    padding-bottom: 0.5em;
+    font-size: 0.75em;
+}
+
+div#review-content {
+    width: 100%;
+    border-top-style: solid;
+    border-width: thin;
+    margin: 0.25em 0 0 0;
+    padding: 0.25em 0 0 0;
+    border-color: grey;
+
+
+    display: inline;
+    float: left;
+}
+
+h5#username{
+    padding: 0.25em 0.5em 0 0;
+    color: var(--light-accent-color);
+    font-size: 0.75em;
+    margin: 0;
+    width: max-content;
+    float: left;
+    
+}
+
+
+
+
+/*Call to action styling */
+div#cta-buttons {
+    text-align: center;
+    padding-top: 1%;
+}
+
+div#cta-buttons p {
+    color: var(--secondary-font-color)
+}
+
+
