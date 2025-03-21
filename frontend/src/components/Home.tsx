@@ -12,14 +12,10 @@ function Home() {
 
   return (
     <main>
-      <div id="home-container-top">
-        <div id='hero-image-container'>
-
-          <h1>Welcome to ShelfLife</h1>
-          <h2>Connect through your reading journey</h2>
-        </div>
+      <div id='home-container-top'>
+        <h1>Welcome to ShelfLife</h1>
+        <h2>Connect through your reading journey</h2>
       </div>
-        
       <div id='home-container-bottom'>
         <div id="description-review-container">
           <div id='site-description-container'>
@@ -34,7 +30,7 @@ function Home() {
               <div id="review-info">
                 <div>
                   <h3>The Great Gatsby</h3>
-                  <p>by</p>
+                  <p id='by'>by</p>
                   <h4>F. Scott Fitzgerald</h4>
                 </div>
                 <div id="review-content">
@@ -46,7 +42,7 @@ function Home() {
                       <FontAwesomeIcon icon={faStar} color={"var(--dark-accent-color"} size={"xs"}/>
                       <FontAwesomeIcon icon={faStarHalf} color={"var(--dark-accent-color"} size={"xs"}/>
                     </div>
-                    <p>One of the most influential novels of the last century, Fitzgerald's The Great Gatsby takes the mask off the Art Deco era's glamorous facade.</p>
+                    <p id='review-content'>One of the most influential novels of the last century, Fitzgerald's The Great Gatsby takes the mask off the Art Deco era's glamorous facade.</p>
                 </div>
               </div>
             </div>

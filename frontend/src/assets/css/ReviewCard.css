@@ -1,0 +1,38 @@
+div.container.review {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+}
+
+div#star-rating {
+    display: block;
+    float: right;
+}
+
+div#review-content-top h5 {
+    color: var(--light-accent-color);
+    margin: 0;
+    display: inline;
+    padding-left: 0.5em;
+}
+
+div#review-content-top {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 0.5em;
+}
+
+p#review-text {
+    width: 100%;
+    border-top-style: solid;
+    border-width: thin;
+    border-color:rgb(166, 166, 166); 
+    padding-top: 0.5em;
+    color: var(--secondary-font-color);
+    padding-bottom: 0.5em;
+    font-size: 0.75em;
+}
+
+
+
