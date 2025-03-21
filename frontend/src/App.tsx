@@ -5,22 +5,22 @@ import Home from "./components/Home"
 import Login from "./components/Login"
 import CategoryBookListPage from "./components/CategoryBookListPage"
 import Register from "./components/Register"
-import ReaderProfilePage from "./components/ReaderProfilePage"
 import BookDetailPage from "./components/BookDetailPage"
+import ReviewForm from "./components/ReviewForm"
+import ReaderProfilePage from "./components/ReaderProfilePage"
 
 function App() {
   return (
     <Router basename="">
       <AppHeader/>
         <Routes>
-          <Route path="/" element={<Home/>}/>
-          <Route path='/login' element={<Login/>}/>
-          <Route path='/register' element={<Register/>}/>
-          <Route path='/books' element={<CategoryBookListPage/>}/>
-          <Route path='/book' element={<BookDetailPage/>}>
-            <Route path=':work_id' element={<BookDetailPage/>}/>
-            </Route>
-          <Route path='/reader-profile' element={<ReaderProfilePage/>}/>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/books" element={<CategoryBookListPage />} />
+          <Route path="/book/:olid" element={<BookDetailPage />} />
+          <Route path="/reader-profile" element={<ReaderProfilePage />} />
+          <Route path="/review" element={<ReviewForm />} />
         </Routes>
       <AppFooter/>
     </Router>

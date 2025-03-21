@@ -1,10 +1,10 @@
-import { Link, useNavigate } from 'react-router-dom';
+// import { Link, useNavigate } from 'react-router-dom';
 import '../assets/css/BookDetailBox.css'
 
 import { BookItem } from '../types';
 
 function BookDetailBox(props:BookItem) {
-    const nav = useNavigate();
+    // const nav = useNavigate();
 
 
     return(
@@ -24,10 +24,12 @@ function BookDetailBox(props:BookItem) {
             <div id='stats-container'>
                 <table>
                     <tbody>
-                        <td>Average Rating</td>
-                        <td>4.5</td>
-                        <td>Estimated Read Time</td>
-                        <td>{props.reading_Time}</td>
+                        <tr>
+                            <td>Average Rating</td>
+                            <td>4.5</td>
+                            <td>Estimated Read Time</td>
+                            <td>{props.reading_Time}</td>
+                        </tr>
                     </tbody>
                 </table>
 

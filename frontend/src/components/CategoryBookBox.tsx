@@ -9,8 +9,10 @@ import { useEffect } from "react";
 function CategoryBookBox(props:BookItem) {
     const preview = props.description.slice(0, 150);
 
-    useEffect (() => console.log(props) )
-
+    useEffect(() => {
+        console.log("CategoryBookBox props:", props);
+      }, [props]);
+      
 
     return(
         <div id="category-book-box">
@@ -27,7 +29,7 @@ function CategoryBookBox(props:BookItem) {
                         </Link>
                         <h4>by <Link id="author-link" to={`${props.author}`}>{props.author}</Link></h4>
                     </div>
-                    <p>{preview} ...<Link id="description-link" to={`/book/${props.work_ID}$`}>See more</Link></p>
+                    <p>{preview} ...<Link id="description-link" to={`/book/${props.work_ID}`}>See more</Link></p>
                 </div>
         </div>
     );
