@@ -7,9 +7,7 @@ div#book-container {
     padding: 1em;
 }
 
-div#book-info-container {
-    padding: 1em;
-}
+
 
 div#book-image {
     background-color: var(--dark-accent-color);
@@ -33,7 +31,6 @@ div#book-info-container h2 {
 div#book-info-container p {
     color: var(--secondary-font-color);
     float: left;
-
 
 }
 
