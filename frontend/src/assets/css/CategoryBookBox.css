@@ -1,15 +1,15 @@
 div#category-book-box {
+    display: flex;
+
     background-color: #eaeee6d4;
     margin: 1em;
     padding: 1em;
-    float: left;
-    height: 10em;
+
+    height: min-content;
     width: 25%;
-    border-radius: 25px;
-    display: grid;
-    grid-template-columns: 0.75fr 1.25fr;
-    justify-items: center;
-    align-content: center;
+    border-radius: 8px;
+    /* display: grid;
+    grid-template-columns: 0.75fr 1.25fr; */
 }
 
 div#category-book-box > * {
@@ -21,29 +21,41 @@ a#author-link, a#description-link {
 }
 
 /* Book image and image container styles */
-div#book-image-container {
+div#book-cover-background {
     background-color: #82958453;
-    border-radius: 10px;
-    width: 90%;
+    border-radius: 8px;
+    height: 100%;
+    width: max-content;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
-a#image-link img {
-    width: 80%; 
-    border-radius: 10px;
+a#image-link {
+    padding: 0.75em;
 }
 
-h4 {
-    font-size: small;
-    margin: 0;
-    padding: .25em 0 1em 1em
+div#book-info-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-left: 1em;;
 }
 
 a#title-link h3 {
+    float: left;;
     font-size: medium;
     color: var(--main-color);
 }
+
+h4 {
+    font-weight: lighter;
+    clear: left;
+    font-size: small;
+    margin: 0;
+    padding: .25em 0 0.5em 2em;
+}
+
 
 div#book-info-container p {
     font-size: small;
@@ -51,7 +63,7 @@ div#book-info-container p {
     border-top-style: solid;
     border-width: thin;
     border-color: grey;
-    padding-top: 1em;
-    border-width: 70%;
+    padding-top: 0.5em;
+
 }
 

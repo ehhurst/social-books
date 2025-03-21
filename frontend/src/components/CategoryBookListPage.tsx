@@ -42,25 +42,20 @@ function CategoryBookListPage() {
     return(
         <main>
             <div id="page-header">
-            <h2>{searchTerm ? `Search results for "${searchTerm}"` : `${category || "Fiction"} Books`}</h2>
-                        </div>
+                <h2>{searchTerm ? `Search results for "${searchTerm}"` : `${category || "Fiction"} Books`}</h2>
+            </div>
 
                         {loading && <p>Loading books...</p>} {/* Show loading state */}
                         {error && <p style={{ color: "red" }}>{error}</p>} {/* Show error message */}    
-
-            {/* <ul id="book-list">
-                {bookList.map((book:BookItem) => 
-                    <CategoryBookBox title={book.title} author={book.author} work_ID={book.work_ID} img_S={book.img_S} img_M={book.img_M} img_L={book.img_L} description={book.description} reading_Time={book.reading_Time}/>)}
-            </ul> */}
 
             <ul id="book-list">
                 {bookList.length > 0 ? (
                     bookList.map((book: BookItem) => (
                         <CategoryBookBox
-                            key={book.work_ID}
+                            key={book.work_id}
                             title={book.title}
                             author={book.author}
-                            work_ID={book.work_ID}
+                            work_id={book.work_id}
                             img_S={book.img_S}
                             img_M={book.img_M}
                             img_L={book.img_L}
