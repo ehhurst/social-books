@@ -1,9 +1,11 @@
+import { faStar as filledStar} from "@fortawesome/free-solid-svg-icons";
+import { faStar as emptyStar } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const Star = ({filled} : {filled:boolean}) => {
     return(   
         <span>
-            {filled ? <FontAwesomeIcon icon={"star"} /> : <FontAwesomeIcon icon={'star'}/> }
+            {filled ? <FontAwesomeIcon icon={filledStar} /> : <FontAwesomeIcon icon={emptyStar}/> }
         </span>);
 };
 
