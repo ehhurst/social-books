@@ -11,6 +11,7 @@ import { getReviews } from '../hooks/fetch';
 import BookDetailCard from './BookDetailCard';
 
 function BookDetailPage() {
+    //sets OLID in local storage, add check if user is signed in or not for buttons below!!
     const book:BookItem = useLocation().state; // gets book data passed in url
     const navigate = useNavigate();
     // get list of reviews that have been written for this book

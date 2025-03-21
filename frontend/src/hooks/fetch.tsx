@@ -17,7 +17,7 @@ export function getBook(uri:string) {
         })
         .then((response) => setData(response.data))
         .catch((error) => {
-            console.error(error);
+            console.error("❌ Book Fetch Error:", error);
             setError("Error loading book data. Please try again later.");
         }).finally(() => setLoading(false))
     }, [uri]);
