@@ -84,8 +84,22 @@ button.secondary:hover {
     border: solid var(--light-accent-color);
 }
 
+div.container {
+    background-color: var(--light-primary-color);
+    color: var(--secondary-font-color);
+    border-radius: 8px;
+    padding: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 main {
     min-height: 78.3vh;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-around;
 }
 
 /* For large text sizes, you typically want to decrease your line height. */

@@ -3,7 +3,7 @@ import { JSX } from "react";
 export interface BookItem {
     title: string;
     author: string;
-    work_ID: string;
+    work_id: string;
     description: string;
     img_S : string;
     img_M : string,
@@ -12,12 +12,15 @@ export interface BookItem {
 }
 
 export interface Review {
-    reviewId: string;
+    review_id: string;
+    work_id: string;
     username: string;
     rating: number;
     reviewText: string;
     liked: boolean;
 }
+
+
 
 export const categories : string[] = [
     "Fiction", 

@@ -32,7 +32,7 @@ def fetch_books_from_api(query=None, title=None, author=None, subject=None, limi
     if subject:
         params['subject'] = subject
     params['limit'] = limit
-    params['sort'] = "new" # Sort by newest books
+    # params['sort'] = "new" # Sort by newest books
 
     try:
         response = requests.get(api_url, params=params)
@@ -107,7 +107,7 @@ def parse_books(data):
         book = {
             'title': title,
             'author': author,
-            'work_ID': work_id,
+            'work_id': work_id,
             'description': description,
             'img_S': img_S,
             'img_M': img_M,
