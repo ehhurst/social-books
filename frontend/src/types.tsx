@@ -11,6 +11,11 @@ export interface BookItem {
     reading_Time?: number;
 }
 
+export interface ReviewList {
+    avg_rating: string;
+    reviewList: Review[];
+}
+
 export interface Review {
     review_id: string;
     work_id: string;
