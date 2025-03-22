@@ -208,7 +208,7 @@ def return_review_data(work_ID):
     conn = db_connect()
     query = """
         SELECT * FROM reviews
-        WHERE reviews.work_ID = ?
+        WHERE reviews.work_id = ?
     """
     # executes this query, fetches all reviews
     reviews = conn.execute(query, (work_ID,))
