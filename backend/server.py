@@ -201,13 +201,13 @@ def remove_review(review_id):
     return jsonify({"message": f"user {review_id} deleted successfully"}), 200 #OK
 
 
-# GET all reviews associated with a book
+# GET all reviews associated with a book, plus the average score
 @app.route("/reviews/get/<string:work_ID>", methods=["GET"])
 def return_review_data(work_ID):
     """ Returns the book's reviews as a JSON object. """
     conn = db_connect()
     query = """
-        SELECT * FROM reviews
+        SELECT *, ROUND(AVG(star_rating), 1) FROM reviews
         WHERE reviews.work_id = ?
     """
     # executes this query, fetches all reviews
@@ -218,9 +218,29 @@ def return_review_data(work_ID):
     if reviews:
         return jsonify(dict(reviews))
     else:
-        return jsonify({"error": f"user {work_ID} not found"}), 404 #NOT FOUND
+        return jsonify({"error": f"book {work_ID} not found"}), 404 #NOT FOUND
+
+
+
+# GET all reviews associated with a user
+@app.route("/reviews/get/<string:username>", methods=["GET"])
+def return_user_review_data(username):
+    """ Returns the user's reviews as a JSON object. """
+    conn = db_connect()
+    query = """
+        SELECT * FROM reviews
+        WHERE reviews.username = ?
+    """
+    # executes this query, fetches all reviews
+    reviews = conn.execute(query, (username,))
+    conn.close()
+
+    # Return the book review info as a json dictionary, should return whole tuple info
+    if reviews:
+        return jsonify(dict(reviews))
+    else:
+        return jsonify({"error": f"user {username} not found"}), 404 #NOT FOUND
  
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
-
