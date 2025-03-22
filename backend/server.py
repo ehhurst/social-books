@@ -139,7 +139,6 @@ def delete_user(username):
     return jsonify({"message": f"user {username} deleted successfully"}), 200 #OK
 
 
-# TODO: Need to return review ID
 @app.route("/users/<string:user_id>/reviews/add", methods=["POST"])
 def add_review(user_id):
     """ Adds a review. Content of the review needs to be in the POST query.
@@ -158,6 +157,7 @@ def add_review(user_id):
     review_id = reviewSerial
     work_ID = r_metadata.get("work_ID")
     rating = r_metadata.get("star_rating")
+    liked = r_metadata.get("liked")
     text = r_metadata.get("review_text")
 
     if not work_ID or not rating or not text:
@@ -169,13 +169,14 @@ def add_review(user_id):
         return jsonify({"error": "rating is out of 1-5 range"}), 412 #PRECONDITION FAILED
     
     try:
-        query = "INSERT INTO reviews (review_id, username, work_ID, star_rating, review_text) VALUES (?, ?, ?, ?, ?)"
+        query = "INSERT INTO reviews (review_id, username, work_ID, star_rating, liked, review_text) VALUES (?, ?, ?, ?, ?, ?)"
         cursor.execute(query, (review_id, user_id, work_ID, rating, text))
         conn.commit()
     except sqlite3.Error as error:
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
     
     conn.close()
+    reviewSerial += 1
     return jsonify({"message": "Review added successfully", "user_id" : user_id, "review_id" : review_id, "work_ID" : work_ID}), 201 #CREATED
 
 
@@ -201,29 +202,38 @@ def remove_review(review_id):
     return jsonify({"message": f"user {review_id} deleted successfully"}), 200 #OK
 
 
-# GET all reviews associated with a book, plus the average score
+# GET all reviews associated with a book
 @app.route("/reviews/get/<string:work_ID>", methods=["GET"])
 def return_review_data(work_ID):
     """ Returns the book's reviews as a JSON object. """
     conn = db_connect()
     query = """
-        SELECT *, ROUND(AVG(star_rating), 1) FROM reviews
+        SELECT * FROM reviews
         WHERE reviews.work_id = ?
     """
     # executes this query, fetches all reviews
-    reviews = conn.execute(query, (work_ID,))
+    # reviews = conn.execute(query, (work_ID,)).fetchall()
+
+    # NOTE: Learned how to do the following 4 lines with ChatGPT prompt: "teach me how to create 
+    # a list of dictionaries, with each list corresponding to a sqlite row, and each 
+    # dictionary corresponding to a sqlite column name and its value in that row"
+    cursor = conn.execute(query, (work_ID,))
+    rows = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]
+    reviews = [dict(zip(columns, row)) for row in rows]
+    
     conn.close()
 
     # Return the book review info as a json dictionary, should return whole tuple info
     if reviews:
-        return jsonify(dict(reviews))
+        return jsonify(reviews)
     else:
         return jsonify({"error": f"book {work_ID} not found"}), 404 #NOT FOUND
 
 
 
 # GET all reviews associated with a user
-@app.route("/reviews/get/<string:username>", methods=["GET"])
+@app.route("/reviews/get/user/<string:username>", methods=["GET"])
 def return_user_review_data(username):
     """ Returns the user's reviews as a JSON object. """
     conn = db_connect()
@@ -231,13 +241,19 @@ def return_user_review_data(username):
         SELECT * FROM reviews
         WHERE reviews.username = ?
     """
-    # executes this query, fetches all reviews
-    reviews = conn.execute(query, (username,))
+    # NOTE: Learned how to do the following 4 lines with ChatGPT prompt: "teach me how to create 
+    # a list of dictionaries, with each list corresponding to a sqlite row, and each 
+    # dictionary corresponding to a sqlite column name and its value in that row"
+    cursor = conn.execute(query, (username,))
+    rows = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]
+    reviews = [dict(zip(columns, row)) for row in rows]
+
     conn.close()
 
     # Return the book review info as a json dictionary, should return whole tuple info
     if reviews:
-        return jsonify(dict(reviews))
+        return jsonify((reviews))
     else:
         return jsonify({"error": f"user {username} not found"}), 404 #NOT FOUND
  
