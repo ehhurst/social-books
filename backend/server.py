@@ -67,7 +67,7 @@ def db_connect():
 
 @app.route("/users/get/<string:username>", methods=["GET"])
 def return_user_data(username):
-    """ Returns the username as a json object. 
+    """ Returns all user info as a json object. 
     Not sure of the format here, might need more work. """
     conn = db_connect()
     query = """
@@ -210,8 +210,8 @@ def return_review_data(olid):
         SELECT * FROM reviews
         WHERE reviews.olid = ?
     """
-    # executes this query, fetches one user
-    reviews = conn.execute(query, (olid,)).fetchone()
+    # executes this query, fetches all reviews
+    reviews = conn.execute(query, (olid,))
     conn.close()
 
     # Return the book review info as a json dictionary, should return whole tuple info
