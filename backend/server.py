@@ -221,12 +221,24 @@ def return_review_data(work_ID):
     rows = cursor.fetchall()
     columns = [description[0] for description in cursor.description]
     reviews = [dict(zip(columns, row)) for row in rows]
-    
+
+    query2 = """
+        SELECT ROUND(AVG(star_rating), 1) FROM reviews
+        WHERE reviews.work_id = ?
+    """
+
+    cursor = conn.execute(query2, (work_ID,))
+    singleRow = cursor.fetchone()
+    columns2 = [description[0] for description in cursor.description]
+    avg = [dict(zip(columns2, singleRow)) for row in singleRow]
+
+    result = jsonify(avg + reviews)
+
     conn.close()
 
     # Return the book review info as a json dictionary, should return whole tuple info
     if reviews:
-        return jsonify(reviews)
+        return result
     else:
         return jsonify({"error": f"book {work_ID} not found"}), 404 #NOT FOUND
 
