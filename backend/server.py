@@ -282,5 +282,17 @@ def return_user_review_data(username):
         return jsonify({"error": f"user {username} not found"}), 404 #NOT FOUND
  
 
+
+# SQL for review update PUT
+# 
+# # newText should be an input to this function, as should review_id
+#
+# """
+# UPDATE reviews
+# SET reviews.review_text = '{newText}'
+# WHERE reviews.review_id = ?
+# """
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
