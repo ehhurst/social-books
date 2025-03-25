@@ -218,14 +218,16 @@ def remove_review(review_id):
 # GET all reviews associated with a book
 @app.route("/reviews/get/<string:work_ID>", methods=["GET"])
 def return_review_data(work_ID):
-    """ Returns the book's reviews as a JSON object. """
+    # check for valid work ID
+    if work_ID == '' or work_ID == "undefined":
+        return jsonify({"error": f"book {work_ID} not found or invalid"}), 404 #NOT FOUND
+
+    """ Returns the book's reviews and review score average as a JSON object. """
     conn = db_connect()
     query = """
         SELECT * FROM reviews
         WHERE reviews.work_id = ?
     """
-    # executes this query, fetches all reviews
-    # reviews = conn.execute(query, (work_ID,)).fetchall()
 
     # NOTE: Learned how to do the following 4 lines with ChatGPT prompt: "teach me how to create 
     # a list of dictionaries, with each list corresponding to a sqlite row, and each 
@@ -235,6 +237,11 @@ def return_review_data(work_ID):
     columns = [description[0] for description in cursor.description]
     reviews = [dict(zip(columns, row)) for row in rows]
 
+    # default return value for no reviews
+    if reviews == {}:
+        return ([dict(avg_rating=-1)] + [{}])
+
+    # Get average review score
     query2 = """
         SELECT ROUND(AVG(star_rating), 1) FROM reviews
         WHERE reviews.work_id = ?
@@ -242,19 +249,11 @@ def return_review_data(work_ID):
 
     cursor = conn.execute(query2, (work_ID,))
     singleRow = cursor.fetchone()
-    columns2 = [description[0] for description in cursor.description]
-    avg = [dict(zip(columns2, singleRow)) for row in singleRow]
-
+    avg = [dict(avg_rating=singleRow[0])]
     result = jsonify(avg + reviews)
-
     conn.close()
 
-    # Return the book review info as a json dictionary, should return whole tuple info
-    if reviews:
-        return result
-    else:
-        return jsonify({"error": f"book {work_ID} not found"}), 404 #NOT FOUND
-
+    return result
 
 
 # GET all reviews associated with a user
