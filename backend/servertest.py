@@ -8,9 +8,10 @@ class ReviewTestCase(unittest.TestCase):
     def setUp(self):
         self.app = app.test_client()  # Create a test client for the app
 
-    def test_get_reviews(self):
+    def test_get_book_reviews(self):
+        print("Test getting book's reviews")
         # Simulate a GET request to the route
-        response = self.app.get('/reviews/get/1337')
+        response = self.app.get('/books/1337/reviews')
 
         # Assert that the response is successful (HTTP 200)
         self.assertEqual(response.status_code, 200)
@@ -19,14 +20,26 @@ class ReviewTestCase(unittest.TestCase):
         data = response.get_json()
         print(data)
         self.assertTrue(len(data) > 0)  # Make sure there's data in the response
+        print("----------------------------------\n")
+
+    def test_get_empty_book_reviews(self):
+        print("Test getting empty book's reviews")
+        response = self.app.get('/books/9009/reviews')
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        print(data)
+        self.assertTrue(len(data) > 0)
+        print("----------------------------------\n")
 
     def test_get_user_reviews(self):    
-        response = self.app.get('/reviews/get/user/Jameson')
+        print("Test getting user's reviews")
+        response = self.app.get('/users/Jameson/reviews')
 
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
         print(data)
         self.assertTrue(len(data) > 0)
+        print("----------------------------------\n")
 
 
 if __name__ == '__main__':
