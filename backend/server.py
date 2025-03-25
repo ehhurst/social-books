@@ -216,7 +216,7 @@ def remove_review(review_id):
 
 
 # GET all reviews associated with a book
-@app.route("/reviews/get/<string:work_ID>", methods=["GET"])
+@app.route("books/<string:work_ID>/reviews", methods=["GET"])
 def return_review_data(work_ID):
     # check for valid work ID
     if work_ID == '' or work_ID == "undefined":
@@ -257,7 +257,7 @@ def return_review_data(work_ID):
 
 
 # GET all reviews associated with a user
-@app.route("/reviews/get/user/<string:username>", methods=["GET"])
+@app.route("users/<string:username>/reviews", methods=["GET"])
 def return_user_review_data(username):
     """ Returns the user's reviews as a JSON object. """
     conn = db_connect()
