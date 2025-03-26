@@ -32,7 +32,7 @@ def parse_book():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-@app.route('/books', methods=['GET'])
+@app.route('/book', methods=['GET'])
 def book():
     """
     Flask route to handle book get requests.
@@ -220,8 +220,6 @@ def remove_review(review_id):
 # GET all reviews associated with a book
 @app.route("/books/<string:work_ID>/reviews", methods=["GET"])
 def return_review_data(work_ID):
-    print('here')
-    print(work_ID)
     # check for valid work ID
     if work_ID == '' or work_ID == "undefined":
         return jsonify({"error": f"book {work_ID} not found or invalid"}), 404 #NOT FOUND
