@@ -277,10 +277,50 @@ def return_user_review_data(username):
 
     # Return the book review info as a json dictionary, should return whole tuple info
     if reviews:
-        return jsonify((reviews))
+        return jsonify(reviews)
     else:
         return jsonify({"error": f"user {username} not found"}), 404 #NOT FOUND
  
+
+
+# @app.route("/friends/<string:username>", methods=["GET"])
+# def add_friend(username):
+@app.route("/followers/<string:username>", methods=["GET"])
+def return_friends(username):
+    """ Return a user's followers. Returns empty list no followers """
+    conn = db_connect()
+    
+    usercheck = """
+        SELECT COUNT(username)
+        FROM reader_profiles
+        WHERE username = ?
+    """
+
+    # check if user exists
+    checkCursor = conn.execute(usercheck, (username,))
+    singleRow = checkCursor.fetchone()
+    count = int(singleRow[0])
+    if count == 0:
+        return jsonify({"error": f"user {username} does not exist"}), 404 # NOT FOUND
+    
+    query = """
+        SELECT follower_id FROM followers
+        WHERE followers.follows_id = ?
+    """
+
+    cursor = conn.execute(query, (username,))
+    rows = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]
+    friends = [dict(zip(columns, row)) for row in rows]
+
+    conn.close()
+
+    return jsonify(friends)
+
+
+
+
+
 
 
 # SQL for review update PUT

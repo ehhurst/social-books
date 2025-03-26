@@ -31,6 +31,15 @@ class ReviewTestCase(unittest.TestCase):
         self.assertTrue(len(data) > 0)
         print("----------------------------------\n")
 
+    def test_get_invalid_book_reviews(self):
+        print("Test getting invalid book's reviews")
+        response = self.app.get('/books/undefined/reviews')
+        self.assertEqual(response.status_code, 404)
+        data = response.get_json()
+        print(data)
+        self.assertTrue(len(data) > 0)
+        print("----------------------------------\n")
+
     def test_get_user_reviews(self):    
         print("Test getting user's reviews")
         response = self.app.get('/users/Jameson/reviews')
@@ -39,6 +48,43 @@ class ReviewTestCase(unittest.TestCase):
         data = response.get_json()
         print(data)
         self.assertTrue(len(data) > 0)
+        print("----------------------------------\n")
+
+
+
+
+    def test_has_followers(self):
+        print ("check JSON format for people with followers")
+        response = self.app.get('/followers/Philippe')
+
+        # 200 = good
+        self.assertEqual(response.status_code, 200)
+        data=response.get_json()
+        print(data)
+        self.assertTrue(len(data) > 0) # no friends
+        print("----------------------------------\n")
+
+
+    def test_followerless(self):
+        print ("check for empty list when return followerless users's friends")
+        response = self.app.get('/followers/Jameson')
+
+        # 200 = good
+        self.assertEqual(response.status_code, 200)
+        data=response.get_json()
+        print("folowerless empty: ")
+        print(data)
+        self.assertTrue(len(data) > 0) # no friends
+        print("----------------------------------\n")
+
+    def test_wrong_user_followers(self):
+        print ("test for error when checking followers of non-user")
+        response = self.app.get('/followers/McGillicudy')
+
+        self.assertEqual(response.status_code, 404)
+        data = response.get_json()
+        print(data)
+        self.assertTrue(len(data) > 0) # error message
         print("----------------------------------\n")
 
 
