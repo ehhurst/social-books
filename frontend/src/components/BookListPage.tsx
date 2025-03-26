@@ -1,18 +1,19 @@
 import { useParams, useSearchParams } from "react-router-dom";
 import {BookItem} from '../types'
-import CategoryBookBox from "./CategoryBookBox";
-import '../assets/css/CategoryBookListPage.css'
+import '../assets/css/BookListPage.css'
 import '../assets/css/global.css'
-import { useFetch } from "../utils/fetch";
+import { getBooks } from "../utils/fetch";
+import BookListCard from "./BookListCard";
 
 
-function BookListPage() {
+
+function BookListPage() { // not longer than 1000 characters
     const {category} = useParams(); // Fetch category dynamically from URL
     const [searchParams] = useSearchParams();   // Handle search query
     const searchTerm = searchParams.get("search") || "";
 
     const queryParam = searchTerm ? `q=${searchTerm}` : `subject=${category || "fiction"}`;
-    const {data, loading, error} = useFetch(`http://127.0.0.1:5000/search?${queryParam}&limit=9`);
+    const {data, loading, error} = getBooks(`http://127.0.0.1:5000/search?${queryParam}&limit=9`);
 
     return(
         <main>
@@ -26,7 +27,7 @@ function BookListPage() {
             <ul id="book-list">
                 {data.length > 0 ? (
                     data.map((book: BookItem) => (
-                        <CategoryBookBox
+                        <BookListCard
                             key={book.work_id}
                             title={book.title}
                             author={book.author}
