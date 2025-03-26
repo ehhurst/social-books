@@ -282,11 +282,42 @@ def return_user_review_data(username):
         return jsonify({"error": f"user {username} not found"}), 404 #NOT FOUND
  
 
+@app.route("/followers/<string:user_id>/", methods=["POST"])
+def add_review(follows):
+    """ Adds a follower. input to this fuction is the person to follow.
+    Follower is specified in the JSON
+    """
+    conn = db_connect()
+    cursor = conn.cursor()
 
-# @app.route("/friends/<string:username>", methods=["GET"])
-# def add_friend(username):
+    find_user_query = "SELECT username FROM reader_profiles WHERE username = ?"
+    reviewer = cursor.execute(find_user_query, (follows,))
+
+    if not follows:
+        conn.close()
+        return jsonify({"error":f"user {follows} not found, not updating followers"}), 400 #BAD REQUEST
+    
+    r_metadata = request.json
+    follower_id = r_metadata.get("follower_ID")
+
+    if not follower_id:
+        conn.close()
+        return jsonify({"error": "bad follower"}), 400 #BAD REQUEST
+        
+    try:
+        query = "INSERT INTO followers (follower_id, follows_id) VALUES (?, ?)"
+        cursor.execute(query, (follower_id, follows))
+        conn.commit()
+    except sqlite3.Error as error:
+        return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
+    
+    conn.close()
+    reviewSerial += 1
+    return jsonify({"message": "Follower added successfully", "follower" : follower_id, "follows" : follows}), 201 #CREATED
+
+
 @app.route("/followers/<string:username>", methods=["GET"])
-def return_friends(username):
+def return_followers(username):
     """ Return a user's followers. Returns empty list no followers """
     conn = db_connect()
     
@@ -310,12 +341,20 @@ def return_friends(username):
 
     cursor = conn.execute(query, (username,))
     rows = cursor.fetchall()
-    columns = [description[0] for description in cursor.description]
-    friends = [dict(zip(columns, row)) for row in rows]
+
+    # Next 5 lines written with help of ChatGPT prompt: 
+    # i want to create a list of dictionaries, where the dictionaries
+    # are enumerations of the values of the sqlite3 rows. 
+    # like 1, friendname
+    followers = [
+        {"follower_"+str(index + 1): row[0]}
+        for index, row in enumerate(rows)
+    ]
+    result = followers
 
     conn.close()
 
-    return jsonify(friends)
+    return jsonify(result)
 
 
 

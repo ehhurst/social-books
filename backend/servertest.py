@@ -67,14 +67,13 @@ class ReviewTestCase(unittest.TestCase):
 
     def test_followerless(self):
         print ("check for empty list when return followerless users's friends")
-        response = self.app.get('/followers/Jameson')
+        response = self.app.get('/followers/Connor')
 
         # 200 = good
         self.assertEqual(response.status_code, 200)
         data=response.get_json()
-        print("folowerless empty: ")
         print(data)
-        self.assertTrue(len(data) > 0) # no friends
+        self.assertTrue(len(data) == 0) # no friends
         print("----------------------------------\n")
 
     def test_wrong_user_followers(self):
