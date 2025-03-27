@@ -1,13 +1,12 @@
 import { faStar as filledStar} from "@fortawesome/free-solid-svg-icons";
 import { faStar as emptyStar } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { MouseEventHandler } from "react";
 
-const StarDynamic = ({filled, onClick} : {filled:boolean, onClick:MouseEventHandler}) => {
+const Star = ({filled} : {filled:boolean}) => {
     return(   
-        <span onClick={onClick}>
+        <span>
             {filled ? <FontAwesomeIcon icon={filledStar} /> : <FontAwesomeIcon icon={emptyStar}/> }
         </span>);
 };
 
-export default StarDynamic;
+export default Star;

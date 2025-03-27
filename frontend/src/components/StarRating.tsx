@@ -1,4 +1,4 @@
-import Star from "./StarStatic";
+import Star from "./Star";
 
 const StarRating = ({rating} :{rating: number}) => {
     const maxStars = 5;
