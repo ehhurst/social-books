@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { BookItem, Review } from "../types";
-import StarRating from "./StarStaticRating";
+import StarRating from "./StarRating";
 import '../assets/css/ReviewCard.css'
 import { faUserCircle } from "@fortawesome/free-solid-svg-icons";
 
