@@ -36,8 +36,7 @@ app.register_blueprint(auth, url_prefix="/auth")
 def home():
 	return jsonify({"message": "Flask API is running"}), 200
 
-## is this required anywhere? I think it was used for initial setup but no longer
-## called by frontend
+
 @app.route('/parse', methods=['POST'])
 def parse_book():
     try:
