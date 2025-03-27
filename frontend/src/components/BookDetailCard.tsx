@@ -7,13 +7,13 @@ import { useNavigate } from 'react-router-dom';
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 import CreateReview from './CreateReview';
+import { useState } from 'react';
 
 function BookDetailCard(props: {book:BookItem, avgRating:String}) {
     const nav = useNavigate();
 
-        <Popup trigger={<button className="button"> Open Modal </button>} modal>
-          <span> Modal content </span>
-        </Popup>
+    const [open, setOpen] = useState(false);
+    const closeModal = () => setOpen(false);
       
 
     return(
@@ -46,10 +46,11 @@ function BookDetailCard(props: {book:BookItem, avgRating:String}) {
             </div>
             <div id='cta-container'>
                 <button className='secondary'>Mark as Read</button>
-                <Popup trigger={<button className="primary"> + New Review </button>} modal>
+                <button type="button" className="primary" onClick={() => setOpen(o => !o)}>+ New Review</button>
+
+                <Popup open={open} closeOnDocumentClick onClose={closeModal} modal>
                     <div className="modal">
-                        <button className="close" onClick={close}><FontAwesomeIcon icon={faX}/></button>
-                    <span> <CreateReview 
+                    <span id='review-details'> <CreateReview 
                                 title={props.book.title} 
                                 author={props.book.author} 
                                 work_id={props.book.work_id} 
