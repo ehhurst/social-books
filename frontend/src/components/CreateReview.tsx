@@ -1,36 +1,55 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { BookItem, ReviewForm, ReviewStatus } from "../types";
-import { faThumbsUp, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faHeart, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import { ChangeEvent, FormEvent, useState } from "react";
 import axios from "axios";
-import Star from "./StarStatic";
-import StarDynamic from "./StarDynamic";
-import StarDynamicRating from "./StarDynamicReview";
-import Popup from "reactjs-popup";
+import { faStar as filledStar, faHeart as filledHeart} from "@fortawesome/free-solid-svg-icons";
+import { faStar as emptyStar, faHeart as emptyHeart} from "@fortawesome/free-regular-svg-icons";
+
+import '../assets/css/CreateReview.css'
+
 
 
 function CreateReview(props:BookItem) {
-    const nav = useNavigate();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({rating: -1, reviewText: '', liked: null});
 
-    const [rating, setRating] = useState(0);
-    const [hover, setHover] = useState(0);
+    const [rating, setRating] = useState(null);
+    const [ratingHover, setRatingHover] = useState(null);
+    const [liked, setLiked] = useState(false);
+    const [likedHover, setLikedHover] = useState(false);
+    const [reviewText, setReviewText] = useState('');
+    
 
-    const handleClick = (index) => {
-      setRating(index + 1);
-    };
+
+    function handleFormChange(event:ChangeEvent<HTMLInputElement|HTMLSelectElement>) {
+        const {name, value} = event.target
+        switch(name) {
+            case 'rating' : setFormData((prevFormData) => ({...prevFormData, [name]: parseInt(value)}));
+                break;
+            case 'reviewText' : setFormData((prevFormData) => ({...prevFormData, [name]: value}));
+                break;
+            case 'liked': setFormData((prevFormData) => ({...prevFormData, [name]: value}));
+                break;
+            default:
+                break;
+        }
+    }
+
 
     // client side form validation
     const[formError, setFormError] = useState("");
     const[formStatus, setFormStatus] = useState("");
 
-    function validateForm() {
-        if (formData.rating === -1 || formData.reviewText === "" || formData.liked === null) {
+    function validateForm():boolean {
+        if (rating === -1 || reviewText === "" || liked === null) {
             setFormError("Star rating, review text, and liked values are required to create a review. Please try agian.");
             return false; 
         }
-        else {return true;
+        else {
+            setFormError('');
+            return true;
         }
     }
 
@@ -49,7 +68,6 @@ function CreateReview(props:BookItem) {
 
     async function handleSubmit(event:FormEvent) {
         event.preventDefault();
-        console.log("Review form submitted");
         const formIsValid = validateForm();
         if (!formIsValid) {
             setFormStatus("ERROR");
@@ -57,14 +75,14 @@ function CreateReview(props:BookItem) {
         else {
             setFormStatus("PENDING");
             const review = await submitReview({
-                rating : formData.rating, 
-                reviewText : formData.reviewText, 
-                liked: formData.liked
+                rating : rating, 
+                reviewText : reviewText, 
+                liked: liked
             })
 
             if (review) {
                 setFormStatus("OK");
-                nav(`/books/${props.work_id}`) // include state??
+                navigate(`/books/${props.work_id}`, {state: props}) // include state??
             }
             else {
                 setFormStatus("ERROR POSTING REVIEW")
@@ -74,42 +92,104 @@ function CreateReview(props:BookItem) {
     }
 
     return(
-        <div>
-            <div id='book-cover-background'>
-                <img src={props.img_M} alt="Book cover image" height={'100px'}/>
-            </div>
-            <div id='review-content'>
-                <h3>My Review for {props.title}</h3>
-                <FontAwesomeIcon icon={faXmark} onClick={() => nav(-1)}/>
-                <form
-                    className=""
-                    onSubmit={() => handleSubmit}
-                    method="post">
-                        <div id='liked'>
-                            <FontAwesomeIcon icon={faThumbsUp}/>
-                        </div>
-                        <div className="star-rating">
-                            {/* {[...Array(5)].map((star, index) => {
-                                index += 1;
-                                return (
-                                <button
-                                    type="button"
-                                    key={index}
-                                    className={index <= (hover || rating) ? "on" : "off"}
-                                    onClick={() => setRating(index)}
-                                    onMouseEnter={() => setHover(index)}
-                                    onMouseLeave={() => setHover(rating)}
-                                >
-                                    <span className="star"><StarDynami></span>
-                                </button>
-                                ); */}
-                            {/* })} */}
+        <div id="new-review-card">
+                <div id='book-image-background'>
+                    <img src={props.img_M} alt="Book cover image" height={'170px'}/>
+                </div>
+                <div id='new-review-content'>
+                    <div id='title-container'>
+                        <h2>My Review for {props.title}</h2>
+                        <FontAwesomeIcon className="x" icon={faXmark} size={'lg'} onClick={() => navigate(0)}/>
+                    </div>
+                    
+                    <form
+                        className="review-form"
+                        onSubmit={() => handleSubmit}
+                        method="post">
+                            <div id='icon-input'>
+                            <div className="star-rating">
+                                <p>Rating: </p>
+                                {[...Array(5)].map((star, index) => {
+                                    const currentRating = index + 1;
+                                    return (
+                                        <label>
+                                            <input
+                                                type="radio"
+                                                name="rating"
+                                                value={currentRating}
+                                                onClick={() => setRating(currentRating)}
+                                            />
+                                            {currentRating <= (ratingHover || rating) ? 
+                                            <FontAwesomeIcon 
+                                            className="star"
+                                            icon={filledStar} 
+                                            size={'xl'}
+                                            color={"var(--dark-accent-color)"}
+                                            onMouseEnter={() => setRatingHover(currentRating)}
+                                            onMouseLeave={() => setRatingHover('')}/> 
+                                            : <FontAwesomeIcon 
+                                            className="star"
+                                            icon={emptyStar} 
+                                            size={'xl'}
+                                            color={"var(--dark-accent-color)"}
+                                            onMouseEnter={() => setRatingHover(currentRating)}
+                                            onMouseLeave={() => setRatingHover('')}/>}
+                                        </label>
+                                    );
+                                })}
+                                </div>
+                                {/* <div className="liked">
+                                <label>
+                                    <input
+                                        type="radio"
+                                        name="liked"
+                                        onClick={() => setLiked(!liked)}
+                                        />
+                                        <p>Liked: </p>
+                                        <FontAwesomeIcon className='heart' icon={faHeart}
+                                            size={"lg"}
+                                            color={(liked || likedHover) ? "var(--dark-accent-color))": "var(--light-accent-color)"}
+                                            onMouseEnter={() => setLikedHover(true)}
+                                            onMouseLeave={() => setLikedHover(false)}  
+                                            />
+                                </label>
+                            </div> */}
+                            <div className="liked">
+                                <p>Liked: </p>
+                                    <label>
+                                        <input
+                                            type="radio"
+                                            name="liked"
+                                            onClick={() => setLiked(!liked)}
+                                        />
+                                        {(liked || likedHover) ? 
+                                        <FontAwesomeIcon 
+                                            className="heart"
+                                            icon={filledHeart} 
+                                            size={'xl'}
+                                            color={"var(--dark-accent-color)"}
+                                            onMouseEnter={() => setLikedHover(true)}
+                                            onMouseLeave={() => setLikedHover(false)}/> 
+                                                : <FontAwesomeIcon 
+                                                className="heart"
+                                                icon={emptyHeart} 
+                                                size={'xl'}
+                                                color={"var(--dark-accent-color)"}
+                                                onMouseEnter={() => setLikedHover(true)}
+                                                onMouseLeave={() => setLikedHover(false)}/>}
+                                    </label>
+ 
                             </div>
-                        <textarea placeholder=""></textarea>
-                        <input type="submit" value="submit"/>
-                </form>
+                            </div>
+                            <textarea name='inputText' placeholder="" value={reviewText} onChange={(e) => setReviewText(e.target.value)}></textarea>
+                            <input type="submit" value="submit"/>
+                    </form>
+                </div>
+    
+
+
             </div>
-        </div>
+
     );
 };
 
