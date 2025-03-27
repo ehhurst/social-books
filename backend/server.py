@@ -166,7 +166,7 @@ def add_review(user_id):
 
     if not reviewer:
         conn.close()
-        return jsonify({"error":f"user {user_id} not found, not updating reviews"}), 400 #BAD REQUEST
+        return jsonify({"error":f"user {user_id} not found, not updating reviews"}), 400 #BAD REQUEST 
     
     r_metadata = request.json
     review_id = reviewSerial
@@ -174,6 +174,14 @@ def add_review(user_id):
     rating = r_metadata.get("star_rating")
     liked = r_metadata.get("liked")
     text = r_metadata.get("review_text")
+    
+    from profanity_filter import is_profane
+        
+    profanity_list = is_profane(text)
+    
+    if profanity_list:
+        conn.close()
+        return jsonify({"error": f"Profanity detected in review: {profanity_list}"}), 412
 
     if not work_ID or not rating or not text:
         conn.close()
@@ -284,10 +292,89 @@ def return_user_review_data(username):
 
     # Return the book review info as a json dictionary, should return whole tuple info
     if reviews:
-        return jsonify((reviews))
+        return jsonify(reviews)
     else:
         return jsonify({"error": f"user {username} not found"}), 404 #NOT FOUND
  
+
+@app.route("/followers/<string:user_id>/", methods=["POST"])
+def add_review(follows):
+    """ Adds a follower. input to this fuction is the person to follow.
+    Follower is specified in the JSON
+    """
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    find_user_query = "SELECT username FROM reader_profiles WHERE username = ?"
+    reviewer = cursor.execute(find_user_query, (follows,))
+
+    if not follows:
+        conn.close()
+        return jsonify({"error":f"user {follows} not found, not updating followers"}), 400 #BAD REQUEST
+    
+    r_metadata = request.json
+    follower_id = r_metadata.get("follower_ID")
+
+    if not follower_id:
+        conn.close()
+        return jsonify({"error": "bad follower"}), 400 #BAD REQUEST
+        
+    try:
+        query = "INSERT INTO followers (follower_id, follows_id) VALUES (?, ?)"
+        cursor.execute(query, (follower_id, follows))
+        conn.commit()
+    except sqlite3.Error as error:
+        return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
+    
+    conn.close()
+    reviewSerial += 1
+    return jsonify({"message": "Follower added successfully", "follower" : follower_id, "follows" : follows}), 201 #CREATED
+
+
+@app.route("/followers/<string:username>", methods=["GET"])
+def return_followers(username):
+    """ Return a user's followers. Returns empty list no followers """
+    conn = db_connect()
+    
+    usercheck = """
+        SELECT COUNT(username)
+        FROM reader_profiles
+        WHERE username = ?
+    """
+
+    # check if user exists
+    checkCursor = conn.execute(usercheck, (username,))
+    singleRow = checkCursor.fetchone()
+    count = int(singleRow[0])
+    if count == 0:
+        return jsonify({"error": f"user {username} does not exist"}), 404 # NOT FOUND
+    
+    query = """
+        SELECT follower_id FROM followers
+        WHERE followers.follows_id = ?
+    """
+
+    cursor = conn.execute(query, (username,))
+    rows = cursor.fetchall()
+
+    # Next 5 lines written with help of ChatGPT prompt: 
+    # i want to create a list of dictionaries, where the dictionaries
+    # are enumerations of the values of the sqlite3 rows. 
+    # like 1, friendname
+    followers = [
+        {"follower_"+str(index + 1): row[0]}
+        for index, row in enumerate(rows)
+    ]
+    result = followers
+
+    conn.close()
+
+    return jsonify(result)
+
+
+
+
+
 
 
 # SQL for review update PUT
