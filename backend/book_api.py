@@ -104,3 +104,39 @@ def fetch_books_from_api(query=None, title=None, author=None, subject=None, limi
         return parse_books(response.json())
     except requests.exceptions.RequestException as e:
         return {'error': str(e)}
+
+# Written by Ben
+def parse_number_of_pages(work_id):
+    """
+    Parse the number of pages of a book from the API based on the Work ID.
+    
+    Args:
+        work_id (str): The Work ID of the book.
+    
+    Returns:
+        int: The number of pages of the book. -> make an integer for calculations
+    """
+    api_work_url = f'https://openlibrary.org/works/{work_id}.json'
+    try:
+        work_response = requests.get(api_work_url)
+        work_response.raise_for_status()  # Raises an HTTPError for bad responses
+        work_data = work_response.json()
+        number_of_pages = work_data.get('number_of_pages')
+        return int(number_of_pages)
+    except requests.exceptions.RequestException as e:
+        return f'Error fetching number_of_pages: {str(e)}'
+
+# Written by Ben
+def calculate_read_time(work_id,speed):
+    """
+    Calculate an estimate of the time a reader will need to read a book.
+
+    Args: work_id (str): The Work ID of the book.
+          speed: The speed of the reader, in pages per hour
+
+    Returns:
+        float: The number of hours needed to read the book
+    """
+    pages = parse_number_of_pages(work_id)
+    read_time = float(pages)/float(speed)
+    return read_time
