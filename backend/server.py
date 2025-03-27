@@ -164,7 +164,7 @@ def add_review(user_id):
 
     if not reviewer:
         conn.close()
-        return jsonify({"error":f"user {user_id} not found, not updating reviews"}), 400 #BAD REQUEST
+        return jsonify({"error":f"user {user_id} not found, not updating reviews"}), 400 #BAD REQUEST 
     
     r_metadata = request.json
     review_id = reviewSerial
@@ -172,6 +172,14 @@ def add_review(user_id):
     rating = r_metadata.get("star_rating")
     liked = r_metadata.get("liked")
     text = r_metadata.get("review_text")
+    
+    from profanity_filter import is_profane
+        
+    profanity_list = is_profane(text)
+    
+    if profanity_list:
+        conn.close()
+        return jsonify({"error": f"Profanity detected in review: {profanity_list}"}), 412
 
     if not work_ID or not rating or not text:
         conn.close()
