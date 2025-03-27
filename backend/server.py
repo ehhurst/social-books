@@ -200,6 +200,52 @@ def add_review(user_id):
     reviewSerial += 1
     return jsonify({"message": "Review added successfully", "user_id" : user_id, "review_id" : review_id, "work_ID" : work_ID}), 201 #CREATED
 
+@app.route("/users/<string:user_id>/reviews/add", methods=["PUT"])
+def update_review(user_id, review_id):
+    """ Edits a review. Content of the review needs to be in the PUT query.
+     So far this only updates the reviews table. Maybe update other tables? Probably not. """
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    find_user_query = "SELECT username FROM reader_profiles WHERE username = ?"
+    reviewer = cursor.execute(find_user_query, (user_id,))
+
+    if not reviewer:
+        conn.close()
+        return jsonify({"error":f"user {user_id} not found, not updating reviews"}), 400 #BAD REQUEST 
+    
+    r_metadata = request.json
+    work_ID = r_metadata.get("work_ID")
+    rating = r_metadata.get("star_rating")
+    liked = r_metadata.get("liked")
+    text = r_metadata.get("review_text")
+    
+    from profanity_filter import is_profane
+        
+    profanity_list = is_profane(text)
+    
+    if profanity_list:
+        conn.close()
+        return jsonify({"error": f"Profanity detected in review: {profanity_list}"}), 412
+
+    if not work_ID or not rating or not text:
+        conn.close()
+        return jsonify({"error": "work_ID, rating, or text is bad"}), 400 #BAD REQUEST
+    
+    if not (1 <= rating <= 5):
+        conn.close()
+        return jsonify({"error": "rating is out of 1-5 range"}), 412 #PRECONDITION FAILED
+    
+    try:
+        query = f"UPDATE reviews (username, work_ID, star_rating, liked, review_text) SET (?, ?, ?, ?, ?) WHERE review_id = {review_id}"
+        cursor.execute(query, (review_id, user_id, work_ID, rating, text))
+        conn.commit()
+    except sqlite3.Error as error:
+        return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
+    
+    conn.close()
+    return jsonify({"message": "Review edited successfully", "user_id" : user_id, "review_id" : review_id, "work_ID" : work_ID}), 201 #CREATE
+
 
 @app.route("/users/<string:review_id>/reviews/delete", methods=["DELETE"])
 def remove_review(review_id):
