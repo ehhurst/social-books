@@ -130,7 +130,7 @@ def parse_number_of_pages(work_id):
         return f'Error fetching number_of_pages: {str(e)}'
 
 # Written by Ben
-def calculate_read_time(work_id,speed):
+def calculate_read_time(work_id):
     """
     Calculate an estimate of the time a reader will need to read a book.
 
@@ -141,5 +141,5 @@ def calculate_read_time(work_id,speed):
         float: The number of hours needed to read the book
     """
     pages = parse_number_of_pages(work_id)
-    read_time = float(pages)/float(speed)
+    read_time = float(pages)/45 # reading speed fo 45 pages per hour
     return read_time
