@@ -29,7 +29,7 @@
 },
 
 /* Include only necessary files */
-"include": ["src", "vite.config.ts"],
+"include": ["src", "vite.config.ts", "src/axiosConfig.tsx", "src/hooks/fetch.tsx",  "axiosConfig.tsx"],
 
 /* Exlude non_modules and build files */
 "exclude": ["node_modules", "dist", "src/**/*.js"]

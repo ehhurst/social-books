@@ -1,11 +1,9 @@
 import requests
 from flask import Flask, request, jsonify
-
-url = "https://openlibrary.org/search.json?q=test"
+# Adds app info  to request headers as required by OpenLibraryAPI
 headers = {
     "User-Agent": "ShelfLife/0.1 (connorb24@vt.edu)"
 }
-response = requests.get(url, headers=headers)
 
 def get_book(work_id):
     """
@@ -19,7 +17,8 @@ def get_book(work_id):
     """
     api_book_url = f'https://openlibrary.org/works/{work_id}.json'
     try:
-        book_response = requests.get(api_book_url)
+        print(headers)
+        book_response = requests.get(api_book_url, headers=headers)
         book_response.raise_for_status()  # Raises an HTTPError for bad responses
         book_data = book_response.json()
 
@@ -30,7 +29,7 @@ def get_book(work_id):
         if len(author_list) > 0:
             author_key = author_list[0]['author']['key'].split('/')[-1]
             author_url = f'https://openlibrary.org/authors/{author_key}.json'
-            author_response = requests.get(author_url)
+            author_response = requests.get(author_url, headers=headers)
             author_data = author_response.json()
             author = author_data.get('name', 'Unknown author')
 
@@ -50,14 +49,17 @@ def get_book(work_id):
             cover_url_M = f'https://covers.openlibrary.org/b/id/{cover_id}-M.jpg'
             cover_url_S = f'https://covers.openlibrary.org/b/id/{cover_id}-S.jpg'
 
+        read_time = calculate_read_time(work_id)
+
         book = {
             'title': title,
             'author': author,
-            'work_ID': work_id,
+            'work_id': work_id,
             'description': description,
             'img_S': cover_url_S,
             'img_M': cover_url_M,
             'img_L': cover_url_L,
+            'read_time': read_time,
         }
         return book
     except requests.exceptions.RequestException as e:
@@ -99,7 +101,7 @@ def fetch_books_from_api(query=None, title=None, author=None, subject=None, limi
     params['fields'] = 'key'
 
     try:
-        response = requests.get(api_url, params=params)
+        response = requests.get(api_url, params=params, headers=headers)
         response.raise_for_status()  # Raises an HTTPError for bad responses
         return parse_books(response.json())
     except requests.exceptions.RequestException as e:
@@ -127,7 +129,7 @@ def parse_number_of_pages(work_id):
         return f'Error fetching number_of_pages: {str(e)}'
 
 # Written by Ben
-def calculate_read_time(work_id,speed):
+def calculate_read_time(work_id):
     """
     Calculate an estimate of the time a reader will need to read a book.
 
@@ -138,5 +140,5 @@ def calculate_read_time(work_id,speed):
         float: The number of hours needed to read the book
     """
     pages = parse_number_of_pages(work_id)
-    read_time = float(pages)/float(speed)
+    read_time = float(pages)/45 # reading speed fo 45 pages per hour
     return read_time
