@@ -233,7 +233,7 @@ def add_review():
     
     try:
         query = "INSERT INTO reviews (username, work_ID, star_rating, liked, review_text) VALUES (?, ?, ?, ?, ?)"
-        cursor.execute(query, (current_user, work_ID, rating, text))
+        cursor.execute(query, (current_user, work_ID, rating, liked, text))
         conn.commit()
     except sqlite3.Error as error:
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
