@@ -87,7 +87,7 @@ def get_book(work_id):
             cover_url_M = f'https://covers.openlibrary.org/b/id/{cover_id}-M.jpg'
             cover_url_S = f'https://covers.openlibrary.org/b/id/{cover_id}-S.jpg'
 
-        read_time = calculate_read_time(work_id)
+        # read_time = calculate_read_time(work_id)
 
         book = {
             'title': title,
@@ -97,7 +97,7 @@ def get_book(work_id):
             'img_S': cover_url_S,
             'img_M': cover_url_M,
             'img_L': cover_url_L,
-            'read_time': read_time,
+            # 'read_time': read_time,
         }
         return book
     except requests.exceptions.RequestException as e:

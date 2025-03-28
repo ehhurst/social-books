@@ -200,6 +200,7 @@ def add_review():
 
     find_user_query = "SELECT username FROM reader_profiles WHERE username = ?" # replaced profile_id with uesrname
     reviewer = cursor.execute(find_user_query, (current_user,)).fetchone()
+    print("reviewer",  current_user) #correct
 
     if not reviewer:
         conn.close()
@@ -210,6 +211,8 @@ def add_review():
     rating = r_metadata.get("star_rating")
     liked = r_metadata.get("liked")
     text = r_metadata.get("review_text")
+
+    print(work_ID, rating, liked, text)
     
     from profanity_filter import is_profane
         
@@ -218,6 +221,7 @@ def add_review():
     if profanity_list:
         conn.close()
         return jsonify({"error": f"Profanity detected in review: {profanity_list}"}), 412
+    
 
     if not work_ID or not rating or not text:
         conn.close()
@@ -238,7 +242,7 @@ def add_review():
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
     
     conn.close()
-    return jsonify({"message": "Review added successfully", "user_id" : current_user, "review_id" : review_id, "work_ID" : work_ID}), 201 #CREATED
+    return jsonify({"message": "Review added successfully", "user_id" : current_user, "work_ID" : work_ID}), 201 #CREATED
 
 @app.route("/users/<string:user_id>/reviews/add", methods=["PUT"])
 def update_review(user_id, review_id):
@@ -294,7 +298,7 @@ def remove_review(review_id):
     cursor = conn.cursor()
 
     find_review_query = "SELECT review_id FROM reviews WHERE review_id = ?"
-    cursor.execute(find_review_query, (review_id))
+    cursor.execute(find_review_query, (review_id,))
     review = cursor.fetchone()
 
     if not review:
@@ -306,7 +310,7 @@ def remove_review(review_id):
     conn.commit()
     conn.close()
 
-    return jsonify({"message": f"user {review_id} deleted successfully"}), 200 #OK
+    return jsonify({"message": f"review {review_id} deleted successfully"}), 200 #OK
 
 
 # GET all reviews associated with a book
@@ -342,7 +346,7 @@ def return_review_data(work_ID):
         """
         cursor = conn.execute(query2, (work_ID,))
         singleRow = cursor.fetchone()
-        avg = [dict(avg_rating=singleRow[0])]
+        avg = (singleRow[0])
 
 
     reviews_data = {
@@ -372,6 +376,7 @@ def return_user_review_data(username):
     rows = cursor.fetchall()
     columns = [description[0] for description in cursor.description]
     reviews = [dict(zip(columns, row)) for row in rows]
+    print(reviews)
 
     conn.close()
 

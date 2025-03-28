@@ -5,18 +5,28 @@ import '../assets/css/ReviewCard.css'
 import { faPen, faTrash, faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import axios from "../../axiosConfig";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 // Displays posted reviews
 function ReviewCard(review:Review) {
     const nav = useNavigate();
     const user = localStorage.getItem("username");
+    const [message, setMessage] = useState('');
+    console.log(review.review_id);
 
     function handleDelete() {
+        setMessage('');
         axios.delete(`/users/${review.review_id}/reviews/delete`)
         .then((response) => {
             console.log(response.data)
-            nav("/"); // Redirect to homepage after account deletion
-            }).catch((error) => console.error(error))
+            setMessage(`Review number ${review.review_id} deleted successfully!`)
+            
+            }).catch((error) => {
+                console.error(error);
+                setMessage("Error deleting review. Please try again later");
+            }
+        ).finally(() => nav('/reader-profile', {state: message }) // Redirect to profile page
+        )
     }
 
     return( // ADD LIKED TODO
@@ -36,9 +46,12 @@ function ReviewCard(review:Review) {
             }
 
         </div>
-        <p id='review-text'>
+        <div>
+            <p id='review-text'>
             {review.reviewText}
-        </p>
+            </p>
+        </div>
+        
     </div>
     );
 }
