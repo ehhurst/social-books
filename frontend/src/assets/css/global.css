@@ -129,6 +129,10 @@ h3 {
 p {
     line-height: 1.5;
 }
+a.reviews-cta {
+    color: red;
+}
+
 
 @media (prefers-color-scheme: light) {
     :root {

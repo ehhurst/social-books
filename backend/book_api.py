@@ -6,8 +6,8 @@ headers = {
 }
 
 
-# #### Commented out because it does not work, called from parse books fx above (also commented out)
-# # Written by Ben
+#### Commented out because it does not work, called from parse books fx above (also commented out)
+# Written by Ben
 # def parse_number_of_pages(work_id):
 #     """
 #     Parse the number of pages of a book from the API based on the Work ID.

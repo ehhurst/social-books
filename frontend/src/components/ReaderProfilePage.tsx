@@ -1,5 +1,5 @@
 import axios from "../../axiosConfig";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -9,6 +9,7 @@ import { Review } from "../types";
 
 function ReaderProfilePage() {
   const nav = useNavigate();
+  const message:string = useLocation().state; // gets book data passed in url
   const username = localStorage.getItem("username");
   const [userData, setUserData] = useState();
 
@@ -22,7 +23,7 @@ function ReaderProfilePage() {
     )
 
     console.log(userData);
-  }, []);
+  }, [message, ]);
 
   
 
@@ -53,6 +54,9 @@ function ReaderProfilePage() {
         <h2>Welcome to your profile {username}!</h2>
         <div>
             <h3>My Reviews: </h3>
+            {(message != '') ? 
+              <div id='delete-msg'>{message}</div> : <div></div>}
+
             {loading && <p>Loading reviews...</p>} {/* Show loading state */}
             {error && <p style={{ color: "var(--error-color)" }}>{error}</p>} {/* Show error message */}  
             <ul id="review-list">
@@ -67,7 +71,7 @@ function ReaderProfilePage() {
                             liked={review.liked}
                         />
                     ))
-                ) : (!loading && !error && <p>No reviews yet. <Link to={'/books'}>Get started <FontAwesomeIcon icon={faArrowRight}/></Link></p>
+                ) : (!loading && !error && <p>No reviews yet. <Link id='reviews-cta' to={'/books'}>Get started <FontAwesomeIcon icon={faArrowRight}/></Link></p>
                                     )}
             </ul>
         </div>
