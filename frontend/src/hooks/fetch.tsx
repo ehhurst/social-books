@@ -3,7 +3,6 @@ import { BookItem, Reviews } from "../types";
 import axios from "../../axiosConfig"
 
 export function getBook(uri:string) {
-    console.log(axios.getUri.toString);
     const [data, setData] = useState<BookItem>();
     const [loading, setLoading] = useState(true); // add loading state
     const [error, setError] = useState(null); // handle errors gracefully  
