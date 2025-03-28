@@ -76,6 +76,21 @@ class ReviewTestCase(unittest.TestCase):
         print("----------------------------------\n")
 
 
+    def test_undefined_user_data(self):
+        print("Test getting bad user data")
+        # Simulate a GET request to the route
+        response = self.app.get('/users/get/')
+
+        # Assert that the response is successful (HTTP 200)
+        self.assertEqual(response.status_code, 404)
+        
+        # Optionally, check if the returned JSON is correct
+        data = response.get_json()
+        print(data)
+        self.assertTrue(len(data) > 0)  # Make sure there's data in the response
+        print("----------------------------------\n")
+
+
     # next sprint
 
     # def test_has_followers(self):
