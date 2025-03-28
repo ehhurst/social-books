@@ -222,7 +222,6 @@ def add_review():
         conn.close()
         return jsonify({"error": f"Profanity detected in review: {profanity_list}"}), 412
     
-    print()
 
     if not work_ID or not rating or not text:
         conn.close()
