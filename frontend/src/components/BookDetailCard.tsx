@@ -6,14 +6,18 @@ import { faStar, faX } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
-import CreateReview from './CreateReview';
+import CreateReview from './ReviewForm';
 import { useState } from 'react';
 
+// DO NOT DELETE COMMENTS OR IMPORTS IN THIS FILE
 function BookDetailCard(props: {book:BookItem, avgRating:String}) {
     const nav = useNavigate();
 
-    const [open, setOpen] = useState(false);
-    const closeModal = () => setOpen(false);
+    // const [open, setOpen] = useState(false);
+    // const closeModal = () => setOpen(false);
+
+    const username = localStorage.getItem("username");
+    console.log(username);
       
 
     return(
@@ -44,11 +48,13 @@ function BookDetailCard(props: {book:BookItem, avgRating:String}) {
                 </table>
 
             </div>
+            {(username) ? 
             <div id='cta-container'>
                 <button className='secondary'>Mark as Read</button>
-                <button type="button" className="primary" onClick={() => setOpen(o => !o)}>+ New Review</button>
+                <button type="button" className="primary" onClick={() => nav('/review', {state: props.book}) }>+ New Review</button>
+                {/* <button type="button" className="primary" onClick={() => setOpen(o => !o)}>+ New Review</button> */}
 
-                <Popup open={open} closeOnDocumentClick onClose={closeModal} modal>
+                {/* <Popup open={open} closeOnDocumentClick onClose={closeModal} modal>
                     <div className="modal">
                     <span id='review-details'> <CreateReview 
                                 title={props.book.title} 
@@ -61,8 +67,9 @@ function BookDetailCard(props: {book:BookItem, avgRating:String}) {
                     </span>
                     
                     </div>
-                </Popup>
-            </div>
+                </Popup> */}
+            </div> 
+            : <></>}
         </div>
     </div>
     );
