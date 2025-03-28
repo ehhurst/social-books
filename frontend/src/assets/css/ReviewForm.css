@@ -6,6 +6,7 @@ input[type="radio"] {
 }
 
 div#new-review-card {
+    background-color: var(--light-primary-color);
     color: var(--secondary-font-color);
     border-radius: 8px;
     width: 55vw;
