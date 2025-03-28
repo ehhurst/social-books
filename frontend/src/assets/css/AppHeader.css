@@ -54,3 +54,21 @@ header ul, header nav {
 header li {
     margin: 0.5em;
 } 
+
+
+div#user-info {
+    background-color: var(--light-primary-color);
+    color: var(--secondary-font-color);
+    padding: 0.25em 0.5em;
+    border-radius: 8px;
+}
+div#user-info a {
+    color: var(--main-color);
+    padding-left: 0.5em;
+    text-decoration: underline;
+    font-size: 14px;
+}
+
+#user-icon {
+    padding-right: 0.5em;
+}

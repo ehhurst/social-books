@@ -1,76 +1,142 @@
-import { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { BookItem,  ReviewStatus } from "../types";
+import { faHeart, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { useLocation, useNavigate } from "react-router-dom";
+import { ChangeEvent, FormEvent, useState } from "react";
+import axios from "../../axiosConfig";
+import { faStar as filledStar, faHeart as filledHeart} from "@fortawesome/free-solid-svg-icons";
+import { faStar as emptyStar, faHeart as emptyHeart} from "@fortawesome/free-regular-svg-icons";
+import '../assets/css/ReviewForm.css'
+
+
 
 function ReviewForm() {
-  const [rating, setRating] = useState(0);
-  const [reviewText, setReviewText] = useState("");
-  const [message, setMessage] = useState("");
-  const navigate = useNavigate();
+    const book:BookItem = useLocation().state; // gets book data passed in url
+    const navigate = useNavigate();
 
-  // Retrieve user & book details from localStorage
-  const username = localStorage.getItem("username");
-  const token = localStorage.getItem("access_token");
-  const olid = localStorage.getItem("currentBookOLID"); // Set when user selects a book
+    // retrieve book details from localstorage
+    const username = localStorage.getItem("username");
+    const token = localStorage.getItem("access_token");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    const [rating, setRating] = useState(null);
+    const [ratingHover, setRatingHover] = useState(null);
+    const [liked, setLiked] = useState(false);
+    const [likedHover, setLikedHover] = useState(false);
+    const [reviewText, setReviewText] = useState('');
+    const [message, setMessage] = useState("");
 
-    if (!token || !username || !olid) {
-      setMessage("Missing user or book info.");
-      return;
-    }
+  
+    const handleSubmit = async (event: FormEvent) => {
+      event.preventDefault();
+  
+      if (!token || !username || !book) {
+        setMessage("Missing user or book info.");
+        return;
+      }
+      const review = {work_id: book.work_id, star_rating: rating, review_text: reviewText, liked: liked}
+  
+      try {
+        const response = await axios.post(
+          "/users/reviews/add", review, 
+          {
+            headers: {
+              "Authorization": `Bearer ${token}`, 
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        setMessage("Review submitted!");
+        navigate(-1); // Redirect after success
+      } catch (err) {
+        console.error(err);
+        setMessage("Failed to submit review.");
+      }
 
-    try {
-      const response = await axios.post(
-        "http://127.0.0.1:5000/users/reviews/add",
-        {
-          star_rating: rating,
-          review_text: reviewText,
-          olid: olid,
-        },
-        {
-          headers: {
-            "Authorization": token, 
-            "Content-Type": "application/json",
-          },
-        }
-      );
+    
+    };
 
-      setMessage("Review submitted!");
-      navigate("/books"); // Redirect after success
-    } catch (err) {
-      console.error(err);
-      setMessage("Failed to submit review.");
-    }
-  };
-
-  return (
-    <main>
-      <h2>Leave a Review</h2>
-      <form onSubmit={handleSubmit}>
-        <label>Rating (1-5):</label>
-        <input
-          type="number"
-          min={1}
-          max={5}
-          value={rating}
-          onChange={(e) => setRating(Number(e.target.value))}
-          required
-        />
-
-        <label>Review:</label>
-        <textarea
-          value={reviewText}
-          onChange={(e) => setReviewText(e.target.value)}
-          required
-        ></textarea>
-
-        <button type="submit">Submit</button>
-      </form>
-      {message && <p>{message}</p>}
-    </main>
-  );
-}
+    return(
+        <main>
+        <div id="new-review-card">
+                <div id='book-image-background'>
+                    <img src={book.img_M} alt="Book cover image" height={'170px'}/>
+                </div>
+                <div id='new-review-content'>
+                    <div id='title-container'>
+                        <h2>My Review for {book.title}</h2>
+                        <FontAwesomeIcon className="x" icon={faXmark} size={'lg'} onClick={() => navigate(-1)}/>
+                    </div>
+                    
+                    <form
+                        className="review-form"
+                        method="post"
+                        onSubmit={handleSubmit}>
+                            <div id='icon-input'>
+                            <div className="star-rating">
+                                <p>Rating: </p>
+                                {[...Array(5)].map((star, index) => {
+                                    const currentRating = index + 1;
+                                    return (
+                                        <label>
+                                            <input
+                                                type="radio"
+                                                name="rating"
+                                                value={currentRating}
+                                                onClick={() => setRating(currentRating)}
+                                            />
+                                            {currentRating <= (ratingHover || rating) ? 
+                                            <FontAwesomeIcon 
+                                            className="star"
+                                            icon={filledStar} 
+                                            size={'xl'}
+                                            color={"var(--dark-accent-color)"}
+                                            onMouseEnter={() => setRatingHover(currentRating)}
+                                            onMouseLeave={() => setRatingHover('')}/> 
+                                            : <FontAwesomeIcon 
+                                            className="star"
+                                            icon={emptyStar} 
+                                            size={'xl'}
+                                            color={"var(--dark-accent-color)"}
+                                            onMouseEnter={() => setRatingHover(currentRating)}
+                                            onMouseLeave={() => setRatingHover('')}/>}
+                                        </label>
+                                    );
+                                })}
+                                </div>
+                            <div className="liked">
+                                <p>Liked: </p>
+                                    <label>
+                                        <input
+                                            type="radio"
+                                            name="liked"
+                                            onClick={(e) => setLiked(!liked)}
+                                        />
+                                        {(liked || likedHover) ? 
+                                        <FontAwesomeIcon 
+                                            className="heart"
+                                            icon={filledHeart} 
+                                            size={'xl'}
+                                            color={"var(--dark-accent-color)"}
+                                            onMouseEnter={() => setLikedHover(true)}
+                                            onMouseLeave={() => setLikedHover(false)}/> 
+                                                : <FontAwesomeIcon 
+                                                className="heart"
+                                                icon={emptyHeart} 
+                                                size={'xl'}
+                                                color={"var(--dark-accent-color)"}
+                                                onMouseEnter={() => setLikedHover(true)}
+                                                onMouseLeave={() => setLikedHover(false)}/>}
+                                    </label>
+ 
+                            </div>
+                            </div>
+                            <textarea name='inputText' placeholder="" value={reviewText} onChange={(e) => setReviewText(e.target.value)}></textarea>
+                        <button className='primary'>Submit</button>
+                    </form>
+                {message && <p>{message}</p>}</div>
+            </div>
+</main>
+    );
+};
 
 export default ReviewForm;

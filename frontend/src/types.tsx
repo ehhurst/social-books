@@ -27,12 +27,7 @@ export interface Review {
 }
 
 
-//for creating reviews
-export interface ReviewForm {
-    rating: number, 
-    reviewText: string, 
-    liked: boolean
-}
+
 //getting status back from post request
 export interface ReviewStatus {
     success: boolean, 

@@ -1,20 +1,41 @@
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import axios from "../../axiosConfig";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { getReviews } from "../hooks/fetch";
+import ReviewCard from "./ReviewCard";
+import { Review } from "../types";
 
 function ReaderProfilePage() {
   const nav = useNavigate();
   const username = localStorage.getItem("username");
+  const [userData, setUserData] = useState();
 
   useEffect(() => {
-    if (!username) {
-      nav("/login"); // redirect if user is not logged in
-    }
-  }, [username, nav]);
+
+    axios.get(`/users/get/${username}`, {
+        headers: { "Content-Type": "application/json" }
+    })
+    .then((response) => setUserData(response.data))
+    .catch((error) => console.error("❌ Book Fetch Error:", error)
+    )
+
+    console.log(userData);
+  }, []);
+
+  
+
+  // useEffect(() => {
+  //   if (!username) {
+  //     nav("/login"); // redirect if user is not logged in
+  //   }
+  // }, [username, nav]);
 
   async function handleDelete() {
     try {
-      const response = await axios.delete(`http://127.0.0.1:5000/users/delete/${username}`);
+      const response = await axios.delete(`/users/delete-user/${username}`);
+      await axios.delete(`/users/delete-reader-profile/${username}`)
       console.log(response.data);
       localStorage.removeItem("username");
       localStorage.removeItem("access_token");
@@ -24,14 +45,37 @@ function ReaderProfilePage() {
     }
   }
 
-  return (
-    <main>
-      <h2>Welcome to your profile!</h2>
-      <p>Your username: {username}</p>
+  const {reviewData, loading, error} = getReviews(`/users/${username}/reviews`);
+  console.log(reviewData)
 
-      <button onClick={handleDelete}>Delete My Account</button>
+  return(
+    <main>
+        <h2>Welcome to your profile {username}!</h2>
+        <div>
+            <h3>My Reviews: </h3>
+            {loading && <p>Loading reviews...</p>} {/* Show loading state */}
+            {error && <p style={{ color: "var(--error-color)" }}>{error}</p>} {/* Show error message */}  
+            <ul id="review-list">
+                {reviewData != undefined && reviewData.reviews_list.length > 0 ? (
+                    reviewData.reviews_list.map((review: Review) => (
+                        <ReviewCard
+                            review_id={review.review_id}
+                            work_id={review.work_id}
+                            username={review.username}
+                            rating={review.rating}
+                            reviewText={review.reviewText}
+                            liked={review.liked}
+                        />
+                    ))
+                ) : (!loading && !error && <p>No reviews yet. <Link to={'/books'}>Get started <FontAwesomeIcon icon={faArrowRight}/></Link></p>
+                                    )}
+            </ul>
+        </div>
+
+        <button onClick={handleDelete}>Delete My Account</button>
     </main>
-  );
+    );
 }
+
 
 export default ReaderProfilePage;

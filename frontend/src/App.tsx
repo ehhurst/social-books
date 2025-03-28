@@ -6,9 +6,8 @@ import Login from "./components/Login"
 import CategoryBookListPage from "./components/BookListPage"
 import Register from "./components/Register"
 import BookDetailPage from "./components/BookDetailPage"
-import ReviewForm from "./components/ReviewForm"
 import ReaderProfilePage from "./components/ReaderProfilePage"
-import CreateReview from "./components/CreateReview"
+import ReviewForm from "./components/ReviewForm"
 import PageNotFound from "./components/PageNotFound"
 import BookListPage from "./components/BookListPage"
 
@@ -23,10 +22,8 @@ function App() {
           <Route path='/books' element={<BookListPage/>}/>
           <Route path='/books/:work_id' element={<BookDetailPage/>}/>
           <Route path='/reader-profile' element={<ReaderProfilePage/>}/>
-          <Route path="*" element={<PageNotFound/>}/>
-{/* 
-          <Route path="/book/:olid" element={<BookDetailPage />} /> */}
           <Route path="/review" element={<ReviewForm />} />
+          <Route path="*" element={<PageNotFound/>}/>     
         </Routes>
       <AppFooter/>
     </Router>

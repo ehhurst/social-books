@@ -142,7 +142,7 @@ def add_user(username):
     return jsonify({"message": f"user {username} added successfully"}), 201 #CREATED
 
 
-@app.route("/users/delete/<string:username>", methods=["DELETE"])
+@app.route("/users/delete-user/<string:username>", methods=["DELETE"])
 def delete_user(username):
     """ Removes a user from the database """
     conn = db_connect()
@@ -158,14 +158,35 @@ def delete_user(username):
 
     if not user:
         conn.close()
-        return jsonify({"error": "user not found for deletion"}), 404 #NOT FOUND
+        return jsonify({"error": "user not found for deletion from user table"}), 404 #NOT FOUND
 
     deletion_query = "DELETE FROM users WHERE username = ?"
     cursor.execute(deletion_query, (username,))
     conn.commit()
     conn.close()
 
-    return jsonify({"message": f"user {username} deleted successfully"}), 200 #OK
+    return jsonify({"message": f"user {username} deleted successfully from users table"}), 200 #OK
+
+@app.route("/users/delete-reader-profile/<string:username>", methods=["DELETE"])
+def delete_reader_profile(username):
+    """ Removes a user's reader_profile from the database """
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    query = "SELECT username FROM reader_profiles WHERE username = ?"
+    cursor.execute(query, (username,))
+    user = cursor.fetchone()
+
+    if not user:
+        conn.close()
+        return jsonify({"error": "user not found for deletion from reader_profiles table"}), 404 #NOT FOUND
+    
+    deletion_query = "DELETE FROM reader_profiles WHERE username = ?"
+    cursor.execute(deletion_query, (username,))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": f"user {username} deleted successfully from reader_profiles"}), 200 #OK
 
 
 # NOTE: doesn't look like review IDs are being generated. don't see them being inserted
@@ -187,8 +208,8 @@ def add_review():
         return jsonify({"error":f"user {current_user} not found, not updating reviews"}), 400 #BAD REQUEST
     
     r_metadata = request.json
-    review_id = reviewSerial
-    work_ID = r_metadata.get("work_ID")
+    review_id = reviewSerial #this does not work
+    work_ID = r_metadata.get("work_id")
     rating = r_metadata.get("star_rating")
     liked = r_metadata.get("liked")
     text = r_metadata.get("review_text")

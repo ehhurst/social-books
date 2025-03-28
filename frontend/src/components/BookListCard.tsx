@@ -10,7 +10,6 @@ function BookListCard(props:BookItem) {
 
     useEffect (() => console.log(props))
 
-
     return(
         <div id="category-book-box">
                 <div id="book-cover-background">
