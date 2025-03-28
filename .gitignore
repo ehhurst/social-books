@@ -1,5 +1,1 @@
-./backend/sqldiff
-./backend/sqlite3
-./backend/sqlite3_analyzer
-./backend/sqlite3_rsync
 ./backend/venv

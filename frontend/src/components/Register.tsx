@@ -36,6 +36,7 @@ function Register() {
                 headers: { "Content-Type": "application/json" },
               }
             );
+            console.log("register" , response.data.access_token);
           
             const loginRes = await axios.post(
               "/auth/login",
@@ -44,8 +45,9 @@ function Register() {
                 headers: { "Content-Type": "application/json" },
               }
             );
+            console.log("login" , loginRes.data.access_token)
           
-            localStorage.setItem("access_token", response.data.access_token);
+            localStorage.setItem("access_token", loginRes.data.access_token);
             localStorage.setItem("username", username);
             navigate("/reader-profile");
           
