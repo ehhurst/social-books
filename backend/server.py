@@ -189,7 +189,6 @@ def delete_reader_profile(username):
     return jsonify({"message": f"user {username} deleted successfully from reader_profiles"}), 200 #OK
 
 
-# NOTE: doesn't look like review IDs are being generated. don't see them being inserted
 @app.route("/users/reviews/add", methods=["POST"])
 @jwt_required()
 def add_review():
@@ -208,7 +207,6 @@ def add_review():
         return jsonify({"error":f"user {current_user} not found, not updating reviews"}), 400 #BAD REQUEST
     
     r_metadata = request.json
-    review_id = reviewSerial #this does not work
     work_ID = r_metadata.get("work_id")
     rating = r_metadata.get("star_rating")
     liked = r_metadata.get("liked")
@@ -234,8 +232,8 @@ def add_review():
         return jsonify({"error": "Missing authorization token"}), 401
     
     try:
-        query = "INSERT INTO reviews (review_id, username, work_ID, star_rating, liked, review_text) VALUES (?, ?, ?, ?, ?, ?)"
-        cursor.execute(query, (review_id, current_user, work_ID, rating, text))
+        query = "INSERT INTO reviews (username, work_ID, star_rating, liked, review_text) VALUES (?, ?, ?, ?, ?)"
+        cursor.execute(query, (current_user, work_ID, rating, text))
         conn.commit()
     except sqlite3.Error as error:
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
