@@ -12,7 +12,7 @@ function ReviewCard(review:Review) {
     const nav = useNavigate();
     const user = localStorage.getItem("username");
     const [message, setMessage] = useState('');
-    console.log(review.review_id);
+    console.log("review id" + review.review_id);
 
     function handleDelete() {
         setMessage('');
