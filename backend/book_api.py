@@ -17,7 +17,6 @@ def get_book(work_id):
     """
     api_book_url = f'https://openlibrary.org/works/{work_id}.json'
     try:
-        print(headers)
         book_response = requests.get(api_book_url, headers=headers)
         book_response.raise_for_status()  # Raises an HTTPError for bad responses
         book_data = book_response.json()
@@ -107,6 +106,7 @@ def fetch_books_from_api(query=None, title=None, author=None, subject=None, limi
     except requests.exceptions.RequestException as e:
         return {'error': str(e)}
 
+##### Commented out because it does not work, called from parse books fx above (also commented out)
 # # Written by Ben
 # def parse_number_of_pages(work_id):
 #     """
