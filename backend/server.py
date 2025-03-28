@@ -359,6 +359,7 @@ def return_review_data(work_ID):
 
 # GET all reviews associated with a user
 @app.route("/users/<string:username>/reviews", methods=["GET"])
+# @jwt_required()
 def return_user_review_data(username):
     """ Returns the user's reviews as a JSON object. """
     conn = db_connect()
@@ -377,10 +378,13 @@ def return_user_review_data(username):
     conn.close()
 
     # Return the book review info as a json dictionary, should return whole tuple info
+
+    # reviews_data = {'reviews_list': reviews}
+    # if reviews:
     if reviews:
         return jsonify(reviews)
     else:
-        return jsonify({"error": f"user {username} not found"}), 404 #NOT FOUND
+        return jsonify([])
  
 
 @app.route("/followers/<string:user_id>/", methods=["POST"])
