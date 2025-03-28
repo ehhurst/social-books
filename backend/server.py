@@ -201,6 +201,7 @@ def add_review():
 
     find_user_query = "SELECT username FROM reader_profiles WHERE username = ?" # replaced profile_id with uesrname
     reviewer = cursor.execute(find_user_query, (current_user,)).fetchone()
+    print("reviewer",  current_user) #correct
 
     if not reviewer:
         conn.close()
@@ -211,6 +212,8 @@ def add_review():
     rating = r_metadata.get("star_rating")
     liked = r_metadata.get("liked")
     text = r_metadata.get("review_text")
+
+    print(work_ID, rating, liked, text)
     
     from profanity_filter import is_profane
         
@@ -219,6 +222,8 @@ def add_review():
     if profanity_list:
         conn.close()
         return jsonify({"error": f"Profanity detected in review: {profanity_list}"}), 412
+    
+    print()
 
     if not work_ID or not rating or not text:
         conn.close()
@@ -233,14 +238,14 @@ def add_review():
     
     try:
         query = "INSERT INTO reviews (username, work_ID, star_rating, liked, review_text) VALUES (?, ?, ?, ?, ?)"
-        cursor.execute(query, (current_user, work_ID, rating, text))
+        cursor.execute(query, (current_user, work_ID, rating, liked, text))
         conn.commit()
     except sqlite3.Error as error:
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
     
     conn.close()
-    reviewSerial += 1
-    return jsonify({"message": "Review added successfully", "user_id" : current_user, "review_id" : review_id, "work_ID" : work_ID}), 201 #CREATED
+    # reviewSerial += 1
+    return jsonify({"message": "Review added successfully", "user_id" : current_user, "review_id" : 1, "work_ID" : work_ID}), 201 #CREATED
 
 @app.route("/users/<string:user_id>/reviews/add", methods=["PUT"])
 def update_review(user_id, review_id):
@@ -374,6 +379,7 @@ def return_user_review_data(username):
     rows = cursor.fetchall()
     columns = [description[0] for description in cursor.description]
     reviews = [dict(zip(columns, row)) for row in rows]
+    print(reviews)
 
     conn.close()
 

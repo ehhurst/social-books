@@ -28,6 +28,7 @@ function ReviewForm() {
   
     const handleSubmit = async (event: FormEvent) => {
       event.preventDefault();
+      console.log(reviewText)
   
       if (!token || !username || !book) {
         setMessage("Missing user or book info.");

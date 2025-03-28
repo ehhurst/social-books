@@ -4,14 +4,14 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLessThan } from '@fortawesome/free-solid-svg-icons';
 import { Review } from '../types';
-import { getReviews } from '../hooks/fetch';
+import {  getReviewsForBook } from '../hooks/fetch';
 import BookDetailCard from './BookDetailCard';
 
 function BookDetailPage() {
     const book:BookItem = useLocation().state; // gets book data passed in url
     const navigate = useNavigate();
     // get list of reviews that have been written for this book
-    const {reviewData, loading, error} = getReviews(`/books/${book.work_id}/reviews`);
+    const {reviewData, loading, error} = getReviewsForBook(`/books/${book.work_id}/reviews`);
 
     return (
     <main>
