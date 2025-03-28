@@ -8,33 +8,39 @@ import '../assets/css/Login.css'
 
 
 function Login() {
-    const [formData, setFormData] = useState("");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+
+    // const [formData, setFormData] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
 
 
     async function handleSubmit(event:FormEvent) {
         event.preventDefault();
-        if (formData === "") {setErrorMessage("Username is required. Please enter your username.")}
-        else {
-            setErrorMessage("") 
-            await axios.get(`http://127.0.0.1:5000/users/get/${formData}`, {
+        if (username === "" || password === "") {
+            setErrorMessage("Username and password are required.");
+            return;
+        }
+        try {
+            const response = await axios.post("http://127.0.0.1:5000/auth/login", {
+                username,
+                password,
+            }, {
                 headers: {
-                            "Content-type": "application/json",
-                        }
-                }).then((response) => {
-                    console.log(response.data);
-                    localStorage.setItem('username', JSON.stringify(response.data));
-                    navigate("/reader-profile");
+                    "Content-Type": "application/json",
+                }
+            });
 
-                }).catch((error) => {
-                    console.log(error); 
-                    setFormData("");
-                    setErrorMessage("The username you entered is not connected to an account. Please try again.")
-                });
-            }           
-        } 
-    
+            localStorage.setItem("access_token", response.data.access_token); 
+            localStorage.setItem("username", username);
+            
+            navigate("/reader-profile");
+        } catch (error) {
+            console.error(error);
+            setErrorMessage("Invalid username or password. Please try again.");
+        }
+    }
 
     return(
         <main>
@@ -48,9 +54,19 @@ function Login() {
                             name='username'
                             id='username'
                             autoComplete='on'
-                            value={formData}
-                            onChange={(event) => setFormData(event.target.value)}
+                            value={username}
+                            onChange={(event) => setUsername(event.target.value)}
                             />
+                    <label htmlFor='password'>Password</label>
+                        <input
+                            type='password'
+                            name='password'
+                            id='password'
+                            autoComplete='on'
+                            value={password}
+                            onChange={(event) => setPassword(event.target.value)}
+                        />
+
                     <section>
                         {errorMessage !== "" ? 
                         <><p id='error-message' aria-live='assertive'><FontAwesomeIcon icon={faTriangleExclamation}/> {errorMessage} </p>
