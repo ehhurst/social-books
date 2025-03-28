@@ -1,7 +1,11 @@
 div.container.review {
-    width: 40%;
+    min-width: 40vw;
+    max-width: max-content;
+    min-height: 5vh;
+    max-height: max-content;
     display: flex;
     flex-direction: column;
+    margin: 1em;
 }
 
 div#star-rating {
@@ -32,6 +36,9 @@ p#review-text {
     color: var(--secondary-font-color);
     padding-bottom: 0.5em;
     font-size: 0.75em;
+    clear: left;
+    height: 2em;
+    display: block;
 }
 
 

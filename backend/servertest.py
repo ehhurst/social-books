@@ -8,10 +8,26 @@ class ReviewTestCase(unittest.TestCase):
     def setUp(self):
         self.app = app.test_client()  # Create a test client for the app
 
+
+    def test_get_user_data(self):
+        print("Test getting user data")
+        # Simulate a GET request to the route
+        response = self.app.get('/users/get/ConnorBTest')
+
+        # Assert that the response is successful (HTTP 200)
+        self.assertEqual(response.status_code, 200)
+        
+        # Optionally, check if the returned JSON is correct
+        data = response.get_json()
+        print(data)
+        self.assertTrue(len(data) > 0)  # Make sure there's data in the response
+        print("----------------------------------\n")
+
+
     def test_get_book_reviews(self):
         print("Test getting book's reviews")
         # Simulate a GET request to the route
-        response = self.app.get('/books/1337/reviews')
+        response = self.app.get('/books/7/reviews')
 
         # Assert that the response is successful (HTTP 200)
         self.assertEqual(response.status_code, 200)
@@ -42,7 +58,7 @@ class ReviewTestCase(unittest.TestCase):
 
     def test_get_user_reviews(self):    
         print("Test getting user's reviews")
-        response = self.app.get('/users/Jameson/reviews')
+        response = self.app.get('/users/ConnorBTest/reviews')
 
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
@@ -50,41 +66,65 @@ class ReviewTestCase(unittest.TestCase):
         self.assertTrue(len(data) > 0)
         print("----------------------------------\n")
 
-
-
-
-    def test_has_followers(self):
-        print ("check JSON format for people with followers")
-        response = self.app.get('/followers/Philippe')
-
-        # 200 = good
+    def test_get_empty_user_reviews(self):    
+        print("Test getting user's reviews with no reviews written")
+        response = self.app.get('/users/Jameson/reviews')
         self.assertEqual(response.status_code, 200)
-        data=response.get_json()
-        print(data)
-        self.assertTrue(len(data) > 0) # no friends
-        print("----------------------------------\n")
-
-
-    def test_followerless(self):
-        print ("check for empty list when return followerless users's friends")
-        response = self.app.get('/followers/Connor')
-
-        # 200 = good
-        self.assertEqual(response.status_code, 200)
-        data=response.get_json()
-        print(data)
-        self.assertTrue(len(data) == 0) # no friends
-        print("----------------------------------\n")
-
-    def test_wrong_user_followers(self):
-        print ("test for error when checking followers of non-user")
-        response = self.app.get('/followers/McGillicudy')
-
-        self.assertEqual(response.status_code, 404)
         data = response.get_json()
         print(data)
-        self.assertTrue(len(data) > 0) # error message
+        self.assertTrue(len(data) == 0)
         print("----------------------------------\n")
+
+
+    def test_undefined_user_data(self):
+        print("Test getting bad user data")
+        # Simulate a GET request to the route
+        response = self.app.get('/users/get/')
+
+        # Assert that the response is successful (HTTP 200)
+        self.assertEqual(response.status_code, 404)
+        
+        # Optionally, check if the returned JSON is correct
+        data = response.get_json()
+        print(data)
+        self.assertTrue(len(data) > 0)  # Make sure there's data in the response
+        print("----------------------------------\n")
+
+
+    # next sprint
+
+    # def test_has_followers(self):
+    #     print ("check JSON format for people with followers")
+    #     response = self.app.get('/followers/Philippe')
+
+    #     # 200 = good
+    #     self.assertEqual(response.status_code, 200)
+    #     data=response.get_json()
+    #     print(data)
+    #     self.assertTrue(len(data) > 0) # no friends
+    #     print("----------------------------------\n")
+
+
+    # def test_followerless(self):
+    #     print ("check for empty list when return followerless users's friends")
+    #     response = self.app.get('/followers/Connor')
+
+    #     # 200 = good
+    #     self.assertEqual(response.status_code, 200)
+    #     data=response.get_json()
+    #     print(data)
+    #     self.assertTrue(len(data) == 0) # no friends
+    #     print("----------------------------------\n")
+
+    # def test_wrong_user_followers(self):
+    #     print ("test for error when checking followers of non-user")
+    #     response = self.app.get('/followers/McGillicudy')
+
+    #     self.assertEqual(response.status_code, 404)
+    #     data = response.get_json()
+    #     print(data)
+    #     self.assertTrue(len(data) > 0) # error message
+    #     print("----------------------------------\n")
 
 
 if __name__ == '__main__':

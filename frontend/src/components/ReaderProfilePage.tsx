@@ -1,14 +1,15 @@
 import axios from "../../axiosConfig";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { getReviews } from "../hooks/fetch";
+import {  getReviewsForUser } from "../hooks/fetch";
 import ReviewCard from "./ReviewCard";
 import { Review } from "../types";
 
 function ReaderProfilePage() {
   const nav = useNavigate();
+  const message:string = useLocation().state; // gets book data passed in url
   const username = localStorage.getItem("username");
   const [userData, setUserData] = useState();
 
@@ -22,7 +23,7 @@ function ReaderProfilePage() {
     )
 
     console.log(userData);
-  }, []);
+  }, [message, ]);
 
   
 
@@ -45,19 +46,22 @@ function ReaderProfilePage() {
     }
   }
 
-  const {reviewData, loading, error} = getReviews(`/users/${username}/reviews`);
-  console.log(reviewData)
+  const {reviewData, loading, error} = getReviewsForUser(`/users/${username}/reviews`);
+  console.log("reviews" ,reviewData)
 
   return(
     <main>
         <h2>Welcome to your profile {username}!</h2>
         <div>
             <h3>My Reviews: </h3>
+            {(message != '') ? 
+              <div id='delete-msg'>{message}</div> : <div></div>}
+
             {loading && <p>Loading reviews...</p>} {/* Show loading state */}
             {error && <p style={{ color: "var(--error-color)" }}>{error}</p>} {/* Show error message */}  
             <ul id="review-list">
-                {reviewData != undefined && reviewData.reviews_list.length > 0 ? (
-                    reviewData.reviews_list.map((review: Review) => (
+                {reviewData != undefined && reviewData.length > 0 ? (
+                    reviewData.map((review: Review) => (
                         <ReviewCard
                             review_id={review.review_id}
                             work_id={review.work_id}
@@ -67,7 +71,7 @@ function ReaderProfilePage() {
                             liked={review.liked}
                         />
                     ))
-                ) : (!loading && !error && <p>No reviews yet. <Link to={'/books'}>Get started <FontAwesomeIcon icon={faArrowRight}/></Link></p>
+                ) : (!loading && !error && <p>No reviews yet. <Link id='reviews-cta' to={'/books'}>Get started <FontAwesomeIcon icon={faArrowRight}/></Link></p>
                                     )}
             </ul>
         </div>

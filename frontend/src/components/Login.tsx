@@ -30,7 +30,7 @@ function Login() {
                     "Content-Type": "application/json",
                 }
             });
-
+            console.log("login" , response.data.access_token)
             localStorage.setItem("access_token", response.data.access_token); 
             localStorage.setItem("username", username);
             

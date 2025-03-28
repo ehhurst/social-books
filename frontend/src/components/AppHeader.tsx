@@ -18,7 +18,6 @@ function AppHeader() {
         nav('/login');
     }
 
-
     return (<header className="app-header">
             <Link to="/">
                 <img src={AppLogo} alt="Logo"/>
