@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, FormEvent } from 'react';
-import axios from 'axios';
+import axios from '../../axiosConfig';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import '../assets/css/global.css';
@@ -21,8 +21,16 @@ function Register() {
         }
 
         try {
+            const readerProfileResponse = await axios.post(
+                `/users/add/${username}`,
+                {
+                  headers: { "Content-Type": "application/json" },
+                }
+              );
+              console.log("test" , readerProfileResponse);
+
             const response = await axios.post(
-              "http://127.0.0.1:5000/auth/register",
+              "/auth/register",
               { username, password },
               {
                 headers: { "Content-Type": "application/json" },
@@ -30,7 +38,7 @@ function Register() {
             );
           
             const loginRes = await axios.post(
-              "http://127.0.0.1:5000/auth/login",
+              "/auth/login",
               { username, password },
               {
                 headers: { "Content-Type": "application/json" },
