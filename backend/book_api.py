@@ -49,7 +49,7 @@ def get_book(work_id):
             cover_url_M = f'https://covers.openlibrary.org/b/id/{cover_id}-M.jpg'
             cover_url_S = f'https://covers.openlibrary.org/b/id/{cover_id}-S.jpg'
 
-        read_time = calculate_read_time(work_id)
+        # read_time = calculate_read_time(work_id)
 
         book = {
             'title': title,
@@ -59,7 +59,7 @@ def get_book(work_id):
             'img_S': cover_url_S,
             'img_M': cover_url_M,
             'img_L': cover_url_L,
-            'read_time': read_time,
+            # 'read_time': read_time,
         }
         return book
     except requests.exceptions.RequestException as e:
@@ -107,38 +107,38 @@ def fetch_books_from_api(query=None, title=None, author=None, subject=None, limi
     except requests.exceptions.RequestException as e:
         return {'error': str(e)}
 
-# Written by Ben
-def parse_number_of_pages(work_id):
-    """
-    Parse the number of pages of a book from the API based on the Work ID.
+# # Written by Ben
+# def parse_number_of_pages(work_id):
+#     """
+#     Parse the number of pages of a book from the API based on the Work ID.
     
-    Args:
-        work_id (str): The Work ID of the book.
+#     Args:
+#         work_id (str): The Work ID of the book.
     
-    Returns:
-        int: The number of pages of the book. -> make an integer for calculations
-    """
-    api_work_url = f'https://openlibrary.org/works/{work_id}.json'
-    try:
-        work_response = requests.get(api_work_url)
-        work_response.raise_for_status()  # Raises an HTTPError for bad responses
-        work_data = work_response.json()
-        number_of_pages = work_data.get('number_of_pages')
-        return int(number_of_pages)
-    except requests.exceptions.RequestException as e:
-        return f'Error fetching number_of_pages: {str(e)}'
+#     Returns:
+#         int: The number of pages of the book. -> make an integer for calculations
+#     """
+#     api_work_url = f'https://openlibrary.org/works/{work_id}.json'
+#     try:
+#         work_response = requests.get(api_work_url)
+#         work_response.raise_for_status()  # Raises an HTTPError for bad responses
+#         work_data = work_response.json()
+#         number_of_pages = work_data.get('number_of_pages')
+#         return int(number_of_pages)
+#     except requests.exceptions.RequestException as e:
+#         return f'Error fetching number_of_pages: {str(e)}'
 
-# Written by Ben
-def calculate_read_time(work_id):
-    """
-    Calculate an estimate of the time a reader will need to read a book.
+# # Written by Ben
+# def calculate_read_time(work_id):
+#     """
+#     Calculate an estimate of the time a reader will need to read a book.
 
-    Args: work_id (str): The Work ID of the book.
-          speed: The speed of the reader, in pages per hour
+#     Args: work_id (str): The Work ID of the book.
+#           speed: The speed of the reader, in pages per hour
 
-    Returns:
-        float: The number of hours needed to read the book
-    """
-    pages = parse_number_of_pages(work_id)
-    read_time = float(pages)/45 # reading speed fo 45 pages per hour
-    return read_time
+#     Returns:
+#         float: The number of hours needed to read the book
+#     """
+#     pages = parse_number_of_pages(work_id)
+#     read_time = float(pages)/float(45)
+#     return read_time

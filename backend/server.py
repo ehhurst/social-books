@@ -25,13 +25,6 @@ app.register_blueprint(auth, url_prefix="/auth")
 
 bcrypt.init_app(app)  # Initialize bcrypt for password hashing
 
-# Initialize JWT here
-app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "fallback-secret-key")  # Use env variable
-jwt = JWTManager(app)
-
-# Register the authentication blueprint
-app.register_blueprint(auth, url_prefix="/auth")
-
 @app.route("/", methods=["GET"])
 def home():
 	return jsonify({"message": "Flask API is running"}), 200
@@ -159,7 +152,7 @@ def delete_user(username):
     if not username:
         return jsonify({"error": "no username given for deletion"}), 400 #BAD_REQUEST
     
-    query = "SELECT username FROM reader_profiles WHERE username = ?"
+    query = "SELECT username FROM users WHERE username = ?"
     cursor.execute(query, (username,))
     user = cursor.fetchone()
 
@@ -167,7 +160,7 @@ def delete_user(username):
         conn.close()
         return jsonify({"error": "user not found for deletion"}), 404 #NOT FOUND
 
-    deletion_query = "DELETE FROM reader_profiles WHERE username = ?"
+    deletion_query = "DELETE FROM users WHERE username = ?"
     cursor.execute(deletion_query, (username,))
     conn.commit()
     conn.close()
@@ -372,7 +365,7 @@ def return_user_review_data(username):
  
 
 @app.route("/followers/<string:user_id>/", methods=["POST"])
-def add_review(follows):
+def add_follower(follows):
     """ Adds a follower. input to this fuction is the person to follow.
     Follower is specified in the JSON
     """
