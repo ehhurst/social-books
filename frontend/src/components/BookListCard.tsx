@@ -1,5 +1,5 @@
 import { BookItem } from "../types";
-import { Link } from "react-router-dom";
+import { Link, RouterProviderProps } from "react-router-dom";
 import '../assets/css/BookListCard.css'
 import '../assets/css/global.css'
 import { useEffect } from "react"; // used for testing
@@ -13,13 +13,13 @@ function BookListCard(props:BookItem) {
     return(
         <div id="category-book-box">
                 <div id="book-cover-background">
-                    <Link id="image-link" to={`/books/${props.work_id}`}>
+                    <Link id="image-link" to={`/books/${props.work_id}`} state={props}>
                         <img id="cover" src={props.img_M} height={'115px'} alt="Book cover image"/>
                     </Link>
                 </div>
                 <div id="book-info-container">
                     <div id='title-author'>
-                        <Link id="title-link" to={`/books/${props.work_id}`}>
+                        <Link id="title-link" to={`/books/${props.work_id}`} state={props}>
                             <h3>{props.title}</h3>
                         </Link>
                         <h4>by <Link id="author-link" to={`${props.author}`}>{props.author}</Link></h4>

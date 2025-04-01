@@ -45,16 +45,14 @@ def parse_book():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-@app.route('/book', methods=['GET'])
-def book():
+@app.route('/book/<string:work_id>', methods=['GET'])
+def book(work_id):
     """
     Flask route to handle book get requests.
     
     Returns:
         Response: JSON response containing book details or an error message.
     """
-    work_id = request.args.get('work_id')
-
     # Use the get_book function to get the search results
     book = get_book(work_id=work_id)
     return book
@@ -95,26 +93,35 @@ def db_connect():
 
     return conn
 
-@app.route("/users/get/<string:username>", methods=["GET"])
-def return_user_data(username):
+# gets all user data for the reader profile page (only currently returning the username)
+@app.route("/users/reader-profile", methods=["GET"])
+@jwt_required()
+def return_user_data():
     """ Returns all user info as a json object. 
     Not sure of the format here, might need more work. """
+    current_user = get_jwt_identity()  # Get the current user's identity from the JWT
+    token = request.headers.get("Authorization")
+
+    if not token:
+        return jsonify({"error": "Missing authorization token"}), 401
+    
     conn = db_connect()
     query = """
         SELECT * FROM reader_profiles
         WHERE reader_profiles.username = ?
     """
-    # executes this query, fetches one user
-    user = conn.execute(query, (username,)).fetchone()
+    # executes this query, fetches one user's data
+    user_data = conn.execute(query, (current_user,)).fetchone()
     conn.close()
 
     # Return the user info as a json dictionary, should return whole tuple info
-    if user:
-        return jsonify(dict(user))
+    if user_data:
+        return jsonify(dict(user_data))
     else:
-        return jsonify({"error": f"user {username} not found"}), 404 #NOT FOUND
+        return jsonify({"error": f"user data not found"}), 404 #NOT FOUND
+        
  
-    
+# need to integrate to use those in auth.py, remove <string:username> from url
 @app.route("/users/add/<string:username>", methods=["POST"])
 def add_user(username):
     """ Adds a user to the database """
@@ -140,7 +147,8 @@ def add_user(username):
 
     return jsonify({"message": f"user {username} added successfully"}), 201 #CREATED
 
-
+#delete methods need to be consolidated into 1 endpoint once users and reader-profiles tables have been combined
+#remove <string:username> from url
 @app.route("/users/delete-user/<string:username>", methods=["DELETE"])
 def delete_user(username):
     """ Removes a user from the database """
@@ -166,6 +174,8 @@ def delete_user(username):
 
     return jsonify({"message": f"user {username} deleted successfully from users table"}), 200 #OK
 
+#delete methods need to be consolidated into 1 endpoint once users and reader-profiles tables have been combined
+#remove <string:username> from url
 @app.route("/users/delete-reader-profile/<string:username>", methods=["DELETE"])
 def delete_reader_profile(username):
     """ Removes a user's reader_profile from the database """
@@ -188,19 +198,22 @@ def delete_reader_profile(username):
     return jsonify({"message": f"user {username} deleted successfully from reader_profiles"}), 200 #OK
 
 
-@app.route("/users/reviews/add", methods=["POST"])
+@app.route("/reviews", methods=["POST"])
 @jwt_required()
 def add_review():
     """ Adds a review. Content of the review needs to be in the POST query.
      So far this only updates the reviews table. Maybe update other tables? Probably not. """
     current_user = get_jwt_identity()  # Get the current user's identity from the JWT
     token = request.headers.get("Authorization")
+        
+    if not token:
+        return jsonify({"error": "Missing authorization token"}), 401
+    
     conn = db_connect()
     cursor = conn.cursor()
 
     find_user_query = "SELECT username FROM reader_profiles WHERE username = ?" # replaced profile_id with uesrname
     reviewer = cursor.execute(find_user_query, (current_user,)).fetchone()
-    print("reviewer",  current_user) #correct
 
     if not reviewer:
         conn.close()
@@ -211,8 +224,6 @@ def add_review():
     rating = r_metadata.get("star_rating")
     liked = r_metadata.get("liked")
     text = r_metadata.get("review_text")
-
-    print(work_ID, rating, liked, text)
     
     from profanity_filter import is_profane
         
@@ -231,9 +242,6 @@ def add_review():
         conn.close()
         return jsonify({"error": "rating is out of 1-5 range"}), 412 #PRECONDITION FAILED
     
-    if not token:
-        return jsonify({"error": "Missing authorization token"}), 401
-    
     try:
         query = "INSERT INTO reviews (username, work_ID, star_rating, liked, review_text) VALUES (?, ?, ?, ?, ?)"
         cursor.execute(query, (current_user, work_ID, rating, liked, text))
@@ -244,22 +252,30 @@ def add_review():
     conn.close()
     return jsonify({"message": "Review added successfully", "user_id" : current_user, "work_ID" : work_ID}), 201 #CREATED
 
-@app.route("/users/<string:user_id>/reviews/add", methods=["PUT"])
-def update_review(user_id, review_id):
+
+@app.route("/reviews/<string:review_id>", methods=["PUT"])
+@jwt_required()
+def update_review(review_id):
     """ Edits a review. Content of the review needs to be in the PUT query.
      So far this only updates the reviews table. Maybe update other tables? Probably not. """
+    current_user = get_jwt_identity()  # Get the current user's identity from the JWT
+    token = request.headers.get("Authorization")
+
+    if not token:
+        return jsonify({"error": "Missing authorization token"}), 401
+    
     conn = db_connect()
     cursor = conn.cursor()
 
     find_user_query = "SELECT username FROM reader_profiles WHERE username = ?"
-    reviewer = cursor.execute(find_user_query, (user_id,))
+    reviewer = cursor.execute(find_user_query, (current_user,))
 
     if not reviewer:
         conn.close()
-        return jsonify({"error":f"user {user_id} not found, not updating reviews"}), 400 #BAD REQUEST 
+        return jsonify({"error":f"user {current_user} not found, not updating reviews"}), 400 #BAD REQUEST 
     
     r_metadata = request.json
-    work_ID = r_metadata.get("work_ID")
+    work_ID = r_metadata.get("work_id")
     rating = r_metadata.get("star_rating")
     liked = r_metadata.get("liked")
     text = r_metadata.get("review_text")
@@ -282,16 +298,16 @@ def update_review(user_id, review_id):
     
     try:
         query = f"UPDATE reviews (username, work_ID, star_rating, liked, review_text) SET (?, ?, ?, ?, ?) WHERE review_id = {review_id}"
-        cursor.execute(query, (review_id, user_id, work_ID, rating, text))
+        cursor.execute(query, (current_user, work_ID, rating, liked, text))
         conn.commit()
     except sqlite3.Error as error:
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
     
     conn.close()
-    return jsonify({"message": "Review edited successfully", "user_id" : user_id, "review_id" : review_id, "work_ID" : work_ID}), 201 #CREATE
+    return jsonify({"message": "Review edited successfully", "user_id" : current_user, "review_id" : review_id, "work_ID" : work_ID}), 201 #CREATE
 
-
-@app.route("/users/<string:review_id>/reviews/delete", methods=["DELETE"])
+# Delete a review
+@app.route("/reviews/<string:review_id>", methods=["DELETE"])
 def remove_review(review_id):
     """ This removes a review with a specific ID. """
     conn = db_connect()
@@ -360,10 +376,14 @@ def return_review_data(work_ID):
 
 
 # GET all reviews associated with a user
-@app.route("/users/<string:username>/reviews", methods=["GET"])
-# @jwt_required()
-def return_user_review_data(username):
-    """ Returns the user's reviews as a JSON object. """
+@app.route("/user/reviews", methods=["GET"])
+@jwt_required()
+def get_user_reviews():
+    current_user = get_jwt_identity()  # Get the current user's identity from the JWT
+    token = request.headers.get("Authorization")
+    if not token:
+        return jsonify({"error": "Missing authorization token"}), 401
+    
     conn = db_connect()
     query = """
         SELECT * FROM reviews
@@ -372,24 +392,20 @@ def return_user_review_data(username):
     # NOTE: Learned how to do the following 4 lines with ChatGPT prompt: "teach me how to create 
     # a list of dictionaries, with each list corresponding to a sqlite row, and each 
     # dictionary corresponding to a sqlite column name and its value in that row"
-    cursor = conn.execute(query, (username,))
+    cursor = conn.execute(query, (current_user,))
     rows = cursor.fetchall()
     columns = [description[0] for description in cursor.description]
     reviews = [dict(zip(columns, row)) for row in rows]
-    print(reviews)
-
     conn.close()
 
     # Return the book review info as a json dictionary, should return whole tuple info
-
-    # reviews_data = {'reviews_list': reviews}
-    # if reviews:
     if reviews:
         return jsonify(reviews)
     else:
         return jsonify([])
  
 
+#needs to be changed to '/followers' and edited to match other api's using required JWT data
 @app.route("/followers/<string:user_id>/", methods=["POST"])
 def add_follower(follows):
     """ Adds a follower. input to this fuction is the person to follow.
@@ -424,8 +440,9 @@ def add_follower(follows):
     return jsonify({"message": "Follower added successfully", "follower" : follower_id, "follows" : follows}), 201 #CREATED
 
 
-@app.route("/followers/<string:username>", methods=["GET"])
-def return_followers(username):
+#needs to be changed to '/followers' and edited to match other api's using required JWT data
+@app.route("/followers", methods=["GET"])
+def get_followers(username):
     """ Return a user's followers. Returns empty list no followers """
     conn = db_connect()
     
@@ -465,21 +482,5 @@ def return_followers(username):
     return jsonify(result)
 
 
-
-
-
-
-
-# SQL for review update PUT
-# 
-# # newText should be an input to this function, as should review_id
-#
-# """
-# UPDATE reviews
-# SET reviews.review_text = '{newText}'
-# WHERE reviews.review_id = ?
-# """
-
-
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(host="0.0.0.0", debug=True, port=5000)

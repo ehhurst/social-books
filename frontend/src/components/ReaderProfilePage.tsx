@@ -11,27 +11,6 @@ function ReaderProfilePage() {
   const nav = useNavigate();
   const message:string = useLocation().state; // gets book data passed in url
   const username = localStorage.getItem("username");
-  const [userData, setUserData] = useState();
-
-  useEffect(() => {
-
-    axios.get(`/users/get/${username}`, {
-        headers: { "Content-Type": "application/json" }
-    })
-    .then((response) => setUserData(response.data))
-    .catch((error) => console.error("❌ Book Fetch Error:", error)
-    )
-
-    console.log(userData);
-  }, [message, ]);
-
-  
-
-  // useEffect(() => {
-  //   if (!username) {
-  //     nav("/login"); // redirect if user is not logged in
-  //   }
-  // }, [username, nav]);
 
   async function handleDelete() {
     try {
@@ -46,7 +25,7 @@ function ReaderProfilePage() {
     }
   }
 
-  const {reviewData, loading, error} = getReviewsForUser(`/users/${username}/reviews`);
+  const {reviewData, loading, error} = getReviewsForUser(`/user/reviews`);
   console.log("reviews" ,reviewData)
 
   return(

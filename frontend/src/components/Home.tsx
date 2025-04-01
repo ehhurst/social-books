@@ -4,12 +4,15 @@ import { useNavigate } from "react-router-dom";
 import '../assets/css/global.css'
 import '../assets/css/Home.css'
 import { faStar, faStarHalf } from "@fortawesome/free-solid-svg-icons";
-
-
+import { useContext } from "react";
+import { getBook } from "../hooks/fetch";
 
 function Home() {
   const nav = useNavigate();
+  const token = localStorage.getItem('access_token');
 
+  const {data, loading, error} = getBook(`book/OL468431W`);
+  
   return (
     <main>
       <div id='home-container-top'>
@@ -23,6 +26,7 @@ function Home() {
             <p> is...Site description paragraph goes here</p>
           </div>
           <div id="example-review-container-background">
+            {(loading && !error) ? <div>Loading review data</div> : 
             <div id="example-review-container">
               <div id="book-image-container">
                 <img src="https://covers.openlibrary.org/b/isbn/9780743273565-M.jpg" alt="Book cover" height={'120px'}/>
@@ -46,15 +50,17 @@ function Home() {
                 </div>
               </div>
             </div>
+} {(error) ? <div>Error loading review</div>: <></>}
           </div>
+            
         </div>
-        <div id="cta-buttons">
+        {(!token) ? <div id="cta-buttons">
           <p>Ready to get started?</p>
           <div>
             <button className='primary' onClick={() => nav("login")}>Sign In</button>
             <button className='secondary' onClick={() => nav("register")}>Register</button>
           </div>
-        </div>
+        </div>: <></>}
       </div> 
       
     </main>

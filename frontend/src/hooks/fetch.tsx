@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { BookItem, Review, Reviews } from "../types";
 import axios from "../../axiosConfig"
+import { AxiosError } from "axios";
+import { useNavigate } from "react-router-dom";
 
 export function getBook(uri:string) {
     const [data, setData] = useState<BookItem>();
@@ -49,20 +51,26 @@ export function getBooks(uri:string) {
 
 export function getReviewsForUser(uri:string) {
     const [reviewData, setReviewData] = useState<Review[]>([]);
+    const nav = useNavigate();
     const [loading, setLoading] = useState(true); // add loading state
     const [error, setError] = useState(null); // handle errors gracefully
+    const token = localStorage.getItem("access_token");
 
     useEffect(() => {
         setLoading(true);
         setError(null);
 
         axios.get(uri, {
-            headers: { "Content-Type": "application/json" }
+            headers: {
+                "Authorization": `Bearer ${token}`, 
+                "Content-Type": "application/json",
+              },
         })
         .then((response) => {
             console.log(response.data)
             setReviewData(response.data)})
         .catch((error) => {
+            (error.response.status == 401) ? nav('/login') : 
             console.error(error);
             setError("Failed to load reviews. Please try again later.");
         })

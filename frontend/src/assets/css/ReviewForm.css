@@ -1,5 +1,5 @@
 input[type="radio"] {
-    display: none;;
+    display: none;
 }
 .star:hover, .heart:hover, .x:hover {
     cursor: pointer;
@@ -9,7 +9,9 @@ div#new-review-card {
     background-color: var(--light-primary-color);
     color: var(--secondary-font-color);
     border-radius: 8px;
-    width: 55vw;
+    min-width: 55vw;
+    max-width: max-content;
+    height: max-content;
     display: flex;
     justify-content: space-evenly;
     align-items: center;
@@ -42,8 +44,6 @@ form.review-form textarea {
     margin: 1em 0;
     height: 10em;
 }
-
-
 
 div#new-review-content {
     display: flex;

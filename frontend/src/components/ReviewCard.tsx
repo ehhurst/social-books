@@ -16,7 +16,7 @@ function ReviewCard(review:Review) {
 
     function handleDelete() {
         setMessage('');
-        axios.delete(`/users/${review.review_id}/reviews/delete`)
+        axios.delete(`/reviews/${review.review_id}`)
         .then((response) => {
             console.log(response.data)
             setMessage(`Review number ${review.review_id} deleted successfully!`)
@@ -25,7 +25,7 @@ function ReviewCard(review:Review) {
                 console.error(error);
                 setMessage("Error deleting review. Please try again later");
             }
-        ).finally(() => nav('/reader-profile', {state: message }) // Redirect to profile page
+        ).finally(() => nav(0) // Reload the current page
         )
     }
 
