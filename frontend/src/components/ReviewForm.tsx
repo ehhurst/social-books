@@ -38,7 +38,7 @@ function ReviewForm() {
   
       try {
         const response = await axios.post(
-          "/users/reviews/add", review, 
+          "/reviews", review, 
           {
             headers: {
               "Authorization": `Bearer ${token}`, 
@@ -47,17 +47,14 @@ function ReviewForm() {
           }
         );
         setMessage("Review submitted!");
-        navigate(-1); // Redirect after success
+        navigate(0); // Redirect after success
       } catch (err) {
         console.error(err);
         setMessage("Failed to submit review.");
       }
-
-    
     };
 
     return(
-        <main>
         <div id="new-review-card">
                 <div id='book-image-background'>
                     <img src={book.img_M} alt="Book cover image" height={'170px'}/>
@@ -65,7 +62,7 @@ function ReviewForm() {
                 <div id='new-review-content'>
                     <div id='title-container'>
                         <h2>My Review for {book.title}</h2>
-                        <FontAwesomeIcon className="x" icon={faXmark} size={'lg'} onClick={() => navigate(-1)}/>
+                        <FontAwesomeIcon className="x" icon={faXmark} size={'lg'} onClick={() => navigate(0)}/>
                     </div>
                     
                     <form
@@ -136,7 +133,6 @@ function ReviewForm() {
                     </form>
                 {message && <p>{message}</p>}</div>
             </div>
-</main>
     );
 };
 
