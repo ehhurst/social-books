@@ -31,7 +31,7 @@ function ReviewForm() {
         },
         {
           headers: {
-            "Authorization": token, 
+            Authorization: token,
             "Content-Type": "application/json",
           },
         }
@@ -49,8 +49,9 @@ function ReviewForm() {
     <main>
       <h2>Leave a Review</h2>
       <form onSubmit={handleSubmit}>
-        <label>Rating (1-5):</label>
+        <label htmlFor="rating">Rating (1-5):</label>
         <input
+          id="rating"
           type="number"
           min={1}
           max={5}
@@ -59,8 +60,9 @@ function ReviewForm() {
           required
         />
 
-        <label>Review:</label>
+        <label htmlFor="reviewText">Review:</label>
         <textarea
+          id="reviewText"
           value={reviewText}
           onChange={(e) => setReviewText(e.target.value)}
           required
