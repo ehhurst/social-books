@@ -1,0 +1,75 @@
+input[type="radio"] {
+    display: none;;
+}
+.star:hover, .heart:hover, .x:hover {
+    cursor: pointer;
+}
+
+div#new-review-card {
+    background-color: var(--light-primary-color);
+    color: var(--secondary-font-color);
+    border-radius: 8px;
+    width: 55vw;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 1em 0.5em;
+    gap: 1em;
+}
+div.popup-overlay {
+    background-color: rgba(0, 0, 0, 0.723);
+}
+
+div.popup-content {
+    background-color: var(--light-primary-color);
+    border-radius: 8px;
+    width: max-content;
+    height: max-content;
+}
+
+div.modal {
+    background-color: transparent;
+}
+
+form.review-form textarea {
+    background-color: white;
+    color: var(--secondary-font-color);
+    font-size: 1em;
+    border-radius: 5px;
+    display: block;
+    width: 95%;
+    padding: 0.5em;
+    margin: 1em 0;
+    height: 10em;
+}
+
+
+
+div#new-review-content {
+    display: flex;
+    flex-direction: column;
+    width: 75%;
+    height: 100%;
+}
+
+div#title-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 0.5em 0.5em 0;
+    border-bottom-style: solid;
+    border-width: thin;
+}
+
+div.star-rating, div.liked {
+    padding: 0.5em 1em 0 0;
+
+}
+div.star-rating p, div.liked p {
+    padding-right: 0.25em
+}
+
+div#icon-input {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}

@@ -1,22 +1,20 @@
 /*styles for the top of the home page*/
 div#home-container-top {
-    height: 30vh;
-    padding: 3%;
-}
-
-div#hero-image-container {
     background-color: var(--light-primary-color);
-    float: top;
     color: var(--secondary-font-color);
-    height: 30vh;
+    height: 29vh;
+    width: 95vw;
     text-align-last: center;
     align-content: center;
+    padding-top: 1em;
+    margin-top: 1vh;
 }
 
-h1 {
+div#home-container-top h1 {
     font-size: 3.5em;
 }
-h2{
+
+div#home-container-top h2{
     color: var(--light-accent-color);
     padding-top: 1%;
     font-weight: normal;
@@ -28,11 +26,9 @@ h2{
 div#home-container-bottom {
     background-color: var(--light-primary-color);
     height: 40vh;
-    /*padding*/
+    width: 100vw;
     display: flex;
     flex-direction: column;
-    /* /* align-items: center; */
-    /* justify-content: center; */ 
 }
 
 div#description-review-container {
@@ -48,6 +44,7 @@ div#site-description-container {
     border-radius: 8px;
     width: max-content;
     height:max-content;
+    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.4);
 }
 
 div#site-description-container h3 {
@@ -58,29 +55,35 @@ div#site-description-container h3 {
 div#example-review-container-background{
     background-color: var(--main-color);
     border-radius: 8px;
-    padding: 1.25%;
+    padding: 1%;
+    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.4);
 }
 
 div#example-review-container {
     background-color: var(--light-primary-color);
-    padding: 1em;
+    padding: 0.75em;
     border-radius: 8px;
     display: grid;
     grid-template-columns: 0.6fr 1.4fr;
     align-items: center;
     max-width: 26vw;
     height: max-content;
-
-    
 }
-
 
 div#book-image-container {
     background-color: #82958453;
     border-radius: 8px;
-    height: 120%;
-    max-width: 85%;
-    justify-content: center;;
+    padding: 0;
+    width: max-content;
+    height: max-content;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+div#book-image-container img {
+    padding: 0.75em;
 }
 
 div#example-review-container h3 {
@@ -91,12 +94,12 @@ div#example-review-container h4 {
     color: var(--light-accent-color);
     font-size: 0.75em;
     display: inline;
+    padding-left: 0.5em;
 }
 
 div#review-info {
     padding-left: 0.5em;
 }
-
 
 div#review-info p {
     color: var(--secondary-font-color);
@@ -111,10 +114,13 @@ div#review-content {
     margin: 0.25em 0 0 0;
     padding: 0.25em 0 0 0;
     border-color: grey;
-
-
     display: inline;
     float: left;
+}
+
+p#review-content {
+    clear: both;
+    display: block;
 }
 
 h5#username{
@@ -124,10 +130,7 @@ h5#username{
     margin: 0;
     width: max-content;
     float: left;
-    
 }
-
-
 
 
 /*Call to action styling */

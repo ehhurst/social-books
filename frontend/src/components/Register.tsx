@@ -1,67 +1,104 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, FormEvent } from 'react';
-import axios from 'axios'
+import axios from '../../axiosConfig';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import '../assets/css/global.css'
-import '../assets/css/Login.css'
-
+import '../assets/css/global.css';
+import '../assets/css/Login.css';
 
 function Register() {
-    const [formData, setFormData] = useState("");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
 
-
-    async function handleSubmit(event:FormEvent) {
+    async function handleSubmit(event: FormEvent) {
         event.preventDefault();
-        if (formData === "") {setErrorMessage("Username is required. Please enter your username.")}
-        else {
-            setErrorMessage("") 
-            await axios.post(`http://34.238.53.95/api/users/add/${formData}`)
 
-                .then((response) => {
-                    console.log(response.data);
-                    localStorage.setItem('username', JSON.stringify(response.data));
-                    navigate("/reader-profile");
-                    // console.log(JSON.parse(localStorage.getItem('username') || "")) remove later
-                })
-                .catch((error) => {
-                    console.log(error); 
-                    setFormData("");
-                    setErrorMessage("The username you entered is already connected to an account. Please try to sign in instead.")
-                });
-        } 
+        if (!username || !password) {
+            setErrorMessage("Both username and password are required.");
+            return;
+        }
+
+        try {
+            const readerProfileResponse = await axios.post(
+                `/users/add/${username}`,
+                {
+                  headers: { "Content-Type": "application/json" },
+                }
+              );
+              console.log("test" , readerProfileResponse);
+
+            const response = await axios.post(
+              "/auth/register",
+              { username, password },
+              {
+                headers: { "Content-Type": "application/json" },
+              }
+            );
+            console.log("register" , response.data.access_token);
+          
+            const loginRes = await axios.post(
+              "/auth/login",
+              { username, password },
+              {
+                headers: { "Content-Type": "application/json" },
+              }
+            );
+            console.log("login" , loginRes.data.access_token)
+          
+            localStorage.setItem("access_token", loginRes.data.access_token);
+            localStorage.setItem("username", username);
+            navigate("/reader-profile");
+          
+        } catch (error: any) {
+            console.error(error);
+            setErrorMessage(
+              error.response?.data?.error || "Registration failed. Try again."
+            );
+        }
     }
 
-    return(
+    return (
         <main>
             <div id='login-form'>
-                <form
-                    onSubmit={(event)=>handleSubmit(event)}
-                    method='post'>
+                <form onSubmit={handleSubmit} method='post'>
                     <label htmlFor='username'>Username</label>
-                        <input 
-                            type='text'
-                            name='username'
-                            id='username'
-                            autoComplete='on'
-                            value={formData}
-                            onChange={(event) => setFormData(event.target.value)}
-                            />
+                    <input
+                        type='text'
+                        name='username'
+                        id='username'
+                        autoComplete='username'
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                    />
+
+                    <label htmlFor='password'>Password</label>
+                    <input
+                        type='password'
+                        name='password'
+                        id='password'
+                        autoComplete='new-password'
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+
                     <section>
-                        {errorMessage !== "" ? 
-                        <><p id='error-message' aria-live='assertive'><FontAwesomeIcon icon={faTriangleExclamation}/> {errorMessage} </p>
-                        </> : <></> } 
+                        {errorMessage && (
+                            <p id='error-message' aria-live='assertive'>
+                                <FontAwesomeIcon icon={faTriangleExclamation} /> {errorMessage}
+                            </p>
+                        )}
                     </section>
+
                     <button className='primary'>Register</button>
                 </form>
+
                 <div id='alt'>
                     <p>Already have an account?</p>
                     <Link to='/login'>Sign In</Link>
                 </div>
             </div>
-
         </main>
     );
 }

@@ -15,20 +15,19 @@ div#login-form form label {
     display: block;
     text-align: left;
     padding: 1.5em 0 0.5em 7.5%;
-
 }
 
-input#username {
+input#username, input#password {
     width: 80%;
     height: 2.5em;
-    margin-bottom: 1.5em;
+    margin-bottom: 1em;
     border-radius: 8px;
     color: grey;
     background-color: white;
     border: none;
     padding-left: 5%;
     font-size: 1em;
-
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 input:focus {
