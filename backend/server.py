@@ -107,8 +107,8 @@ def return_user_data():
     
     conn = db_connect()
     query = """
-        SELECT * FROM reader_profiles
-        WHERE reader_profiles.username = ?
+        SELECT * FROM users
+        WHERE users.username = ?
     """
     # executes this query, fetches one user's data
     user_data = conn.execute(query, (current_user,)).fetchone()
@@ -122,6 +122,11 @@ def return_user_data():
         
  
 # need to integrate to use those in auth.py, remove <string:username> from url
+# NOTE: does this need to insert other information also?
+# ?
+# ?
+# ?
+# ?
 @app.route("/users/add/<string:username>", methods=["POST"])
 def add_user(username):
     """ Adds a user to the database """
@@ -136,7 +141,7 @@ def add_user(username):
     # Later on we want to change this from an error to some sort of front-end behavior
     # That's for further on this week
     try:
-        query = "INSERT INTO reader_profiles (username) VALUES (?)"
+        query = "INSERT INTO users (username) VALUES (?)"
         cursor.execute(query, (username,))
         conn.commit()
     except sqlite3.IntegrityError:
@@ -147,7 +152,6 @@ def add_user(username):
 
     return jsonify({"message": f"user {username} added successfully"}), 201 #CREATED
 
-#delete methods need to be consolidated into 1 endpoint once users and reader-profiles tables have been combined
 #remove <string:username> from url
 @app.route("/users/delete-user/<string:username>", methods=["DELETE"])
 def delete_user(username):
@@ -174,28 +178,10 @@ def delete_user(username):
 
     return jsonify({"message": f"user {username} deleted successfully from users table"}), 200 #OK
 
-#delete methods need to be consolidated into 1 endpoint once users and reader-profiles tables have been combined
-#remove <string:username> from url
-@app.route("/users/delete-reader-profile/<string:username>", methods=["DELETE"])
-def delete_reader_profile(username):
-    """ Removes a user's reader_profile from the database """
-    conn = db_connect()
-    cursor = conn.cursor()
 
-    query = "SELECT username FROM reader_profiles WHERE username = ?"
-    cursor.execute(query, (username,))
-    user = cursor.fetchone()
 
-    if not user:
-        conn.close()
-        return jsonify({"error": "user not found for deletion from reader_profiles table"}), 404 #NOT FOUND
-    
-    deletion_query = "DELETE FROM reader_profiles WHERE username = ?"
-    cursor.execute(deletion_query, (username,))
-    conn.commit()
-    conn.close()
+# NOTE: deleted the duplicate delete user method which was left over from the "reader_profiles" version
 
-    return jsonify({"message": f"user {username} deleted successfully from reader_profiles"}), 200 #OK
 
 
 @app.route("/reviews", methods=["POST"])
@@ -212,7 +198,7 @@ def add_review():
     conn = db_connect()
     cursor = conn.cursor()
 
-    find_user_query = "SELECT username FROM reader_profiles WHERE username = ?" # replaced profile_id with uesrname
+    find_user_query = "SELECT username FROM users WHERE username = ?" # replaced profile_id with uesrname
     reviewer = cursor.execute(find_user_query, (current_user,)).fetchone()
 
     if not reviewer:
@@ -267,7 +253,7 @@ def update_review(review_id):
     conn = db_connect()
     cursor = conn.cursor()
 
-    find_user_query = "SELECT username FROM reader_profiles WHERE username = ?"
+    find_user_query = "SELECT username FROM users WHERE username = ?"
     reviewer = cursor.execute(find_user_query, (current_user,))
 
     if not reviewer:
@@ -414,7 +400,7 @@ def add_follower(follows):
     conn = db_connect()
     cursor = conn.cursor()
 
-    find_user_query = "SELECT username FROM reader_profiles WHERE username = ?"
+    find_user_query = "SELECT username FROM users WHERE username = ?"
     reviewer = cursor.execute(find_user_query, (follows,))
 
     if not follows:
@@ -448,7 +434,7 @@ def get_followers(username):
     
     usercheck = """
         SELECT COUNT(username)
-        FROM reader_profiles
+        FROM users
         WHERE username = ?
     """
 
