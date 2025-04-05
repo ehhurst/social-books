@@ -408,22 +408,22 @@ def add_follower(follows):
         return jsonify({"error":f"user {follows} not found, not updating followers"}), 400 #BAD REQUEST
     
     r_metadata = request.json
-    follower_id = r_metadata.get("follower_ID")
+    follower_username = r_metadata.get("follower_username")
 
-    if not follower_id:
+    if not follower_username:
         conn.close()
         return jsonify({"error": "bad follower"}), 400 #BAD REQUEST
         
     try:
-        query = "INSERT INTO followers (follower_id, follows_id) VALUES (?, ?)"
-        cursor.execute(query, (follower_id, follows))
+        query = "INSERT INTO followers (follower_username, follows_username) VALUES (?, ?)"
+        cursor.execute(query, (follower_username, follows))
         conn.commit()
     except sqlite3.Error as error:
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
     
     conn.close()
     reviewSerial += 1
-    return jsonify({"message": "Follower added successfully", "follower" : follower_id, "follows" : follows}), 201 #CREATED
+    return jsonify({"message": "Follower added successfully", "follower" : follower_username, "follows" : follows}), 201 #CREATED
 
 
 #needs to be changed to '/followers' and edited to match other api's using required JWT data
@@ -446,8 +446,8 @@ def get_followers(username):
         return jsonify({"error": f"user {username} does not exist"}), 404 # NOT FOUND
     
     query = """
-        SELECT follower_id FROM followers
-        WHERE followers.follows_id = ?
+        SELECT follower_username FROM followers
+        WHERE followers.follows_username = ?
     """
 
     cursor = conn.execute(query, (username,))
