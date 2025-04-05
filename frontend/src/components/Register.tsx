@@ -21,14 +21,6 @@ function Register() {
         }
 
         try {
-            const readerProfileResponse = await axios.post(
-                `/users/add/${username}`,
-                {
-                  headers: { "Content-Type": "application/json" },
-                }
-              );
-              console.log("test" , readerProfileResponse);
-
             const response = await axios.post(
               "/auth/register",
               { username, password },

@@ -11,11 +11,21 @@ function ReaderProfilePage() {
   const nav = useNavigate();
   const message:string = useLocation().state; // gets book data passed in url
   const username = localStorage.getItem("username");
+  const token = localStorage.getItem("access_token");
 
   async function handleDelete() {
     try {
-      const response = await axios.delete(`/users/delete-user/${username}`);
-      await axios.delete(`/users/delete-reader-profile/${username}`)
+      axios.delete("/users/delete", {
+        headers : {
+          "Authorization": `Bearer ${token}`, 
+        }
+      });
+      const response = await axios.delete('/users/delete', {
+        headers: {
+        "Authorization": `Bearer ${token}`, 
+        "Content-Type": "application/json",
+      }
+      });
       console.log(response.data);
       localStorage.removeItem("username");
       localStorage.removeItem("access_token");

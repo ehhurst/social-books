@@ -152,19 +152,25 @@ def add_user(username):
 
     return jsonify({"message": f"user {username} added successfully"}), 201 #CREATED
 
-#remove <string:username> from url
-@app.route("/users/delete-user/<string:username>", methods=["DELETE"])
-def delete_user(username):
+
+@app.route("/users/delete", methods=["DELETE"])
+@jwt_required()
+def delete_user():
     """ Removes a user from the database """
+    current_user = get_jwt_identity()  # Get the current user's identity from the JWT
+    token = request.headers.get("Authorization")
+        
+    if not token:
+        return jsonify({"error": "Missing authorization token"}), 401
+    print("HERE")
     conn = db_connect()
     cursor = conn.cursor()
-
-
-    if not username:
+    
+    if not current_user:
         return jsonify({"error": "no username given for deletion"}), 400 #BAD_REQUEST
     
     query = "SELECT username FROM users WHERE username = ?"
-    cursor.execute(query, (username,))
+    cursor.execute(query, (current_user,))
     user = cursor.fetchone()
 
     if not user:
@@ -172,11 +178,11 @@ def delete_user(username):
         return jsonify({"error": "user not found for deletion from user table"}), 404 #NOT FOUND
 
     deletion_query = "DELETE FROM users WHERE username = ?"
-    cursor.execute(deletion_query, (username,))
+    cursor.execute(deletion_query, (current_user,))
     conn.commit()
     conn.close()
 
-    return jsonify({"message": f"user {username} deleted successfully from users table"}), 200 #OK
+    return jsonify({"message": f"user {current_user} deleted successfully from users table"}), 200 #OK
 
 
 
