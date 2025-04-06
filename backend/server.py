@@ -267,6 +267,14 @@ def update_review(review_id):
         conn.close()
         return jsonify({"error":f"user {current_user} not found, not updating reviews"}), 400 #BAD REQUEST 
     
+    find_review_query = "SELECT review_id FROM reviews WHERE review_id = ?"
+    cursor.execute(find_review_query, (review_id,))
+    review = cursor.fetchone()
+
+    if not review:
+        conn.close()
+        return jsonify({"error":f"review {review_id} not found, not updating reviews"}), 400 #BAD REQUEST
+    
     r_metadata = request.json
     work_ID = r_metadata.get("work_id")
     rating = r_metadata.get("star_rating")
@@ -290,8 +298,14 @@ def update_review(review_id):
         return jsonify({"error": "rating is out of 1-5 range"}), 412 #PRECONDITION FAILED
     
     try:
-        query = f"UPDATE reviews (username, work_ID, star_rating, liked, review_text) SET (?, ?, ?, ?, ?) WHERE review_id = {review_id}"
-        cursor.execute(query, (current_user, work_ID, rating, liked, text))
+        query ="""
+        UPDATE reviews
+        SET star_rating = ? , liked = ? , review_text = ?
+        WHERE reviews.review_id = ?
+    """
+        # query = "UPDATE reviews " \
+        # "SET (username, work_ID, star_rating, liked, review_text) SET (?, ?, ?, ?, ?) WHERE review_id={review_id}"
+        cursor.execute(query, (rating, liked, text, review_id))
         conn.commit()
     except sqlite3.Error as error:
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
@@ -470,7 +484,7 @@ def get_followers(username):
     # are enumerations of the values of the sqlite3 rows. 
     # like 1, friendname
     followers = [
-        {"follower_"+str(index + 1): row[0]}
+        {"username": row[0]}
         for index, row in enumerate(rows)
     ]
     result = followers
@@ -506,6 +520,7 @@ def get_following(username):
 
     cursor = conn.execute(query, (username,))
     rows = cursor.fetchall()
+    print(rows)
 
     # Next 5 lines written with help of ChatGPT prompt: 
     # i want to create a list of dictionaries, where the dictionaries
