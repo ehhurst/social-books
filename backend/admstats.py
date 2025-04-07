@@ -44,18 +44,18 @@ def tablestats(conn: sqlite3.Connection):
     
 def qtime(conn: sqlite3.Connection):
     query = """
-    INSERT INTO reader_profiles (username) VALUES ('testname111');
+    INSERT INTO users (username, first_name, last_name, password) VALUES ('testname111', 'John', 'User', 'password1234');
     """
     time1 = time.time()
     conn.execute(query)
     query = """
-    SELECT * FROM reader_profiles WHERE username = 'testname111';
+    SELECT * FROM users WHERE username = 'testname111';
     """
     conn.execute(query)
     time2 = time.time()
     
     query = """
-    DELETE FROM reader_profiles WHERE username = 'testname111';
+    DELETE FROM users WHERE username = 'testname111';
     """
     conn.execute(query)
     
@@ -63,7 +63,7 @@ def qtime(conn: sqlite3.Connection):
     
 def users(conn: sqlite3.Connection):
     query = """
-    SELECT COUNT(*) FROM reader_profiles;
+    SELECT COUNT(*) FROM users;
     """
     stats = conn.execute(query)
     for row in stats:

@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from book_api import fetch_books_from_api, parse_books, get_book
 import sqlite3
+import datetime
 from flask_jwt_extended import JWTManager
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from auth import auth, bcrypt
@@ -473,6 +474,165 @@ def get_followers(username):
 
     return jsonify(result)
 
+@app.route("/contest/create/", methods=["POST"])
+@jwt_required()
+def create_contest():
+    """ Creates a contest with the provided name """
+    current_user = get_jwt_identity()  # Get the current user's identity from the JWT
+    token = request.headers.get("Authorization")
+        
+    if not token:
+        return jsonify({"error": "Missing authorization token"}), 401
+    
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    find_user_query = "SELECT username FROM users WHERE username = ?" # replaced profile_id with uesrname
+    organizer = cursor.execute(find_user_query, (current_user,)).fetchone()
+
+    if not organizer:
+        conn.close()
+        return jsonify({"error":f"user {current_user} not found, not creating contest"}), 400 #BAD REQUEST
+    
+    r_metadata = request.json
+    contest_name = r_metadata['contest_name']
+    work_ids = r_metadata['work_ids'] # array of work_ids
+    end_date = r_metadata['end_date'] # end date, format YYYY-MM-DD
+    num_works = len(work_ids)
+
+    if not contest_name:
+        conn.close()
+        return jsonify({"error": "Null contest_name"}), 400 #BAD REQUEST
+    if not end_date:
+        conn.close()
+        return jsonify({"error": "Null end_date"}), 400 #BAD REQUEST
+    if num_works < 1:
+        conn.close()
+        return jsonify({"error": "num_works < 1"}), 400 #BAD REQUEST
+    
+    try:
+        query = """
+        INSERT INTO contests (contest_name, book_count, end_date) values (?, ?, ?)
+        """
+        cursor.execute(query, (contest_name, num_works, end_date))
+        conn.commit()
+    except sqlite3.Error as e:
+        return jsonify({"error": f"contest_failure {e}"}), 500 #INTERNAL SERVER ERROR
+    
+    #ADD WORKS AND CREATOR HERE
+
+    for work in work_ids:
+        try:
+            query = "INSERT INTO contest_books (contest_name, work_id) VALUES (?, ?)"
+            cursor.execute(query, (contest_name, work))
+            conn.commit()
+        except sqlite3.Error as e:
+            return jsonify({"error": f"workfailure_{work} {e}"}), 500 #INTERNAL SERVER ERROR
+        
+    try:
+        query = "INSERT INTO contest_participants (contest_name, username, books_read, perms_level) VALUES (?, ?, ?, ?)"
+        cursor.execute(query, (contest_name, organizer, 0, 0))
+        conn.commit()
+    except sqlite3.Error as e:
+        conn.close()
+        return jsonify({"error":f"contestowner_failure{e}"}), 500 #INTERNAL SERVER ERROR
+    
+    conn.close()
+
+    return jsonify({"message": f"contest {contest_name} successfully created"}), 201 #CREATED
+
+@app.route("/contest/<string:contest_name>/deadline", methods=["GET"])
+def contest_deadline(contest_name):
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    current_time = str(datetime.datetime.now()).split(" ")[0] # Takes only YYYY-MM-DD from YYYY-MM-DD HH:MM:SS.MS string
+    query = """
+    SELECT end_date FROM contests WHERE contest_name = ?
+    """
+    cursor.execute(query, (contest_name,))
+    deadline_time = cursor.fetchone()
+
+    dt_curr = datetime.striptime(current_time, "%Y-%m-%d")
+    dt_dead = datetime.striptime(deadline_time, "%Y-%m-%d")
+
+    conn.close()
+
+    if dt_curr < dt_dead:
+        return jsonify({"complete": "True"})
+    else:
+        return jsonify({"complete": "False"})
+    
+@app.route("/contest/<string:contest_name>/fetch", methods=["GET"])
+@jwt_required()
+def contest_checklist(contest_name):
+    current_user = get_jwt_identity()  # Get the current user's identity from the JWT
+    token = request.headers.get("Authorization")
+        
+    if not token:
+        return jsonify({"error": "Missing authorization token"}), 401
+    
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    find_user_query = "SELECT username FROM users WHERE username = ?" # replaced profile_id with uesrname
+    competitor = cursor.execute(find_user_query, (current_user,)).fetchone()
+
+    if not competitor:
+        conn.close()
+        return jsonify({"error":f"user {current_user} not found, not fetching checklist"}), 400 #BAD REQUEST
+    
+    query = "SELECT work_id FROM contest_books_read WHERE username = ? AND contest_name = ?"
+    cursor.execute(query, (competitor, contest_name))
+    readbooks = [work_id[0] for work_id in cursor.fetchall()] # Should return just the string out of each tuple in the result...
+    # [("workname"), ("workname1"), ...] <-- double check if needed. Should work out the box
+
+    conn.close()
+
+    return jsonify({"readbooks":readbooks})
+
+@app.route("/contest/mark/<string:contest_name>/<string:work_id>")
+@jwt_required()
+def contest_markdone(contest_name, work_id):
+    current_user = get_jwt_identity()  # Get the current user's identity from the JWT
+    token = request.headers.get("Authorization")
+        
+    if not token:
+        return jsonify({"error": "Missing authorization token"}), 401
+    
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    find_user_query = "SELECT username FROM users WHERE username = ?" # replaced profile_id with uesrname
+    competitor = cursor.execute(find_user_query, (current_user,)).fetchone()
+
+    if not competitor:
+        conn.close()
+        return jsonify({"error":f"user {current_user} not found, not updating contest books"}), 400 #BAD REQUEST
+
+    if not contest_name:
+        conn.close()
+        return jsonify({"error":"No contest_name"}), 400 #BAD REQUEST
+    
+    if not work_id:
+        conn.close()
+        return jsonify({"error":"No work_id"}), 400 #BAD REQUEST
+        
+    query = "SELECT work_id FROM contest_books_read WHERE username = ? AND work_id = ? AND contest_name = ?"
+    iswork = cursor.execute(query, (competitor, work_id, contest_name)).fetchone()
+
+    if iswork:
+        conn.close()
+        return jsonify({"error":"Book already read, this should not occur"}), 500 #INTERNAL SERVER ERROR
+    
+    query = "INSERT INTO contest_books (username, work_id, contest_name) VALUES (?, ?, ?)"
+    try:
+        cursor.execute(query, (competitor, work_id, contest_name))
+    except sqlite3.Error as e:
+        return jsonify({"error":f"{e}"}), 500 #INTERNAL SERVER ERROR
+    
+    conn.close
+    return jsonify({"message":f"Work {work_id} marked as done"}), 200 #OK
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True, port=5000)
