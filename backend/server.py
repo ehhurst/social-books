@@ -94,33 +94,8 @@ def db_connect():
 
     return conn
 
-# Check if a username exists in the database
-@app.route("/users/username", methods=["GET"])
-@jwt_required()
-def return_username():
-    """ Returns all user info as a json object. 
-    Not sure of the format here, might need more work. """
-    current_user = get_jwt_identity()  # Get the current user's identity from the JWT
-    token = request.headers.get("Authorization")
 
-    if not token:
-        return jsonify({"error": "Missing authorization token"}), 401
-    
-    conn = db_connect()
-    query = """
-        SELECT username FROM users
-        WHERE users.username = ?
-    """
-    # executes this query, fetches one user's data
-    user_data = conn.execute(query, (current_user,)).fetchone()
-    conn.close()
 
-    # Return the user info as a json dictionary, should return whole tuple info
-    if user_data:
-        return jsonify(dict(user_data))
-    else:
-        return jsonify({"error": f"user data not found"}), 404 #NOT FOUND
-        
 
 # gets all user data for the reader profile page (only currently returning the username)
 @app.route("/users/reader-profile", methods=["GET"])
