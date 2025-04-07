@@ -11,6 +11,8 @@ import ReaderProfilePage from "./components/ReaderProfilePage"
 import CreateReview from "./components/CreateReview"
 import PageNotFound from "./components/PageNotFound"
 import BookListPage from "./components/BookListPage"
+import Competitions from "./components/Competitions";
+
 
 function App() {
   return (
@@ -27,6 +29,9 @@ function App() {
 {/* 
           <Route path="/book/:olid" element={<BookDetailPage />} /> */}
           <Route path="/review" element={<ReviewForm />} />
+          {/* <Route path="/competitions/:id" element={<Competitions />} /> */}
+          <Route path="/competitions" element={<Competitions />} />
+
         </Routes>
       <AppFooter/>
     </Router>
