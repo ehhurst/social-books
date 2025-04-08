@@ -97,7 +97,7 @@ def db_connect():
 
 
 
-# gets all user data for the reader profile page (only currently returning the username)
+# gets all user data for the reader profile page
 @app.route("/users/reader-profile", methods=["GET"])
 @jwt_required()
 def return_user_data():
@@ -111,7 +111,7 @@ def return_user_data():
     
     conn = db_connect()
     query = """
-        SELECT username. first_name, last_name, goal FROM users
+        SELECT username, first_name, last_name, goal FROM users
         WHERE users.username = ?
     """
     # executes this query, fetches one user's data
