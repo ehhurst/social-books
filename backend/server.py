@@ -634,5 +634,38 @@ def contest_markdone(contest_name, work_id):
     conn.close
     return jsonify({"message":f"Work {work_id} marked as done"}), 200 #OK
 
+@app_route("/reader-goals", methods=["POST"])
+@jwt_required()
+def set_goal():
+    current_user = get_jwt_identity()
+    token = request.headers.get("Authorization")
+
+    if not token:
+        return jsonify({"Error: Missing authorization token"}), 401
+
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    r_metadata = request.json
+    reading_goal = r_metadata.get("reading_goal")
+
+    if not reading_goal:
+        conn.close()
+        return jsonify({"error": "work_ID, rating, or text is bad"}), 400 #BAD REQUEST
+    
+    if not (reading_goal < 0):
+        conn.close()
+        return jsonify({"error": "rating is out of 1-5 range"}), 412 #PRECONDITION FAILED
+    
+    try:
+        query = "INSERT INTO reading_goals (username, reading_goal) VALUES (?, ?)"
+        cursor.execute(query, (current_user, reading_goal))
+        conn.commit()
+
+    except sqlite3.Error as error:
+        return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
+
+    return jsonify({"reading_goal":reading_goal})
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True, port=5000)
