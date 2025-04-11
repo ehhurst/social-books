@@ -94,6 +94,30 @@ def db_connect():
 
     return conn
 
+
+@app_route("/search/users", methods=["GET"])
+def search_users():
+    """
+    Search users
+    """
+    username = request.args.get('username')
+    if not username:
+        return jsonify({'error': 'Missing username'}), 400
+
+    conn = db_connect()
+    cursor = conn.cursor()
+    
+    query = "SELECT username FROM users WHERE username = ?"
+    cursor.execute(query, (current_user,))
+    user = cursor.fetchone()
+
+    if not user:
+        return jsonify({"error": "user not found"}), 404 #NOT FOUND
+    return jsonify({"message": f"user {current_user} is found in the users table"}), 200 #OK
+
+
+
+
 # gets all user data for the reader profile page (only currently returning the username)
 @app.route("/users/reader-profile", methods=["GET"])
 @jwt_required()
