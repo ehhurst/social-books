@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { BookItem, Reviews } from "../types";
+import { BookItem, Review, Reviews } from "../types";
 import axios from "../../axiosConfig"
+import { AxiosError } from "axios";
+import { useNavigate } from "react-router-dom";
 
 export function getBook(uri:string) {
-    console.log(axios.getUri.toString);
     const [data, setData] = useState<BookItem>();
     const [loading, setLoading] = useState(true); // add loading state
     const [error, setError] = useState(null); // handle errors gracefully  
@@ -48,7 +49,39 @@ export function getBooks(uri:string) {
     return {data, loading, error}
 }
 
-export function getReviews(uri:string) {
+export function getReviewsForUser(uri:string) {
+    const [reviewData, setReviewData] = useState<Review[]>([]);
+    const nav = useNavigate();
+    const [loading, setLoading] = useState(true); // add loading state
+    const [error, setError] = useState(null); // handle errors gracefully
+    const token = localStorage.getItem("access_token");
+
+    useEffect(() => {
+        setLoading(true);
+        setError(null);
+
+        axios.get(uri, {
+            headers: {
+                "Authorization": `Bearer ${token}`, 
+                "Content-Type": "application/json",
+              },
+        })
+        .then((response) => {
+            console.log(response.data)
+            setReviewData(response.data)})
+        .catch((error) => {
+            (error.response.status == 401) ? nav('/login') : 
+            console.error(error);
+            setError("Failed to load reviews. Please try again later.");
+        })
+        .finally(() => setLoading(false))
+    }, [uri]); // run on initial page load
+
+
+    return {reviewData, loading, error}
+}
+
+export function getReviewsForBook(uri:string) {
     const [reviewData, setReviewData] = useState<Reviews>();
     const [loading, setLoading] = useState(true); // add loading state
     const [error, setError] = useState(null); // handle errors gracefully
@@ -73,4 +106,3 @@ export function getReviews(uri:string) {
 
     return {reviewData, loading, error}
 }
-

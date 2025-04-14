@@ -6,14 +6,18 @@ import { faStar, faX } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
-import CreateReview from './CreateReview';
 import { useState } from 'react';
+import ReviewForm from './ReviewForm';
 
+// DO NOT DELETE COMMENTS OR IMPORTS IN THIS FILE
 function BookDetailCard(props: {book:BookItem, avgRating:String}) {
     const nav = useNavigate();
 
     const [open, setOpen] = useState(false);
     const closeModal = () => setOpen(false);
+
+    const username = localStorage.getItem("username");
+    console.log(username);
       
 
     return(
@@ -44,25 +48,20 @@ function BookDetailCard(props: {book:BookItem, avgRating:String}) {
                 </table>
 
             </div>
+            {(username) ? 
             <div id='cta-container'>
                 <button className='secondary'>Mark as Read</button>
                 <button type="button" className="primary" onClick={() => setOpen(o => !o)}>+ New Review</button>
 
                 <Popup open={open} closeOnDocumentClick onClose={closeModal} modal>
                     <div className="modal">
-                    <span id='review-details'> <CreateReview 
-                                title={props.book.title} 
-                                author={props.book.author} 
-                                work_id={props.book.work_id} 
-                                description={props.book.description} 
-                                img_S={props.book.img_S} 
-                                img_M={props.book.img_M}
-                                img_L={props.book.img_L}/> 
+                    <span id='review-details'> <ReviewForm/> 
                     </span>
                     
                     </div>
                 </Popup>
-            </div>
+            </div> 
+            : <></>}
         </div>
     </div>
     );

@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, FormEvent } from 'react';
-import axios from 'axios'
+import axios from '../../axiosConfig'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import '../assets/css/global.css'
@@ -11,7 +11,6 @@ function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
-    // const [formData, setFormData] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
 
@@ -23,7 +22,7 @@ function Login() {
             return;
         }
         try {
-            const response = await axios.post("http://127.0.0.1:5000/auth/login", {
+            const response = await axios.post("/auth/login", {
                 username,
                 password,
             }, {
@@ -31,7 +30,7 @@ function Login() {
                     "Content-Type": "application/json",
                 }
             });
-
+            console.log("login" , response.data.access_token)
             localStorage.setItem("access_token", response.data.access_token); 
             localStorage.setItem("username", username);
             
