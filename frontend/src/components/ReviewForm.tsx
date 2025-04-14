@@ -18,8 +18,8 @@ function ReviewForm() {
     const username = localStorage.getItem("username");
     const token = localStorage.getItem("access_token");
 
-    const [rating, setRating] = useState(null);
-    const [ratingHover, setRatingHover] = useState(null);
+    const [rating, setRating] = useState(0);
+    const [ratingHover, setRatingHover] = useState(0);
     const [liked, setLiked] = useState(false);
     const [likedHover, setLikedHover] = useState(false);
     const [reviewText, setReviewText] = useState('');
@@ -89,14 +89,14 @@ function ReviewForm() {
                                             size={'xl'}
                                             color={"var(--dark-accent-color)"}
                                             onMouseEnter={() => setRatingHover(currentRating)}
-                                            onMouseLeave={() => setRatingHover('')}/> 
+                                            onMouseLeave={() => setRatingHover(0)}/> 
                                             : <FontAwesomeIcon 
                                             className="star"
                                             icon={emptyStar} 
                                             size={'xl'}
                                             color={"var(--dark-accent-color)"}
                                             onMouseEnter={() => setRatingHover(currentRating)}
-                                            onMouseLeave={() => setRatingHover('')}/>}
+                                            onMouseLeave={() => setRatingHover(0)}/>}
                                         </label>
                                     );
                                 })}

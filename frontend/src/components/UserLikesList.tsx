@@ -7,7 +7,7 @@ import '../assets/css/UserLikesList.css'
 function UserLikesList({likedBookIds}:{likedBookIds:string[]}) {
     const [likedBooks, setLikedBooks] = useState<BookItem[]>([])
     const [loading, setLoading] = useState(true); // add loading state
-    const [error, setError] = useState(null); // handle errors gracefully
+    const [error, setError] = useState(''); // handle errors gracefully
     const likedList:BookItem[] = []
 
     const findItem = ((array:BookItem[], work_id:string)=> array.find((item) => item.work_id == work_id));
@@ -15,7 +15,7 @@ function UserLikesList({likedBookIds}:{likedBookIds:string[]}) {
 
     useEffect(() => {
         setLoading(true);
-        setError(null);
+        setError('');
 
         // create list of books the user "likes", get book data for the liked books
         likedBookIds.forEach((item) => {

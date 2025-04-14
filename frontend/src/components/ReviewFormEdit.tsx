@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { BookItem, Review } from "../types";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as filledStar, faHeart as filledHeart} from "@fortawesome/free-solid-svg-icons";
@@ -10,6 +10,7 @@ import axios from "axios";
 
 function ReviewFormEdit(review: Review) {
     const book:BookItem = useLocation().state; // gets book data passed in url
+    const [bookData, setBookData] = useState<BookItem>();
     const navigate = useNavigate();
 
     // retrieve book details from localstorage
@@ -17,11 +18,22 @@ function ReviewFormEdit(review: Review) {
     const token = localStorage.getItem("access_token");
 
     const [rating, setRating] = useState(review.star_rating);
-    const [ratingHover, setRatingHover] = useState(null);
+    const [ratingHover, setRatingHover] = useState(0);
     const [liked, setLiked] = useState(review.liked);
     const [likedHover, setLikedHover] = useState(false);
     const [reviewText, setReviewText] = useState(review.review_text);
     const [message, setMessage] = useState("");
+    
+    useEffect(() => {
+        axios.get(`/book/${review.work_id}`).then((response) => {
+            setBookData(response.data);
+
+            console.log(response.data);
+        }
+        ).then(() => console.log("book data", bookData))
+
+
+    }, [])
 
   
     const handleSubmit = async (event: FormEvent) => {
@@ -57,11 +69,11 @@ function ReviewFormEdit(review: Review) {
     return(
         <div id="new-review-card">
                 <div id='book-image-background'>
-                    <img src={book.img_M} alt="Book cover image" height={'170px'}/>
+                    <img src={bookData?.img_M} alt="Book cover image" height={'170px'}/>
                 </div>
                 <div id='new-review-content'>
                     <div id='title-container'>
-                        <h2>My Review for {book.title}</h2>
+                        <h2>My Review for {bookData?.title}</h2>
                         <FontAwesomeIcon className="x" icon={faXmark} size={'lg'} onClick={() => navigate(0)}/>
                     </div>
                     
@@ -89,14 +101,14 @@ function ReviewFormEdit(review: Review) {
                                             size={'xl'}
                                             color={"var(--dark-accent-color)"}
                                             onMouseEnter={() => setRatingHover(currentRating)}
-                                            onMouseLeave={() => setRatingHover('')}/> 
+                                            onMouseLeave={() => setRatingHover(0)}/> 
                                             : <FontAwesomeIcon 
                                             className="star"
                                             icon={emptyStar} 
                                             size={'xl'}
                                             color={"var(--dark-accent-color)"}
                                             onMouseEnter={() => setRatingHover(currentRating)}
-                                            onMouseLeave={() => setRatingHover('')}/>}
+                                            onMouseLeave={() => setRatingHover(0)}/>}
                                         </label>
                                     );
                                 })}

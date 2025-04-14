@@ -515,8 +515,8 @@ def get_following(username):
         return jsonify({"error": f"user {username} does not exist"}), 404 # NOT FOUND
     
     query = """
-        SELECT follows_id FROM followers
-        WHERE followers.follower_id = ? 
+        SELECT follows_username FROM followers
+        WHERE followers.follower_username = ? 
     """
 
     cursor = conn.execute(query, (username,))

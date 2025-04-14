@@ -22,10 +22,10 @@ function ReviewCard(review:Review) {
     const closeModal = () => setOpen(false);
 
     useEffect(() => {
-        axios.get(`/book/${review.work_id}`).then((response) => {
-            setBookData(response.data);
-
+        axios.get(`/book/${review.work_id}`)
+        .then((response) => {
             console.log(response.data);
+            setBookData(response.data);
         }
         ).then(() => console.log("book data", bookData))
 
@@ -56,7 +56,7 @@ function ReviewCard(review:Review) {
     return( // ADD LIKED TODO
     <div className='container review'>
         <div id="">
-            {/* <img src={data.img_M} alt='Book Cover Image' height={'50px'}/> */}
+            <img src={bookData?.img_S} alt='Book Cover Image' height={'50px'}/>
         </div>
         <div id='review-content-top'>
             <div>
