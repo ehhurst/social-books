@@ -41,7 +41,7 @@ function Register() {
           
             localStorage.setItem("access_token", loginRes.data.access_token);
             localStorage.setItem("username", username);
-            navigate("/reader-profile");
+            navigate(`/${username}/profile`);
           
         } catch (error: any) {
             console.error(error);

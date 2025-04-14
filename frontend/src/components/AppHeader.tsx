@@ -42,7 +42,7 @@ function AppHeader() {
                     <button className='secondary' onClick={() => nav('/register')}>Register</button>
                 </div>
                 : <div id='user-info'>
-                    <Link to={'/reader-profile'}><FontAwesomeIcon id='user-icon' icon={faUserCircle} size={'xl'}/></Link>
+                    <Link to={`${username}/profile`}><FontAwesomeIcon id='user-icon' icon={faUserCircle} size={'xl'}/></Link>
                     <p>Welcome, {username}</p>
                     <Link to={'/login'} onClick={logOut}>Logout</Link>
                 </div>}

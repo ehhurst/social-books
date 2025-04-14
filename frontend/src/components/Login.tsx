@@ -34,7 +34,7 @@ function Login() {
             localStorage.setItem("access_token", response.data.access_token); 
             localStorage.setItem("username", username);
             
-            navigate("/reader-profile");
+            navigate(`/${username}/profile`);
         } catch (error) {
             console.error(error);
             setErrorMessage("Invalid username or password. Please try again.");

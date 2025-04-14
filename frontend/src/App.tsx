@@ -10,6 +10,7 @@ import ReaderProfilePage from "./components/ReaderProfilePage"
 import ReviewForm from "./components/ReviewForm"
 import PageNotFound from "./components/PageNotFound"
 import BookListPage from "./components/BookListPage"
+import UserReviewsPage from "./components/UserReviewsPage"
 
 function App() {
   return (
@@ -21,7 +22,8 @@ function App() {
           <Route path='/register' element={<Register/>}/>
           <Route path='/books' element={<BookListPage/>}/>
           <Route path='/books/:work_id' element={<BookDetailPage/>}/>
-          <Route path='/reader-profile' element={<ReaderProfilePage/>}/>
+          <Route path=':user/profile' element={<ReaderProfilePage/>}/>
+            
           <Route path="/review" element={<ReviewForm />} />
           <Route path="*" element={<PageNotFound/>}/>     
         </Routes>
