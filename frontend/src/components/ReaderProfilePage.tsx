@@ -4,16 +4,20 @@ import { useEffect, useState } from "react";
 import { faArrowRight, faGear, faUser, faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {  getReviewsForUser } from "../hooks/fetch";
-
 import UserReviewsList from "./UserReviewsPage";
 import UserLikesList from "./UserLikesList";
 import '../assets/css/ReaderProfilePage.css'
 import { User } from "../types";
 import UserNetwork from "./UserNetwork";
 import YearlyProgressChart from "./YearlyProgressChart";
+import Popup from "reactjs-popup";
+import Settings from "./settings";
 
 function ReaderProfilePage() {
   const nav = useNavigate();
+
+  const [open, setOpen] = useState(false);
+  const closeModal = () => setOpen(false);
 
 
 
@@ -34,27 +38,6 @@ function ReaderProfilePage() {
   
     console.log("whose profile? " , currentUsersProfile);
 
-  async function handleDelete() {
-    try {
-      axios.delete("/users/delete", {
-        headers : {
-          "Authorization": `Bearer ${token}`, 
-        }
-      });
-      const response = await axios.delete('/users/delete', {
-        headers: {
-        "Authorization": `Bearer ${token}`, 
-        "Content-Type": "application/json",
-      }
-      });
-      console.log(response.data);
-      localStorage.removeItem("username");
-      localStorage.removeItem("access_token");
-      nav("/"); // Redirect to homepage after account deletion
-    } catch (error) {
-      console.error(error);
-    }
-  }
 
   const {reviewData, loading, error} = getReviewsForUser(`/user/reviews`);
   console.log("reviews" ,reviewData)
@@ -81,11 +64,13 @@ function ReaderProfilePage() {
 
   
 function handleFollow() {
-  axios.post(`/follow`, user,  {headers: {
-    "Authorization": `Bearer ${token}`, 
-    "Content-Type": "application/json",
-  }},)
-  .then(response => console.log(response.data)).catch((error) => console.log(error)).finally(() => nav(0))
+  axios.post(`/follow`, user,  
+    {headers: {
+      "Authorization": `Bearer ${token}`, 
+      "Content-Type": "application/json",
+    }},)
+  .then(response => console.log("here", response.data))
+  .catch((error) => console.log(error)).finally(() => nav(0))
 }
   
 let year = new Date().getFullYear();
@@ -95,10 +80,13 @@ let year = new Date().getFullYear();
   return(
     <div id="profile-page-container">
       <div id='settings'>
-        {currentUsersProfile ? <FontAwesomeIcon icon={faGear} size={'xl'}/> : <></>} {/* TODO add OCL*/}
+        {currentUsersProfile ? <FontAwesomeIcon icon={faGear} size={'xl'} onClick={() => setOpen(o => !o)}/> : <></>} {/* TODO add OCL*/}
+          <Popup open={open} closeOnDocumentClick onClose={closeModal} modal>
+            <div className="modal">
+              <span id='settings'> <Settings/></span>
+            </div>
+          </Popup>
       </div>
-
-     
 
       <div id='profile-header-content'>
         <div id='user-container'>
@@ -160,9 +148,6 @@ let year = new Date().getFullYear();
       </div>
 
         
-
-        {/* <button onClick={handleDelete}>Delete My Account</button>  */}
-
     </div>
 
     );

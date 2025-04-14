@@ -4,7 +4,7 @@ import StarRating from "./StarRating";
 import '../assets/css/ReviewCard.css'
 import { faPen, faTrash, faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import axios from "../../axiosConfig";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getBook } from "../hooks/fetch";
 import Popup from "reactjs-popup";
@@ -59,10 +59,11 @@ function ReviewCard(review:Review) {
             <img src={bookData?.img_S} alt='Book Cover Image' height={'50px'}/>
         </div>
         <div id='review-content-top'>
-            <div>
-                <FontAwesomeIcon icon={faUserCircle} onClick={() => nav(`${review.username}/profile`)}/>
+            <Link to={`${review.username}/profile`}>
+                <FontAwesomeIcon icon={faUserCircle} />
                 <h5>{review.username}</h5>  
-            </div>
+            </Link>
+
             <StarRating rating={review.star_rating}/> {/*Whole number ratings only*/}
             {(user == review.username) ? 
             <div>

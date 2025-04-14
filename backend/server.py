@@ -443,7 +443,7 @@ def add_follower():
         return jsonify({"error": "bad follower"}), 400 #BAD REQUEST
         
     try:
-        query = "INSERT INTO followers (follower_id, follows_id) VALUES (?, ?)"
+        query = "INSERT INTO followers (follower_username, follows_username) VALUES (?, ?)"
         cursor.execute(query, (current_user, user_to_follow,))
         conn.commit()
     except sqlite3.Error as error:
