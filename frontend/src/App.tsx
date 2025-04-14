@@ -10,6 +10,8 @@ import ReaderProfilePage from "./components/ReaderProfilePage"
 import ReviewForm from "./components/ReviewForm"
 import PageNotFound from "./components/PageNotFound"
 import BookListPage from "./components/BookListPage"
+import Competitions from "./components/Competitions";
+
 import UserReviewsPage from "./components/UserReviewsPage"
 
 function App() {
@@ -25,6 +27,9 @@ function App() {
           <Route path=':user/profile' element={<ReaderProfilePage/>}/>
             
           <Route path="/review" element={<ReviewForm />} />
+          {/* <Route path="/competitions/:id" element={<Competitions />} /> */}
+          <Route path="/competitions" element={<Competitions />} />
+
           <Route path="*" element={<PageNotFound/>}/>     
         </Routes>
       <AppFooter/>
