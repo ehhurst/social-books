@@ -33,8 +33,8 @@ function BookDetailPage() {
                             review_id={review.review_id}
                             work_id={review.work_id}
                             username={review.username}
-                            rating={review.rating}
-                            reviewText={review.reviewText}
+                            star_rating={review.star_rating}
+                            review_text={review.review_text}
                             liked={review.liked}
                         />
                     ))

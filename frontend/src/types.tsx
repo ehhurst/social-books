@@ -21,8 +21,8 @@ export interface Review {
     review_id: string;
     work_id: string;
     username: string;
-    rating: number;
-    reviewText: string;
+    star_rating: number;
+    review_text: string;
     liked: boolean;
 }
 
@@ -45,4 +45,11 @@ export const categories : string[] = [
 
 export interface ContextProps {
     children: JSX.Element | JSX.Element[]
+  }
+
+
+  export interface User {
+    username: string,
+    // first_name: string,
+    // last_name: string
   }
