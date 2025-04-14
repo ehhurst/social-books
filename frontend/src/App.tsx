@@ -10,6 +10,8 @@ import ReaderProfilePage from "./components/ReaderProfilePage"
 import ReviewForm from "./components/ReviewForm"
 import PageNotFound from "./components/PageNotFound"
 import BookListPage from "./components/BookListPage"
+import Competitions from "./components/Competitions";
+
 
 function App() {
   return (
@@ -23,7 +25,9 @@ function App() {
           <Route path='/books/:work_id' element={<BookDetailPage/>}/>
           <Route path='/reader-profile' element={<ReaderProfilePage/>}/>
           <Route path="/review" element={<ReviewForm />} />
-          <Route path="*" element={<PageNotFound/>}/>     
+          {/* <Route path="/competitions/:id" element={<Competitions />} /> */}
+          <Route path="/competitions" element={<Competitions />} />
+
         </Routes>
       <AppFooter/>
     </Router>
