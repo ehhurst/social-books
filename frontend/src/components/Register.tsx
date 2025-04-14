@@ -7,6 +7,8 @@ import '../assets/css/global.css';
 import '../assets/css/Login.css';
 
 function Register() {
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -23,7 +25,7 @@ function Register() {
         try {
             const response = await axios.post(
               "/auth/register",
-              { username, password },
+              { username, password, firstName, lastName },
               {
                 headers: { "Content-Type": "application/json" },
               }
@@ -55,6 +57,26 @@ function Register() {
         <main>
             <div id='login-form'>
                 <form onSubmit={handleSubmit} method='post'>
+                    <label htmlFor='first_name'></label>
+                        <input
+                            type='text'
+                            name='first_name'
+                            id='first_name'
+                            autoComplete='first_name'
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                        />
+                    <label htmlFor='last_name'></label>
+                        <input
+                            type='text'
+                            name='last_name'
+                            id='last_name'
+                            autoComplete='last_name'
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                        />
+
+
                     <label htmlFor='username'>Username</label>
                     <input
                         type='text'

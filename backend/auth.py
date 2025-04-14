@@ -19,7 +19,8 @@ def register():
     data = request.json
     username = data.get("username")
     password = data.get("password")
-    print("in auth.py" ,username, password)
+    fname = data.get("firstName")
+    lname = data.get("lastName")
 
     if not username or not password:
         return jsonify({"error": "Missing username or password"}), 400
@@ -30,12 +31,11 @@ def register():
     cursor = conn.cursor()
 
     try:
-        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, hashed_password))
+        cursor.execute("INSERT INTO users (username, password, first_name, last_name) VALUES (?, ?, ?, ?)", (username, hashed_password, fname, lname))
         # cursor.execute("INSERT INTO reader_profiles (username) VALUES (?)", (username))
         conn.commit()
     except sqlite3.IntegrityError:
         return jsonify({"error": "Username already exists"}), 409
-
 
     conn.close()
     return jsonify({"message": "User registered successfully"}), 201
@@ -55,4 +55,5 @@ def login():
         return jsonify({"error": "Invalid credentials"}), 401
 
     access_token = create_access_token(identity=username)
+    conn.close()
     return jsonify({"access_token": access_token}), 200
