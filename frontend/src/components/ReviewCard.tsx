@@ -4,15 +4,34 @@ import StarRating from "./StarRating";
 import '../assets/css/ReviewCard.css'
 import { faPen, faTrash, faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import axios from "../../axiosConfig";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getBook } from "../hooks/fetch";
+import Popup from "reactjs-popup";
+import ReviewFormEdit from "./ReviewFormEdit";
 
 // Displays posted reviews
 function ReviewCard(review:Review) {
     const nav = useNavigate();
     const user = localStorage.getItem("username");
     const [message, setMessage] = useState('');
-    console.log("review id" + review.review_id);
+    // const {work_id} = useParams();
+    // console.log("param" , work_id);
+    const [bookData, setBookData] = useState<BookItem>();
+    const [open, setOpen] = useState(false);
+    const closeModal = () => setOpen(false);
+
+    useEffect(() => {
+        axios.get(`/book/${review.work_id}`).then((response) => {
+            setBookData(response.data);
+
+            console.log(response.data);
+        }
+        ).then(() => console.log("book data", bookData))
+
+
+    }, [])
+
 
     function handleDelete() {
         setMessage('');
@@ -29,26 +48,41 @@ function ReviewCard(review:Review) {
         )
     }
 
+
+    // const {data, loading, error} = getBook(`/book/${review.work_id}`);
+
+
+
     return( // ADD LIKED TODO
     <div className='container review'>
+        <div id="">
+            {/* <img src={data.img_M} alt='Book Cover Image' height={'50px'}/> */}
+        </div>
         <div id='review-content-top'>
             <div>
-                <FontAwesomeIcon icon={faUserCircle}/>
-                <h5>{review.username}</h5>
+                <FontAwesomeIcon icon={faUserCircle} onClick={() => nav(`${review.username}/profile`)}/>
+                <h5>{review.username}</h5>  
             </div>
-            <StarRating rating={review.rating}/> {/*Whole number ratings only*/}
+            <StarRating rating={review.star_rating}/> {/*Whole number ratings only*/}
             {(user == review.username) ? 
             <div>
                 <FontAwesomeIcon icon={faTrash} onClick={handleDelete} color={'var(--main-color)'}/>
-                <FontAwesomeIcon icon={faPen} color={'var(--main-color)'}/>
+                <FontAwesomeIcon icon={faPen} onClick={() => setOpen(o => !o)} color={'var(--main-color)'}/>
+                <Popup open={open} closeOnDocumentClick onClose={closeModal} modal>
+                    <div className="modal">
+                    <span id='review-details'> <ReviewFormEdit review_id={review.review_id} work_id={review.work_id} username={review.username} star_rating={review.star_rating} review_text={review.review_text} liked={review.liked}/> 
+                    </span>
+                    
+                    </div>
+                </Popup>
             </div>
             :<></>
             }
 
         </div>
         <div>
-            <p id='review-text'>
-            {review.reviewText}
+            <p id='review-text'>a
+            {review.review_text}
             </p>
         </div>
         
