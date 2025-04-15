@@ -23,7 +23,7 @@ function Home() {
         <div id="description-review-container">
           <div id='site-description-container'>
             <h3><FontAwesomeIcon icon={faBookOpen}/> ShelfLife</h3>
-            <p> is...Site description paragraph goes here</p>
+            <p> a place for readers to log, review, and discover books and connect with others through discussions and competitions.</p>
           </div>
           <div id="example-review-container-background">
             {(loading && !error) ? <div>Loading review data</div> : 

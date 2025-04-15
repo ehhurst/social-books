@@ -1,0 +1,20 @@
+div#liked-container {
+    border-top-style: solid;
+    border-top-width: thin;
+    border-color: var(--main-color);
+    min-height: max-content;
+    margin-top: 0.25em;
+    padding-top: 0.5em;
+    display: flex;
+    
+}
+
+div#liked-container ul {
+    text-align: start;
+    margin: 0.5em 0 0.5em 0;
+}
+
+a#image-link {
+    width: max-content;
+    height: max-content;
+}

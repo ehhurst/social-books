@@ -42,7 +42,7 @@ div#site-description-container {
     background-color: var(--dark-accent-color);
     padding: 2%;
     border-radius: 8px;
-    width: max-content;
+    max-width: 25%;
     height:max-content;
     box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.4);
 }

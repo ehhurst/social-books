@@ -1,0 +1,8 @@
+div#review-container {
+    display: flex;
+    justify-content: center;
+}
+
+div#review-container ul {
+    margin: 0;
+}

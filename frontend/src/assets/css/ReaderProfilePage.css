@@ -1,0 +1,96 @@
+/* This page does not use main as its base element, 
+so we have to style the div that contains all of the
+page elements */
+div#profile-page-container {
+    display: flex;
+    min-height: 78.3vh;
+    flex-direction: column;
+    align-items: center;
+}
+div#settings {
+    width: 100vw;
+    text-align-last: end;
+}
+
+div#settings svg {
+    margin: 5% 5% 2% 0;
+}
+
+div#settings svg:hover {
+    color: var(--light-accent-color);
+    cursor: pointer;;
+}
+
+div#profile-header-content {
+    display: flex;
+    justify-content: space-between;
+    width: 70%;
+    padding: 1rem;
+    margin-bottom: 3%;
+
+}
+
+div#user-container {
+    display: flex;
+    align-items: center;;
+}
+
+div#user h2 {
+    float: right;
+    padding-left: 0.75rem;
+    padding-right: 2rem;
+}
+
+div#header-stats {
+    display: flex;
+
+}
+div.stats {
+    text-align: center;
+    padding: 0.5rem 1rem;
+    border-right-style: solid;
+    border-width: thin;
+    border-color: var(--main-color);
+}
+
+div.stats.followers {
+    border: none;
+}
+
+div#profile-body-content {
+    width: 70%;
+    height: max-content;
+    min-height: 40vh;
+}
+
+li#selected {
+    color: rgb(186, 122, 251);
+    font-weight: bold;
+    border-bottom-style: solid;
+    border-color: rgb(186, 122, 251);
+}
+
+li#selected:hover, li#unselected:hover {
+    cursor: pointer;
+    color: rgb(186, 122, 251);
+}
+
+
+div#profile-nav {
+    border-style: solid;
+    border-width: thin;
+    border-color: var(--main-color);
+    width: 70%;
+    margin-bottom: 2%;
+}
+div#profile-nav ul {
+    margin: 0;
+    padding: 0.5em;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+div.stats:hover {
+    color: red;
+    cursor: pointer;
+}

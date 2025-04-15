@@ -22,11 +22,14 @@ function SearchBar() {
                 <form id="search-bar" onSubmit={handleSearch}>
                     <input
                         type="text"
-                        placeholder = "Search for books..."
+                        placeholder="Search by title or author"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     /> 
-                    <button type="submit"><FontAwesomeIcon id="search-icon"icon={faMagnifyingGlass} color={'grey'} /></button>
+                    <button type="submit" aria-label="Search">
+  <FontAwesomeIcon icon={faMagnifyingGlass} id="search-icon" color="grey" />
+</button>
+
                 </form>
             </div>
         );
