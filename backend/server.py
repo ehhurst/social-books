@@ -121,7 +121,8 @@ def search_reviews(search):
         return jsonify([])
 
 
-# gets all user data for the reader profile page (only currently returning the username)
+
+# gets all user data for the reader profile page
 @app.route("/users/reader-profile", methods=["GET"])
 @jwt_required()
 def return_user_data():
@@ -135,7 +136,7 @@ def return_user_data():
     
     conn = db_connect()
     query = """
-        SELECT * FROM users
+        SELECT username, first_name, last_name, goal FROM users
         WHERE users.username = ?
     """
     # executes this query, fetches one user's data
@@ -147,7 +148,12 @@ def return_user_data():
         return jsonify(dict(user_data))
     else:
         return jsonify({"error": f"user data not found"}), 404 #NOT FOUND
-        
+
+
+
+
+
+
  
 # need to integrate to use those in auth.py, remove <string:username> from url
 # NOTE: does this need to insert other information also?
@@ -723,6 +729,218 @@ def contest_markdone(contest_name, work_id):
     
     conn.close
     return jsonify({"message":f"Work {work_id} marked as done"}), 200 #OK
+
+
+
+
+
+
+
+
+
+
+# Creates an empty shelf from a new name
+# Returns an error if a shelf with that name already exists
+@app.route("/shelf/<string:shelf_name>", methods=['POST'])
+@jwt_required()
+def create_shelf(shelf_name):
+    current_user = get_jwt_identity()
+    token = request.headers.get("Authorization")
+
+    if not token:
+        return jsonify({"error": "Missing authorization token"}), 401
+
+    conn = db.connect()
+    cursor = conn.cursor()
+
+    find_user_query = "SELECT username FROM users WHERE username = ?"
+    user = cursor.execute(find_user_query, (current_user,))
+
+    if not user:
+        conn.close()
+        return jsonify({"error":f"user {current_user} not found, no shelf update"}), 400 #BAD REQUEST
+
+    find_shelf_query = "SELECT shelf_name FROM user_shelves WHERE username = ? AND shelf_name = ?"
+    shelf = cursor.execute(find_shelf_query, (current_user, shelf_name))
+
+    if shelf:
+        conn.close()
+        return jsonify({"error":f"shelf {shelf_name} already exists, no addition"}), 400 #BAD REQUEST 
+
+    
+    try:
+        query = f"INSERT INTO user_shelves (username, shelf_name) VALUES (?, ?)"
+        cursor.execute(query, (current_user, shelf_name))
+        conn.commit()
+    except sqlite3.Error as error:
+        return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
+
+    conn.close()
+    return jsonify({"message": "New shelf created successfully", "user_id" : current_user, "shelf name" : shelf_name}), 201 #CREATED
+
+
+
+
+
+
+
+
+
+
+
+
+# add a book to a user's shelf
+@app.route("/shelf/<string:shelf_name>/<string:work_id>", methods=['POST'])
+@jwt_required()
+def shelve_book(shelf_name, work_id):
+    current_user = get_jwt_identity()
+    token = request.headers.get("Authorization")
+
+    if not token:
+        return jsonify({"error": "Missing authorization token"}), 401
+
+    conn = db.connect()
+    cursor = conn.cursor()
+
+    find_user_query = "SELECT DISTINCT(shelf_name) FROM user_shelves WHERE username = ? AND shelf_name = ?"
+    shelf = cursor.execute(find_user_query, (current_user, shelf_name,))
+
+    if not shelf:
+        conn.close()
+        return jsonify({"error":f"user or shelf {current_user} not found, not updating either"}), 400 #BAD REQUEST 
+
+    try:
+        query = f"INSERT INTO shelved_books (username, work_id, shelf_name) VALUES (?, ?, ?)"
+        cursor.execute(query, (current_user, work_id, shelf_name))
+        conn.commit()
+    except sqlite3.Error as error:
+        return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
+
+    conn.close()
+    return jsonify({"message": "Book shelved successfully", "user_id" : current_user, "work_ID" : work_ID, "shelf name" : shelf_name}), 201 #CREATED
+
+
+# delete a specific book from a user's shelf
+@app.route("/shelf/<string:shelf_name>/<string:work_id>", methods=['DELETE'])
+@jwt_required()
+def unshelve_book(shelf_name, work_id):
+    current_user = get_jwt_identity()
+    token = request.headers.get("Authorization")
+
+    if not token:
+        return jsonify({"error": "Missing authorization token"}), 401
+
+    conn = db.connect()
+    cursor = conn.cursor()
+
+
+    find_shelf_book = "SELECT work_id FROM shelved_books WHERE username = ? AND shelf_name = ? AND work_id = ?"
+    shelved_book = cursor.execute(find_shelf_book, (current_user, shelf_name, work_id))
+
+    if not shelved_book:
+        conn.close()
+        return jsonify({"error":f"book {work_id} not found in shelf {shelf_name} belonging to {current_user}"}), 400 #BAD REQUEST 
+    
+    try:
+        query = "DELETE FROM shelved_books WHERE username = ? AND shelf_name = ? AND work_id = ?"
+        cursor.execute(query, (current_user, shelf_name, work_id))
+        conn.commit()
+    except sqlite3.Error as error:
+        return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
+
+    conn.close()
+    return jsonify({"message": "Book unshelved successfully", "user_id" : current_user, "shelf name" : shelf_name, "work_ID" : work_ID}), 201 #CREATED
+
+
+# delete an entire shelf
+@app.route("/shelf/<string:shelf_name>", methods=['DELETE'])
+@jwt_required()
+def delete_shelf(shelf_name):
+    current_user = get_jwt_identity()
+    token = request.headers.get("Authorization")
+
+    if not token:
+        return jsonify({"error": "Missing authorization token"}), 401
+
+    conn = db.connect()
+    cursor = conn.cursor()
+
+    find_shelf = "SELECT shelf_name FROM user_shelves WHERE username = ? AND shelf_name = ?"
+    shelf = cursor.execute(find_shelf, (current_user, shelf_name))
+
+    if not shelf:
+        conn.close()
+        return jsonify({"error":f"shelf with name {shelf_name} not found. no action taken."}), 400 #BAD REQUEST 
+
+    try:
+        query = f"DELETE FROM shelved_books WHERE username = ? AND shelf_name = ?"
+        cursor.execute(query, (current_user, shelf_name))
+        conn.commit()
+    except sqlite3.Error as error:
+        return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
+
+    conn.close()
+    return jsonify({"message": "Shelf deleted successfully", "user_id" : current_user, "shelf name" : shelf_name}), 201 #CREATED
+
+
+# NOTE: test this
+# Get all books in current user's specific shelf
+@app.route("/shelf/<string:shelf_name>", methods=['GET'])
+@jwt_required()
+def get_shelf(shelf_name):
+    current_user = get_jwt_identity()
+    token = request.headers.get("Authorization")
+
+    if not token:
+        return jsonify({"error": "Missing authorization token"}), 401
+
+    conn = db.connect()
+    cursor = conn.cursor()
+
+    find_shelf = "SELECT shelf_name FROM user_shelves WHERE username = ? AND shelf_name = ?"
+    shelf = cursor.execute(find_shelf, (current_user, shelf_name))
+
+    if not shelf:
+        conn.close()
+        return jsonify({"error":f"shelf with name {shelf_name} not found. no action taken."}), 400 #BAD REQUEST 
+
+    query = "SELECT work_id FROM shelved_books WHERE username = ? AND shelf_name = ?"
+    cursor.execute(query, (current_user, shelf_name))
+    books = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]
+    zipped_books = [dict(zip(columns, book)) for book in books]
+
+    final = [{"shelf_name" : shelf_name}]
+    final += zipped_books
+
+    conn.close()
+
+    if final:
+        return jsonify(final)
+
+
+@app.route("/shelf", methods=['GET'])
+@jwt_required()
+def get_user_shelves():
+    current_user = get_jwt_identity()
+    token = request.headers.get("Authorization")
+
+    if not token:
+        return jsonify({"error": "Missing authorization token"}), 401
+
+    conn = db.connect()
+    cursor = conn.cursor()
+
+    query = "SELECT shelf_name FROM user_shelves WHERE username = ?"
+    cursor.execute(query, (current_user))
+    shelves = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]
+    zipped_shelves = [dict(zip(columns, shelf)) for shelf in shelves]
+
+    conn.close()
+
+    return jsonify(zipped_shelves)
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True, port=5000)
