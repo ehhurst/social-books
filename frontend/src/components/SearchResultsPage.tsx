@@ -14,10 +14,10 @@ function SearchResultsPage() {
             {query: "author", title: "Authors"},
             {query: "reviews", title: "Reviews"},
             {query: "accounts", title: "Accounts"},
-            {query: "competitions", title: "Competitions"}
+            {query: "contests", title: "Competitions"}
     ]
 
-    const initialState:CategoryItem = searchQueries.find((item) => item.query == 'search') || {query: 'books', title: 'Books'}
+    const initialState:CategoryItem = searchQueries.find((item) => item.query == 'q') || {query: 'q', title: 'Books'}
     const [selected, setSelected] = useState(initialState);
     const [searchParams] = useSearchParams();   // Handle search query
     const searchTerm = searchParams.get("search") || "";
@@ -39,8 +39,10 @@ function SearchResultsPage() {
     function setSearchQuery(item:CategoryItem) {
         setLoading(true);
         setError('');
+        console.log("QUERY: " ,item.query);
+        console.log("search term: ", searchTerm)
 
-        axios.get(`/search?${item.query}=${searchTerm}&limit=9`, {
+        axios.get(`/search?${selected.query}=${searchTerm}&limit=9`, {
             headers: {"Content-Type" : "application/json"}
         }).then((response) => {
             console.log(response.data);

@@ -68,22 +68,37 @@ def search_books():
     Returns:
         Response: JSON response containing search results or an error message.
     """
+    print("PARAM : ", request)
     query = request.args.get('q')
     title = request.args.get('title')
     author = request.args.get('author')
     subject = request.args.get('subject')
-    users = request.args.get('users')
-    competitions = request.args.get('competitions')
+    users = request.args.get('accounts')
+    contests = request.args.get('contests')
     reviews = request.args.get('reviews')
     limit = request.args.get('limit')
+    print(users)
 
-    if not (query or title or author or subject or users or competitions or reviews):
+    if not (query or title or author or subject or users or contests or reviews):
         return jsonify({'error': 'Missing search parameter'}), 400
 
     # Use the fetch_books_from_api function to get the search results
     if (query or title or author or subject):
         books = fetch_books_from_api(query=query, title=title, author=author, subject=subject, limit=limit)
         return jsonify(books)
+    if (users):
+        print('here')
+        result = fetch_users(users)
+        print(result)
+        return jsonify(result)
+    if (contests):
+        result = fetch_contests(contests)
+        return jsonify(result)
+    if (reviews):
+        result = fetch_reviews(reviews)
+        return jsonify(result)
+
+
     
 
 # @app.route('/api/data') <-- re-enable this line if things break, shouldn't need it
@@ -100,30 +115,8 @@ def db_connect():
 
     return conn
 
-@app.route("/search/competitions", methods=["GET"])
-def search_reviews(search):
-    conn = db_connect()
-    cursor = conn.cursor()
 
-    # search by keyword, user, or work id
-    query = "SELECT * FROM contests WHERE contests.contest_name = search"
-    if query:
-        cursor = conn.execute(query, (search,))
-    query = "SELECT * FROM contests WHERE contests.book_count = search"
-    if query:
-        cursor = conn.execute(query, (search,))
-    query = "SELECT * FROM contests WHERE contests.end_date = search"
-    if query:
-        cursor = conn.execute(query, (search,))
-    rows = cursor.fetchall()
-    columns = [description[0] for description in cursor.description]
-    competitions = [dict(zip(columns, row)) for row in rows]
-    conn.close()
 
-    if competitions:
-        return jsonify(competitions)
-    else:
-        return jsonify([])
 
 
 # gets all user data for the reader profile page (only currently returning the username)
@@ -728,6 +721,49 @@ def contest_markdone(contest_name, work_id):
     
     conn.close
     return jsonify({"message":f"Work {work_id} marked as done"}), 200 #OK
+
+
+def fetch_users(query):
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT username, first_name, last_name FROM users where username OR first_name OR last_name LIKE (?)", (query,))
+
+    rows = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]
+    users = [dict(zip(columns, row)) for row in rows]
+
+    conn.close()
+    return users
+
+
+
+
+def fetch_contests(query):
+    conn = db_connect()
+    cursor = conn.cursor()
+
+
+    search_result = conn.execute("SELECT * FROM contests WHERE contests.contest_name LIKE (?)", (query,)).fetchall()
+
+    # query = "SELECT * FROM contests WHERE contests.book_count = search"
+    # if query:
+    #     cursor = conn.execute(query, (query))
+    # query = "SELECT * FROM contests WHERE contests.end_date = search"
+    # if query:
+    #     cursor = conn.execute(query, (search,))
+    # rows = cursor.fetchall()
+    # columns = [description[0] for description in cursor.description]
+    # competitions = [dict(zip(columns, row)) for row in rows]
+    conn.close()
+
+    if search_result:
+        return jsonify(search_result)
+    else:
+        return jsonify([])
+    
+def fetch_reviews():
+    return
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True, port=5000)
