@@ -7,11 +7,11 @@ import { useNavigate } from "react-router-dom";
 export function getBook(uri:string) {
     const [data, setData] = useState<BookItem>();
     const [loading, setLoading] = useState(true); // add loading state
-    const [error, setError] = useState(null); // handle errors gracefully  
+    const [error, setError] = useState(''); // handle errors gracefully  
 
     useEffect(() => {
         setLoading(true);
-        setError(null);
+        setError('');
 
         axios.get(uri, {
             headers: { "Content-Type": "application/json" }
@@ -30,11 +30,11 @@ export function getBook(uri:string) {
 export function getBooks(uri:string) {
     const [data, setData] = useState<BookItem[]>([]);
     const [loading, setLoading] = useState(true); // add loading state
-    const [error, setError] = useState(null); // handle errors gracefully   
+    const [error, setError] = useState(''); // handle errors gracefully   
 
     useEffect(() => {
         setLoading(true);
-        setError(null);
+        setError('');
 
         axios.get(uri, {
             headers: { "Content-Type": "application/json" }
@@ -53,12 +53,12 @@ export function getReviewsForUser(uri:string) {
     const [reviewData, setReviewData] = useState<Review[]>([]);
     const nav = useNavigate();
     const [loading, setLoading] = useState(true); // add loading state
-    const [error, setError] = useState(null); // handle errors gracefully
+    const [error, setError] = useState(''); // handle errors gracefully
     const token = localStorage.getItem("access_token");
 
     useEffect(() => {
         setLoading(true);
-        setError(null);
+        setError('');
 
         axios.get(uri, {
             headers: {
@@ -84,11 +84,11 @@ export function getReviewsForUser(uri:string) {
 export function getReviewsForBook(uri:string) {
     const [reviewData, setReviewData] = useState<Reviews>();
     const [loading, setLoading] = useState(true); // add loading state
-    const [error, setError] = useState(null); // handle errors gracefully
+    const [error, setError] = useState(''); // handle errors gracefully
 
     useEffect(() => {
         setLoading(true);
-        setError(null);
+        setError('');
 
         axios.get(uri, {
             headers: { "Content-Type": "application/json" }

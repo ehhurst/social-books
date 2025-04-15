@@ -1,29 +1,39 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { BookItem,  ReviewStatus } from "../types";
-import { faHeart, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ChangeEvent, FormEvent, useState } from "react";
-import axios from "../../axiosConfig";
+import { BookItem, Review } from "../types";
+import { FormEvent, useEffect, useState } from "react";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as filledStar, faHeart as filledHeart} from "@fortawesome/free-solid-svg-icons";
 import { faStar as emptyStar, faHeart as emptyHeart} from "@fortawesome/free-regular-svg-icons";
-import '../assets/css/ReviewForm.css'
+import axios from "axios";
 
 
-
-function ReviewForm() {
+function ReviewFormEdit(review: Review) {
     const book:BookItem = useLocation().state; // gets book data passed in url
+    const [bookData, setBookData] = useState<BookItem>();
     const navigate = useNavigate();
 
     // retrieve book details from localstorage
     const username = localStorage.getItem("username");
     const token = localStorage.getItem("access_token");
 
-    const [rating, setRating] = useState(0);
+    const [rating, setRating] = useState(review.star_rating);
     const [ratingHover, setRatingHover] = useState(0);
-    const [liked, setLiked] = useState(false);
+    const [liked, setLiked] = useState(review.liked);
     const [likedHover, setLikedHover] = useState(false);
-    const [reviewText, setReviewText] = useState('');
+    const [reviewText, setReviewText] = useState(review.review_text);
     const [message, setMessage] = useState("");
+    
+    useEffect(() => {
+        axios.get(`/book/${review.work_id}`).then((response) => {
+            setBookData(response.data);
+
+            console.log(response.data);
+        }
+        ).then(() => console.log("book data", bookData))
+
+
+    }, [])
 
   
     const handleSubmit = async (event: FormEvent) => {
@@ -34,11 +44,11 @@ function ReviewForm() {
         setMessage("Missing user or book info.");
         return;
       }
-      const review = {work_id: book.work_id, star_rating: rating, review_text: reviewText, liked: liked}
+      const updatedReview = {work_id: book.work_id, star_rating: rating, review_text: reviewText, liked: liked}
   
       try {
-        const response = await axios.post(
-          "/reviews", review, 
+        const response = await axios.put(
+          `/reviews/${review.review_id}`, updatedReview, 
           {
             headers: {
               "Authorization": `Bearer ${token}`, 
@@ -46,8 +56,10 @@ function ReviewForm() {
             },
           }
         );
-        setMessage("Review submitted!");
-        navigate(0); // Redirect after success
+        setMessage("Review Edited Successfully!");
+        console.log("response" , response.data);
+        console.log(updatedReview);
+        // navigate(0); // Redirect after success
       } catch (err) {
         console.error(err);
         setMessage("Failed to submit review.");
@@ -57,11 +69,11 @@ function ReviewForm() {
     return(
         <div id="new-review-card">
                 <div id='book-image-background'>
-                    <img src={book.img_M} alt="Book cover image" height={'170px'}/>
+                    <img src={bookData?.img_M} alt="Book cover image" height={'170px'}/>
                 </div>
                 <div id='new-review-content'>
                     <div id='title-container'>
-                        <h2>My Review for {book.title}</h2>
+                        <h2>My Review for {bookData?.title}</h2>
                         <FontAwesomeIcon className="x" icon={faXmark} size={'lg'} onClick={() => navigate(0)}/>
                     </div>
                     
@@ -136,4 +148,4 @@ function ReviewForm() {
     );
 };
 
-export default ReviewForm;
+export default ReviewFormEdit;

@@ -11,9 +11,7 @@ import { useEffect } from 'react';
 function AppHeader() {
     const nav = useNavigate();
     const par = useParams();
-    console.log("params" , par);
     const username = localStorage.getItem("username");
-    console.log("username" ,username);
     const token = localStorage.getItem('access_token');
 
     useEffect(() => {
@@ -42,7 +40,7 @@ function AppHeader() {
                     <button className='secondary' onClick={() => nav('/register')}>Register</button>
                 </div>
                 : <div id='user-info'>
-                    <Link to={'/reader-profile'}><FontAwesomeIcon id='user-icon' icon={faUserCircle} size={'xl'}/></Link>
+                    <Link to={`${username}/profile`}><FontAwesomeIcon id='user-icon' icon={faUserCircle} size={'xl'}/></Link>
                     <p>Welcome, {username}</p>
                     <Link to={'/login'} onClick={logOut}>Logout</Link>
                 </div>}
