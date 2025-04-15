@@ -32,9 +32,9 @@ def register():
 
     try:
         cursor.execute("INSERT INTO users (username, password, first_name, last_name) VALUES (?, ?, ?, ?)", (username, hashed_password, fname, lname))
-        # cursor.execute("INSERT INTO reader_profiles (username) VALUES (?)", (username))
         conn.commit()
     except sqlite3.IntegrityError:
+        conn.close()
         return jsonify({"error": "Username already exists"}), 409
 
     conn.close()
