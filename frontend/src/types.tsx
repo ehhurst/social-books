@@ -28,6 +28,9 @@ export interface Review {
     liked: boolean;
 }
 
+export interface CompetitionItem {
+
+}
 
 
 //getting status back from post request
@@ -47,6 +50,15 @@ export const categories: CategoryItem[] = [
     {query: "science fiction", title: "Science Fiction"}, 
     {query: "programming", title: "Programming"}
 ]
+
+export const searchQueries: CategoryItem[] = [
+    {query: "books", title: "Books"}, 
+    {query: "author", title: "Authors"},
+    {query: "reviews", title: "Reviews"},
+    {query: "accounts", title: "Accounts"},
+    {query: "competitions", title: "Competitions"}
+]
+
 
 
 export interface ContextProps {
