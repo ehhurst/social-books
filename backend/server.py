@@ -56,7 +56,8 @@ def book(work_id):
     """
     # Use the get_book function to get the search results
     book = get_book(work_id=work_id)
-    return book
+
+    return jsonify(book)
 
 # Author Nithin -- reference for clarification.
 @app.route('/search', methods=['GET'])
@@ -163,7 +164,7 @@ def delete_user():
         
     if not token:
         return jsonify({"error": "Missing authorization token"}), 401
-    print("HERE")
+
     conn = db_connect()
     cursor = conn.cursor()
     
@@ -267,6 +268,14 @@ def update_review(review_id):
         conn.close()
         return jsonify({"error":f"user {current_user} not found, not updating reviews"}), 400 #BAD REQUEST 
     
+    find_review_query = "SELECT review_id FROM reviews WHERE review_id = ?"
+    cursor.execute(find_review_query, (review_id,))
+    review = cursor.fetchone()
+
+    if not review:
+        conn.close()
+        return jsonify({"error":f"review {review_id} not found, not updating reviews"}), 400 #BAD REQUEST
+    
     r_metadata = request.json
     work_ID = r_metadata.get("work_id")
     rating = r_metadata.get("star_rating")
@@ -290,8 +299,14 @@ def update_review(review_id):
         return jsonify({"error": "rating is out of 1-5 range"}), 412 #PRECONDITION FAILED
     
     try:
-        query = f"UPDATE reviews (username, work_ID, star_rating, liked, review_text) SET (?, ?, ?, ?, ?) WHERE review_id = {review_id}"
-        cursor.execute(query, (current_user, work_ID, rating, liked, text))
+        query ="""
+        UPDATE reviews
+        SET star_rating = ? , liked = ? , review_text = ?
+        WHERE reviews.review_id = ?
+    """
+        # query = "UPDATE reviews " \
+        # "SET (username, work_ID, star_rating, liked, review_text) SET (?, ?, ?, ?, ?) WHERE review_id={review_id}"
+        cursor.execute(query, (rating, liked, text, review_id))
         conn.commit()
     except sqlite3.Error as error:
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
@@ -391,6 +406,7 @@ def get_user_reviews():
     reviews = [dict(zip(columns, row)) for row in rows]
     conn.close()
 
+
     # Return the book review info as a json dictionary, should return whole tuple info
     if reviews:
         return jsonify(reviews)
@@ -398,45 +414,49 @@ def get_user_reviews():
         return jsonify([])
  
 
-#needs to be changed to '/followers' and edited to match other api's using required JWT data
-@app.route("/followers/<string:user_id>/", methods=["POST"])
-def add_follower(follows):
-    """ Adds a follower. input to this fuction is the person to follow.
-    Follower is specified in the JSON
+
+@app.route("/follow", methods=["POST"])
+@jwt_required()
+def add_follower():
+    """ Adds a follower to the current user's followers list. 
+    User to follow is specified in JSON.
     """
+    current_user = get_jwt_identity()  # Get the current user's identity from the JWT
+    token = request.headers.get("Authorization")
+
+    if not token:
+        return jsonify({"error": "Missing authorization token"}), 401
     conn = db_connect()
     cursor = conn.cursor()
 
     find_user_query = "SELECT username FROM users WHERE username = ?"
-    reviewer = cursor.execute(find_user_query, (follows,))
+    user = cursor.execute(find_user_query, (current_user,))
 
-    if not follows:
+    if not user:
         conn.close()
-        return jsonify({"error":f"user {follows} not found, not updating followers"}), 400 #BAD REQUEST
+        return jsonify({"error":f"user {user} not found, not updating followers"}), 400 #BAD REQUEST
     
-    r_metadata = request.json
-    follower_username = r_metadata.get("follower_username")
+    user_to_follow = request.json
 
-    if not follower_username:
+    if not user_to_follow:
         conn.close()
         return jsonify({"error": "bad follower"}), 400 #BAD REQUEST
         
     try:
         query = "INSERT INTO followers (follower_username, follows_username) VALUES (?, ?)"
-        cursor.execute(query, (follower_username, follows))
+        cursor.execute(query, (current_user, user_to_follow,))
         conn.commit()
     except sqlite3.Error as error:
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
     
     conn.close()
-    reviewSerial += 1
-    return jsonify({"message": "Follower added successfully", "follower" : follower_username, "follows" : follows}), 201 #CREATED
+    return jsonify({"message": f"Follower added successfully. User {current_user} is now following {user_to_follow}"}), 201 #CREATED
 
 
-#needs to be changed to '/followers' and edited to match other api's using required JWT data
-@app.route("/followers", methods=["GET"])
+
+@app.route("/<string:username>/followers", methods=["GET"])
 def get_followers(username):
-    """ Return a user's followers. Returns empty list no followers """
+    """ Return a list of a user's followers. Returns empty list no followers """
     conn = db_connect()
     
     usercheck = """
@@ -465,10 +485,54 @@ def get_followers(username):
     # are enumerations of the values of the sqlite3 rows. 
     # like 1, friendname
     followers = [
-        {"follower_"+str(index + 1): row[0]}
+        {"username": row[0]}
         for index, row in enumerate(rows)
     ]
     result = followers
+    print("FOLLOWERS !!! " , result)
+
+    conn.close()
+
+    return jsonify(result)
+
+@app.route("/<string:username>/following", methods=["GET"])
+def get_following(username):
+    """ Return a list of users that are following this user. 
+    Returns empty list if no followers """
+    conn = db_connect()
+    
+    usercheck = """
+        SELECT COUNT(username)
+        FROM users
+        WHERE username = ?
+    """
+
+    # check if user exists
+    checkCursor = conn.execute(usercheck, (username,))
+    singleRow = checkCursor.fetchone()
+    count = int(singleRow[0])
+    if count == 0:
+        return jsonify({"error": f"user {username} does not exist"}), 404 # NOT FOUND
+    
+    query = """
+        SELECT follows_username FROM followers
+        WHERE followers.follower_username = ? 
+    """
+
+    cursor = conn.execute(query, (username,))
+    rows = cursor.fetchall()
+    print(rows)
+
+    # Next 5 lines written with help of ChatGPT prompt: 
+    # i want to create a list of dictionaries, where the dictionaries
+    # are enumerations of the values of the sqlite3 rows. 
+    # like 1, friendname
+    followers = [
+        {"follows_"+str(index + 1): row[0]}
+        for index, row in enumerate(rows)
+    ]
+    result = followers
+    print("FOLLOWS !!! " , result)
 
     conn.close()
 
