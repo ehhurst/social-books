@@ -96,6 +96,7 @@ def search_books():
         return jsonify(result)
     if (reviews):
         result = fetch_reviews(reviews)
+        print("reviews: ", result)
         return jsonify(result)
 
 
@@ -115,31 +116,7 @@ def db_connect():
 
     return conn
 
-@app.route("/search/reviews", method=["GET"])
-def search_reviews(search):
-    conn = db_connect()
-    cursor = conn.cursor()
 
-    # search by keyword, user, or work id
-    text = r.metadata.get("review_text")
-    query = "SELECT * FROM reviews WHERE reviews.review_text LIKE search"
-    if query:
-        cursor = conn.execute(query, (search,))
-    query = "SELECT * FROM reviews WHERE reviews.username = search"
-    if query:
-        cursor = conn.execute(query, (search,))
-    query = "SELECT * FROM reviews WHERE reviews.work_id = search"
-    if query:
-        cursor = conn.execute(query, (search,))
-    rows = cursor.fetchall()
-    columns = [description[0] for description in cursor.description]
-    reviews = [dict(zip(columns, row)) for row in rows]
-    conn.close()
-
-    if reviews:
-        return jsonify(reviews)
-    else:
-        return jsonify([])
 
 # gets all user data for the reader profile page (only currently returning the username)
 @app.route("/users/reader-profile", methods=["GET"])
@@ -745,11 +722,11 @@ def contest_markdone(contest_name, work_id):
     return jsonify({"message":f"Work {work_id} marked as done"}), 200 #OK
 
 
-def fetch_users(query):
+def fetch_users(searchTerm):
     conn = db_connect()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT username, first_name, last_name FROM users where username OR first_name OR last_name LIKE (?)", (query,))
+    cursor.execute("SELECT username, first_name, last_name FROM users where username OR first_name OR last_name LIKE (?)", (("%" + searchTerm + "%"),))
 
     rows = cursor.fetchall()
     columns = [description[0] for description in cursor.description]
@@ -759,7 +736,20 @@ def fetch_users(query):
     return users
 
 
+def fetch_reviews(searchTerm):
+    conn = db_connect()
+    cursor = conn.cursor()
 
+    cursor.execute("SELECT * FROM reviews where review_text LIKE (?)", (("%" + searchTerm + "%"),))
+
+    rows = cursor.fetchall()
+    print(rows)
+    columns = [description[0] for description in cursor.description]
+    reviews = [dict(zip(columns, row)) for row in rows]
+
+    conn.close()
+    print("RESULTS " , reviews)
+    return reviews
 
 def fetch_contests(query):
     conn = db_connect()
@@ -783,9 +773,7 @@ def fetch_contests(query):
         return jsonify(search_result)
     else:
         return jsonify([])
-    
-def fetch_reviews():
-    return
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True, port=5000)
