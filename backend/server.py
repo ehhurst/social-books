@@ -100,6 +100,32 @@ def db_connect():
 
     return conn
 
+@app.route("/search/competitions", methods=["GET"])
+def search_reviews(search):
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    # search by keyword, user, or work id
+    query = "SELECT * FROM contests WHERE contests.contest_name = search"
+    if query:
+        cursor = conn.execute(query, (search,))
+    query = "SELECT * FROM contests WHERE contests.book_count = search"
+    if query:
+        cursor = conn.execute(query, (search,))
+    query = "SELECT * FROM contests WHERE contests.end_date = search"
+    if query:
+        cursor = conn.execute(query, (search,))
+    rows = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]
+    competitions = [dict(zip(columns, row)) for row in rows]
+    conn.close()
+
+    if competitions:
+        return jsonify(competitions)
+    else:
+        return jsonify([])
+
+
 # gets all user data for the reader profile page (only currently returning the username)
 @app.route("/users/reader-profile", methods=["GET"])
 @jwt_required()
