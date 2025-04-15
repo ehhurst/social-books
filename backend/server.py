@@ -115,9 +115,31 @@ def db_connect():
 
     return conn
 
+@app.route("/search/reviews", method=["GET"])
+def search_reviews(search):
+    conn = db_connect()
+    cursor = conn.cursor()
 
+    # search by keyword, user, or work id
+    text = r.metadata.get("review_text")
+    query = "SELECT * FROM reviews WHERE reviews.review_text LIKE search"
+    if query:
+        cursor = conn.execute(query, (search,))
+    query = "SELECT * FROM reviews WHERE reviews.username = search"
+    if query:
+        cursor = conn.execute(query, (search,))
+    query = "SELECT * FROM reviews WHERE reviews.work_id = search"
+    if query:
+        cursor = conn.execute(query, (search,))
+    rows = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]
+    reviews = [dict(zip(columns, row)) for row in rows]
+    conn.close()
 
-
+    if reviews:
+        return jsonify(reviews)
+    else:
+        return jsonify([])
 
 # gets all user data for the reader profile page (only currently returning the username)
 @app.route("/users/reader-profile", methods=["GET"])
