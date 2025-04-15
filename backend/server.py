@@ -72,14 +72,19 @@ def search_books():
     title = request.args.get('title')
     author = request.args.get('author')
     subject = request.args.get('subject')
+    users = request.args.get('users')
+    competitions = request.args.get('competitions')
+    reviews = request.args.get('reviews')
     limit = request.args.get('limit')
 
-    if not (query or title or author or subject):
+    if not (query or title or author or subject or users or competitions or reviews):
         return jsonify({'error': 'Missing search parameter'}), 400
 
     # Use the fetch_books_from_api function to get the search results
-    books = fetch_books_from_api(query=query, title=title, author=author, subject=subject, limit=limit)
-    return jsonify(books)
+    if (query or title or author or subject):
+        books = fetch_books_from_api(query=query, title=title, author=author, subject=subject, limit=limit)
+        return jsonify(books)
+    
 
 # @app.route('/api/data') <-- re-enable this line if things break, shouldn't need it
 def db_connect():

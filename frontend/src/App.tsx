@@ -12,6 +12,7 @@ import BookListPage from "./components/BookListPage"
 import Competitions from "./components/Competitions";
 
 import CategoryPage from "./components/CategoryPage"
+import SearchResultsPage from "./components/SearchResultsPage"
 
 function App() {
   return (
@@ -21,15 +22,16 @@ function App() {
           <Route path="/" element={<Home/>}/>
           <Route path='/login' element={<Login/>}/>
           <Route path='/register' element={<Register/>}/>
+          <Route path=':user/profile' element={<ReaderProfilePage/>}/>
 
-
-          <Route path='/books' element={<BookListPage/>}/>
+          <Route path='/books' element={<SearchResultsPage/>}/>
           <Route path='/books/:work_id' element={<BookDetailPage/>}/>
           <Route path='/categories' element={<CategoryPage/>}>
             <Route path=':category' element={<CategoryPage/>}/>
           </Route>
           
-          <Route path=':user/profile' element={<ReaderProfilePage/>}/>
+
+          
           
             
           <Route path="/review" element={<ReviewForm />} />
