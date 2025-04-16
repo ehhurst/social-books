@@ -96,24 +96,29 @@ def db_connect():
 
 
 @app_route("/search/users", methods=["GET"])
+@jwt_required
 def search_users():
     """
     Search users
     """
-    username = request.args.get('username')
-    if not username:
+    current_user = get_jwt_identity()
+    username_search = request.args.get('username')
+    if not username_search:
         return jsonify({'error': 'Missing username'}), 400
 
     conn = db_connect()
     cursor = conn.cursor()
     
-    query = "SELECT username FROM users WHERE username = ?"
+    query = "SELECT * FROM users WHERE username LIKE CONCAT('%','username_search','%')"
     cursor.execute(query, (current_user,))
-    user = cursor.fetchone()
+    user_matches = [users[2] for users in cursor.fetchall()]
 
     if not user:
         return jsonify({"error": "user not found"}), 404 #NOT FOUND
-    return jsonify({"message": f"user {current_user} is found in the users table"}), 200 #OK
+
+    conn.close()
+
+    return jsonify({"message": f"user {username_search} is found in the users table"},{"matches":user_matches}), 200 #OK
 
 
 
