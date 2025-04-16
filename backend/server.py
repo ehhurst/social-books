@@ -647,25 +647,25 @@ def set_goal():
     cursor = conn.cursor()
 
     r_metadata = request.json
-    reading_goal = r_metadata.get("reading_goal")
+    new_reading_goal = r_metadata.get("goal")
 
     if not reading_goal:
         conn.close()
-        return jsonify({"error": "work_ID, rating, or text is bad"}), 400 #BAD REQUEST
+        return jsonify({"error": "no reading goal"}), 400 #BAD REQUEST
     
     if not (reading_goal < 0):
         conn.close()
-        return jsonify({"error": "rating is out of 1-5 range"}), 412 #PRECONDITION FAILED
+        return jsonify({"error": "reading goal is negative"}), 412 #PRECONDITION FAILED
     
     try:
-        query = "INSERT INTO reading_goals (username, reading_goal) VALUES (?, ?)"
-        cursor.execute(query, (current_user, reading_goal))
+        query = "UPDATE users SET goal = new_reading_goal WHERE username = current_user"
+        cursor.execute(query, (current_user, new_reading_goal))
         conn.commit()
 
     except sqlite3.Error as error:
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
 
-    return jsonify({"reading_goal":reading_goal})
+    return jsonify({"New reading goal set: ":reading_goal})
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True, port=5000)
