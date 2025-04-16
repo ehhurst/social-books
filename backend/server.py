@@ -100,8 +100,7 @@ def search_reviews(search):
     cursor = conn.cursor()
 
     # search by keyword, user, or work id
-    text = r.metadata.get("review_text")
-    query = "SELECT * FROM reviews WHERE reviews.review_text LIKE search"
+    query = "SELECT * FROM reviews WHERE reviews.review_text LIKE CONCAT('%', search, '%')
     if query:
         cursor = conn.execute(query, (search,))
     query = "SELECT * FROM reviews WHERE reviews.username = search"
@@ -116,9 +115,9 @@ def search_reviews(search):
     conn.close()
 
     if reviews:
-        return jsonify(reviews)
+        return jsonify(reviews), 200
     else:
-        return jsonify([])
+        return jsonify([]), 404
 
 # gets all user data for the reader profile page (only currently returning the username)
 @app.route("/users/reader-profile", methods=["GET"])

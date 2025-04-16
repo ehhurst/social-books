@@ -90,6 +90,15 @@ class ReviewTestCase(unittest.TestCase):
         self.assertTrue(len(data) > 0)  # Make sure there's data in the response
         print("----------------------------------\n")
 
+    def test_search_reviews(self):
+        print("Testing search reviews feature")
+        response = self.app.get('/search/reviews')
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        print(data)
+        self.assertTrue(len(data) > 0)
+        print("----------------------------------\n")
+
 
     # next sprint
 
