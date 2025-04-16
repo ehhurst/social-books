@@ -95,7 +95,7 @@ def db_connect():
     return conn
 
 @app.route("/search/competitions", methods=["GET"])
-def search_reviews(search):
+def search_competitions(search):
     conn = db_connect()
     cursor = conn.cursor()
 
@@ -115,9 +115,9 @@ def search_reviews(search):
     conn.close()
 
     if competitions:
-        return jsonify(competitions)
+        return jsonify(competitions), 200
     else:
-        return jsonify([])
+        return jsonify([]), 404
 
 
 # gets all user data for the reader profile page (only currently returning the username)
