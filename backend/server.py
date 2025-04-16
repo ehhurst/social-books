@@ -521,7 +521,6 @@ def get_followers(username):
         for index, row in enumerate(rows)
     ]
     result = followers
-    print("FOLLOWERS !!! " , result)
 
     conn.close()
 
@@ -553,7 +552,6 @@ def get_following(username):
 
     cursor = conn.execute(query, (username,))
     rows = cursor.fetchall()
-    print(rows)
 
     # Next 5 lines written with help of ChatGPT prompt: 
     # i want to create a list of dictionaries, where the dictionaries
@@ -564,7 +562,6 @@ def get_following(username):
         for index, row in enumerate(rows)
     ]
     result = followers
-    print("FOLLOWS !!! " , result)
 
     conn.close()
 
@@ -750,24 +747,24 @@ def create_shelf(shelf_name):
     if not token:
         return jsonify({"error": "Missing authorization token"}), 401
 
-    conn = db.connect()
+    conn = db_connect()
     cursor = conn.cursor()
 
     find_user_query = "SELECT username FROM users WHERE username = ?"
-    user = cursor.execute(find_user_query, (current_user,))
+    user_row = cursor.execute(find_user_query, (current_user,)).fetchone()
+    user = user_row["username"]
 
     if not user:
         conn.close()
         return jsonify({"error":f"user {current_user} not found, no shelf update"}), 400 #BAD REQUEST
 
     find_shelf_query = "SELECT shelf_name FROM user_shelves WHERE username = ? AND shelf_name = ?"
-    shelf = cursor.execute(find_shelf_query, (current_user, shelf_name))
+    shelf = cursor.execute(find_shelf_query, (current_user, shelf_name)).fetchone()
 
     if shelf:
         conn.close()
         return jsonify({"error":f"shelf {shelf_name} already exists, no addition"}), 400 #BAD REQUEST 
 
-    
     try:
         query = f"INSERT INTO user_shelves (username, shelf_name) VALUES (?, ?)"
         cursor.execute(query, (current_user, shelf_name))
@@ -791,7 +788,7 @@ def shelve_book(shelf_name, work_id):
     if not token:
         return jsonify({"error": "Missing authorization token"}), 401
 
-    conn = db.connect()
+    conn = db_connect()
     cursor = conn.cursor()
 
     find_user_query = "SELECT DISTINCT(shelf_name) FROM user_shelves WHERE username = ? AND shelf_name = ?"
@@ -822,7 +819,7 @@ def unshelve_book(shelf_name, work_id):
     if not token:
         return jsonify({"error": "Missing authorization token"}), 401
 
-    conn = db.connect()
+    conn = db_connect()
     cursor = conn.cursor()
 
 
@@ -854,11 +851,11 @@ def delete_shelf(shelf_name):
     if not token:
         return jsonify({"error": "Missing authorization token"}), 401
 
-    conn = db.connect()
+    conn = db_connect()
     cursor = conn.cursor()
 
     find_shelf = "SELECT shelf_name FROM user_shelves WHERE username = ? AND shelf_name = ?"
-    shelf = cursor.execute(find_shelf, (current_user, shelf_name))
+    shelf = cursor.execute(find_shelf, (current_user, shelf_name)).fetchone()
 
     if not shelf:
         conn.close()
@@ -866,6 +863,8 @@ def delete_shelf(shelf_name):
 
     try:
         query = f"DELETE FROM shelved_books WHERE username = ? AND shelf_name = ?"
+        cursor.execute(query, (current_user, shelf_name))
+        query = f"DELETE FROM user_shelves WHERE username = ? AND shelf_name = ?"
         cursor.execute(query, (current_user, shelf_name))
         conn.commit()
     except sqlite3.Error as error:
@@ -886,11 +885,11 @@ def get_shelf(shelf_name):
     if not token:
         return jsonify({"error": "Missing authorization token"}), 401
 
-    conn = db.connect()
+    conn = db_connect()
     cursor = conn.cursor()
 
     find_shelf = "SELECT shelf_name FROM user_shelves WHERE username = ? AND shelf_name = ?"
-    shelf = cursor.execute(find_shelf, (current_user, shelf_name))
+    shelf = cursor.execute(find_shelf, (current_user, shelf_name)).fetchone()
 
     if not shelf:
         conn.close()
@@ -902,8 +901,9 @@ def get_shelf(shelf_name):
     columns = [description[0] for description in cursor.description]
     zipped_books = [dict(zip(columns, book)) for book in books]
 
+    # NOTE : circular logic. you're using the input
     final = [{"shelf_name" : shelf_name}]
-    final += zipped_books
+    final += [{"books" : zipped_books}]
 
     conn.close()
 
@@ -920,11 +920,11 @@ def get_user_shelves():
     if not token:
         return jsonify({"error": "Missing authorization token"}), 401
 
-    conn = db.connect()
+    conn = db_connect()
     cursor = conn.cursor()
 
     query = "SELECT shelf_name FROM user_shelves WHERE username = ?"
-    cursor.execute(query, (current_user))
+    cursor.execute(query, (current_user,))
     shelves = cursor.fetchall()
     columns = [description[0] for description in cursor.description]
     zipped_shelves = [dict(zip(columns, shelf)) for shelf in shelves]

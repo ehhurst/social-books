@@ -5,6 +5,7 @@ from server import app  # Assuming 'app' is the Flask app instance in server.py
 from flask_jwt_extended import JWTManager
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from auth import auth, bcrypt
+import time
 
 # Initialize JWT here
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "fallback-secret-key")  # Use env variable
@@ -23,14 +24,38 @@ if "auth" not in app.blueprints:
 # NOTE: You can run this with python3 -m unittest servertest.py
 # Ask Connor for any clarification
 class ReviewTestCase(unittest.TestCase):
-    def setUp(self):
-        self.app = app.test_client()  # Create a test client for the app
-        self.test_user = {
-            "username" : "test",
-            "password" : "12345"
-        }
+    # def setUp(self):
+    #     self.app = app.test_client()  # Create a test client for the app
+    #     self.test_user = {
+    #         "username" : "test",
+    #         "password" : "12345"
+    #     }
         
+    #     self.app.post("/auth/register", json=self.test_user)
+
+    def setUp(self):
+        self.app = app.test_client()
+        self.test_user = {
+            "username": "test",
+            "password": "12345",
+            "firstName": "testfirst",
+            "lastName": "testlast"
+        }
+
+        # Register user
         self.app.post("/auth/register", json=self.test_user)
+
+        # Login user to get token
+        login_response = self.app.post("/auth/login", json=self.test_user)
+        self.assertEqual(login_response.status_code, 200)
+        login_data = login_response.get_json()
+        self.token = login_data["access_token"]  # Or whatever your login route returns
+
+        # Set auth header for future use
+        self.auth_header = {
+            "Authorization": f"Bearer {self.token}"
+        }
+        # print(f"T O K E N : {self.token}")
 
 
     def test_get_user_data(self):
@@ -115,7 +140,7 @@ class ReviewTestCase(unittest.TestCase):
         print("----------------------------------\n")
         
     def test_get_token(self):
-        response = self.app.post("/auth/login")
+        response = self.app.post("/auth/login", json=self.test_user)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertIsNotNone(data)
@@ -138,70 +163,80 @@ class ReviewTestCase(unittest.TestCase):
     def test_shelves(self):
         print("Test shelf functionality")
 
+        # clean up: 
+        # response = self.app.delete('/shelf/TEST_SHELF', headers=self.auth_header)
+        # self.assertEqual(response.status_code, 200) # deleted - supposedly
+        # response = self.app.delete('/shelf/TEST_SHELF_2', headers=self.auth_header)
+        # self.assertEqual(response.status_code, 200) # deleted - supposedly
+
         # get nothing
-        response = self.app.get('/shelf/TEST_SHELF')
+        response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
+        print(response.get_json())
         self.assertEqual(response.status_code, 400)
 
         # add shelves
-        response = self.app.post('/shelf/TEST_SHELF')
+        response = self.app.post('/shelf/TEST_SHELF', headers=self.auth_header)
         self.assertEqual(response.status_code, 201)
-        response = self.app.post('/shelf/TEST_SHELF_2')
+        response = self.app.post('/shelf/TEST_SHELF_2', headers=self.auth_header)
         self.assertEqual(response.status_code, 201)
+        response = self.app.post('/shelf/TEST_SHELF_2', headers=self.auth_header)
+        self.assertEqual(response.status_code, 400)
 
         # get empty
-        response = self.app.get('/shelf/TEST_SHELF')
+        response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
         data_shelf = response.get_json()
-        print(data_shelf)
-        self.assertTrue(len(data_shelf) == 0)
+        print("get empty: " + str(data_shelf))
+        self.assertTrue(len(data_shelf) == 2)
 
         # get user's shelves
-        response = self.app.get('/shelf')
+        response = self.app.get('/shelf', headers=self.auth_header)
         data_shelves = response.get_json()
         print(len(data_shelves)) # eyeball it
         self.assertTrue(len(data_shelves) == 2) # 2 shelves
 
         # test shelve books
-        response = self.app.post('/shelf/TEST_SHELF/777') # test work id is 777
+        response = self.app.post('/shelf/TEST_SHELF/777', headers=self.auth_header) # test work id is 777
         self.assertEqual(response.status_code, 201)
-        response = self.app.post('/shelf/TEST_SHELF/999') # test work id is 777
+        response = self.app.post('/shelf/TEST_SHELF/999', headers=self.auth_header) # test work id is 777
         self.assertEqual(response.status_code, 201)
 
         # test get shelf
-        response = self.app.get('/shelf/TEST_SHELF')
+        response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
         full_shelf = response.get_json()
-        print(full_shelf)
-        self.assertTrue(str(full_shelf) == "placeholder")
+        print("full shelf: " + str(full_shelf))
+        self.assertTrue(str(full_shelf) == "[{'shelf_name': 'TEST_SHELF'}, {'books': [{'work_id': '777'}, {'work_id': '999'}]}]")
 
         # unshelve book 777 and 999
-        response = self.app.delete('/shelf/TEST_SHELF/777')
+        response = self.app.delete('/shelf/TEST_SHELF/777', headers=self.auth_header)
         self.assertEqual(response.status_code, 200) # deleted - supposedly
-        response = self.app.delete('/shelf/TEST_SHELF/999')
+        response = self.app.delete('/shelf/TEST_SHELF/999', headers=self.auth_header)
         self.assertEqual(response.status_code, 200) # deleted - supposedly
 
         # get empty shelf
-        response = self.app.get('/shelf/TEST_SHELF')
+        response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
         data_shelf = response.get_json()
         print(data_shelf)
-        self.assertTrue(len(data_shelf) == 0)
+        self.assertTrue(len(data_shelf) == 2) # empty length is 2
 
         # delete both shelves
-        response = self.app.delete('/shelf/TEST_SHELF')
+        response = self.app.delete('/shelf/TEST_SHELF', headers=self.auth_header)
         self.assertEqual(response.status_code, 200) # deleted - supposedly
-        response = self.app.delete('/shelf/TEST_SHELF_2')
+        response = self.app.delete('/shelf/TEST_SHELF_2', headers=self.auth_header)
         self.assertEqual(response.status_code, 200) # deleted - supposedly
 
         # get empty shelves
-        response = self.app.get('/shelf/TEST_SHELF')
+        response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
         self.assertEqual(response.status_code, 400)
-        response = self.app.get('/shelf/TEST_SHELF_2')
+        response = self.app.get('/shelf/TEST_SHELF_2', headers=self.auth_header)
         self.assertEqual(response.status_code, 400)
 
         # get user's shelves
-        response = self.app.get('/shelf')
+        response = self.app.get('/shelf', headers=self.auth_header)
         data_shelves = response.get_json()
         print(len(data_shelves)) # eyeball it
         self.assertTrue(len(data_shelves) == 0) # 2 shelves
 
+        print("PASS SHELVES")
         print("----------------------------------\n")
 
 
