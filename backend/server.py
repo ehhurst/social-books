@@ -781,14 +781,6 @@ def create_shelf(shelf_name):
 
 
 
-
-
-
-
-
-
-
-
 # add a book to a user's shelf
 @app.route("/shelf/<string:shelf_name>/<string:work_id>", methods=['POST'])
 @jwt_required()
@@ -817,7 +809,7 @@ def shelve_book(shelf_name, work_id):
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
 
     conn.close()
-    return jsonify({"message": "Book shelved successfully", "user_id" : current_user, "work_ID" : work_ID, "shelf name" : shelf_name}), 201 #CREATED
+    return jsonify({"message": "Book shelved successfully", "user_id" : current_user, "work_ID" : work_id, "shelf name" : shelf_name}), 201 #CREATED
 
 
 # delete a specific book from a user's shelf
@@ -849,7 +841,7 @@ def unshelve_book(shelf_name, work_id):
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
 
     conn.close()
-    return jsonify({"message": "Book unshelved successfully", "user_id" : current_user, "shelf name" : shelf_name, "work_ID" : work_ID}), 201 #CREATED
+    return jsonify({"message": "Book unshelved successfully", "user_id" : current_user, "shelf name" : shelf_name, "work_ID" : work_id}), 200 #OK
 
 
 # delete an entire shelf
@@ -880,7 +872,7 @@ def delete_shelf(shelf_name):
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
 
     conn.close()
-    return jsonify({"message": "Shelf deleted successfully", "user_id" : current_user, "shelf name" : shelf_name}), 201 #CREATED
+    return jsonify({"message": "Shelf deleted successfully", "user_id" : current_user, "shelf name" : shelf_name}), 200 #OK
 
 
 # NOTE: test this
