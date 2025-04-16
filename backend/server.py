@@ -30,22 +30,6 @@ def home():
 	return jsonify({"message": "Flask API is running"}), 200
 
 
-@app.route('/parse', methods=['POST'])
-def parse_book():
-    try:
-        data = request.json  # Receive JSON from frontend
-        book_ISBN = list(data.keys())[0]
-        book_title = data[book_ISBN]["title"]
-        book_author = data[book_ISBN]["author"]
-        
-        return jsonify({
-            "ISBN": book_ISBN,
-            "title": book_title,
-            "author": book_author
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
 @app.route('/book/<string:work_id>', methods=['GET'])
 def book(work_id):
     """
@@ -119,7 +103,7 @@ def db_connect():
 
 
 # gets all user data for the reader profile page (only currently returning the username)
-@app.route("/users/reader-profile", methods=["GET"])
+@app.route("/users", methods=["GET"])
 @jwt_required()
 def return_user_data():
     """ Returns all user info as a json object. 
@@ -212,6 +196,54 @@ def delete_user():
 
 
 # NOTE: deleted the duplicate delete user method which was left over from the "reader_profiles" version
+
+@app.route("users/goals", methods=["PUT"])
+@jwt_required()
+def set_goal():
+    current_user = get_jwt_identity()
+    token = request.headers.get("Authorization")
+
+    if not token:
+        return jsonify({"Error: Missing authorization token"}), 401
+    
+    r_metadata = request.json
+    reading_goal = r_metadata.get("reading_goal")
+
+    if not reading_goal:
+        conn.close()
+        return jsonify({"error": "work_ID, rating, or text is bad"}), 400 #BAD REQUEST
+    
+    if (reading_goal < 0):
+        conn.close()
+        return jsonify({"error": "reading goal must be >= 0"}), 412 #PRECONDITION FAILED
+
+
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT username FROM users WHERE username = ?", (current_user,))
+    user = cursor.fetchone()
+
+    if not user:
+        conn.close()
+        return jsonify({"error": "user not found."}), 404 #NOT FOUND
+    
+    try:
+        query ="""UPDATE users
+                SET goal = ?
+                WHERE username = ?"""
+        cursor.execute(query, (user, reading_goal))
+        conn.commit()
+
+    except sqlite3.Error as error:
+        conn.close()
+        return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
+    
+    updated_profile = dict(cursor.execute("SELECT * FROM users where username = ?", (user)))
+    conn.close()
+
+
+    return jsonify({"message": "Successfully updated reading goal", "user_id" : current_user, "user profile" : updated_profile}), 201 #CREATED
 
 
 
@@ -751,12 +783,12 @@ def fetch_reviews(searchTerm):
     print("RESULTS " , reviews)
     return reviews
 
-def fetch_contests(query):
+def fetch_contests(searchTerm):
     conn = db_connect()
     cursor = conn.cursor()
 
 
-    search_result = conn.execute("SELECT * FROM contests WHERE contests.contest_name LIKE (?)", (query,)).fetchall()
+    search_result = conn.execute("SELECT * FROM contests WHERE contests.contest_name LIKE (?)", (searchTerm,)).fetchall()
 
     # query = "SELECT * FROM contests WHERE contests.book_count = search"
     # if query:
@@ -775,38 +807,7 @@ def fetch_contests(query):
         return jsonify([])
 
 
-@app.route("/reader-goals", methods=["POST"])
-@jwt_required()
-def set_goal():
-    current_user = get_jwt_identity()
-    token = request.headers.get("Authorization")
 
-    if not token:
-        return jsonify({"Error: Missing authorization token"}), 401
-
-    conn = db_connect()
-    cursor = conn.cursor()
-
-    r_metadata = request.json
-    reading_goal = r_metadata.get("reading_goal")
-
-    if not reading_goal:
-        conn.close()
-        return jsonify({"error": "work_ID, rating, or text is bad"}), 400 #BAD REQUEST
-    
-    if not (reading_goal < 0):
-        conn.close()
-        return jsonify({"error": "rating is out of 1-5 range"}), 412 #PRECONDITION FAILED
-    
-    try:
-        query = "INSERT INTO reading_goals (username, reading_goal) VALUES (?, ?)"
-        cursor.execute(query, (current_user, reading_goal))
-        conn.commit()
-
-    except sqlite3.Error as error:
-        return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
-
-    return jsonify({"reading_goal":reading_goal})
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True, port=5000)
