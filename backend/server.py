@@ -665,7 +665,9 @@ def set_goal():
     except sqlite3.Error as error:
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
 
-    return jsonify({"New reading goal set: ":new_reading_goal})
+    conn.close()
+
+    return jsonify({"New reading goal set: ":new_reading_goal}), 200 #SUCCESS
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True, port=5000)
