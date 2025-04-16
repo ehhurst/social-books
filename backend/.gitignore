@@ -1,6 +1,3 @@
 #ignore backend pycache files
-
-
-#Ignore database files
-social-books.db__/pycache__
 __/pycache__
+
