@@ -6,6 +6,8 @@ from flask_jwt_extended import JWTManager
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from auth import auth, bcrypt
 import time
+from server import DATABASE, db_connect
+import sqlite3
 
 # Initialize JWT here
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "fallback-secret-key")  # Use env variable
@@ -56,6 +58,7 @@ class ReviewTestCase(unittest.TestCase):
             "Authorization": f"Bearer {self.token}"
         }
         # print(f"T O K E N : {self.token}")
+
 
 
     def test_get_user_data(self):
@@ -239,16 +242,69 @@ class ReviewTestCase(unittest.TestCase):
         print("PASS SHELVES")
         print("----------------------------------\n")
 
-
-
-
-
-
-
-
-
-
-
+    # Contest testing
+    def test_contests(self):
+        conn = db_connect(DATABASE)
+        cursor = conn.cursor()
+        
+        query = """
+        INSERT INTO contests (contest_name, book_count, end_date) values (?, ?, ?)
+        """
+        
+        cursor.execute(query, ("test_contest", 1, "2050-01-01"))
+        conn.commit()
+        
+        query = """
+        INSERT INTO contest_books (contest_name, work_id) values (?, ?)
+        """
+        
+        cursor.execute(query, ("test_contest", "TESTWORK"))
+        conn.commit()
+        
+        query = """
+        INSERT INTO contest_books (contest_name, work_id) values (?, ?)
+        """
+        
+        cursor.execute(query, ("test_contest", "TESTWORK"))
+        conn.commit()
+        
+        query = """
+        INSERT INTO contest_participants (contest_name, username, books_read, perms_level) VALUES (?, ?, ?, ?)"""
+        cursor.execute(query, ("test_contest", "test", 0, 0))
+        conn.commit()
+        
+        response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
+        empty_works_read = response.get_json()
+        self.assertEqual(len(empty_works_read["readbooks"]), 0)
+        
+        response = self.app.post("/contest/mark/test_contest/TESTWORK", headers=self.auth_header)
+        self.assertEqual(response.status_code, 200)
+        
+        response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
+        empty_works_read = response.get_json()
+        self.assertEqual(len(empty_works_read["readbooks"]), 1)
+        
+        response = self.app.get('contest/test_contest/deadline')
+        deadline = json.loads(response.get_json())
+        deadline_bool = deadline["complete"]
+        self.assertEquals(deadline_bool, "False")
+        
+        # Cleanup after test
+        query =  "DELETE FROM contests WHERE contest_name = ?"
+        cursor.execute(query, ("test_contest",))
+        conn.commit()
+        
+        query =  "DELETE FROM contest_participants WHERE contest_name = ?"
+        cursor.execute(query, ("test_contest",))
+        conn.commit()
+        
+        query =  "DELETE FROM contest_books WHERE contest_name = ?"
+        cursor.execute(query, ("test_contest",))
+        conn.commit()
+        
+        conn.close()
+        
+        
 
     # next sprint
 

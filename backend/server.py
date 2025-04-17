@@ -712,7 +712,7 @@ def contest_checklist(contest_name):
 
     return jsonify({"readbooks":readbooks})
 
-@app.route("/contest/mark/<string:contest_name>/<string:work_id>")
+@app.route("/contest/mark/<string:contest_name>/<string:work_id>", methods=["POST"])
 @jwt_required()
 def contest_markdone(contest_name, work_id):
     current_user = get_jwt_identity()  # Get the current user's identity from the JWT
@@ -807,8 +807,6 @@ def fetch_contests(searchTerm):
         return jsonify(search_result)
     else:
         return jsonify([])
-
-
 
 
 
