@@ -6,74 +6,14 @@ import '../assets/css/CompetitionsPage.css'
 
 function CompetitionsPage() {
   const nav = useNavigate();
-  // const [competitions, setCompetitions] = useState<ContestItem[]>([]);
+  const [competitions, setCompetitions] = useState<ContestItem[]>([]);
 
-  // useEffect(() => {
-    // get list of competitions
-  //   axios.get(`/competitions`).then((response) => {
-  //     console.log(response);
-  //     setCompetitions(response.data);
-  //   }).catch((error) => console.error(error))
-  // }, [])
-
-  const competitions = ([
-    {
-      organizer: 'sally',
-      contest_name: "we love books",
-      book_count: 5,
-      end_date: '1/5/2026'
-    },
-    {
-      organizer: 'sally',
-      contest_name: "we love books",
-      book_count: 5,
-      end_date: '1/5/2026'
-    }, 
-    {
-      organizer: 'sally',
-      contest_name: "we love books",
-      book_count: 5,
-      end_date: '1/5/2026'
-    }, 
-    {
-      organizer: 'sally',
-      contest_name: "we love books",
-      book_count: 5,
-      end_date: '1/5/2026'
-    },
-    {
-      organizer: 'sally',
-      contest_name: "we love books",
-      book_count: 5,
-      end_date: '1/5/2026'
-    }, 
-    {
-      organizer: 'sally',
-      contest_name: "we love books",
-      book_count: 5,
-      end_date: '1/5/2026'
-    }, 
-    {
-      organizer: 'sally',
-      contest_name: "we love books",
-      book_count: 5,
-      end_date: '1/5/2026'
-    },
-    {
-      organizer: 'sally',
-      contest_name: "we love books",
-      book_count: 5,
-      end_date: '1/5/2026'
-    }, 
-    {
-      organizer: 'sally',
-      contest_name: "we love books",
-      book_count: 5,
-      end_date: '1/5/2026'
-    }, 
-
-
-  ]);
+  useEffect(() => {
+    axios.get(`/contest/info`).then((response) => {
+      console.log(response.data);
+      setCompetitions(response.data);
+    }).catch((error) => console.error(error))
+  }, []);
 
   return(
     <main id='competitions-list'>
@@ -92,7 +32,7 @@ function CompetitionsPage() {
             <div className="competition-item">
               <div className="contest-info">
               <h2>{competition.contest_name}</h2>
-              <p>Organized by <Link to={`/${competition.organizer}/profile`}>{competition.organizer}</Link></p>
+              <p>Organized by {competition.organizer}</p>
             </div>
             <p>Ends on: {competition.end_date.toString()}</p>
             <p>Number of books: {competition.book_count}</p>

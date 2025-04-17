@@ -58,16 +58,17 @@ function CompetitionForm() {
             }
           );
           setMessage("Competition successfully created!");
-          navigate(0); // Redirect after success
+          dispatch({type:ListTypes.CLEAR});
+          sessionStorage.removeItem('creatingComp');
+          navigate('/competitions'); // Redirect after success
         } catch (err) {
           console.error(err);
           setMessage("Failed to create competition. Please try again later.");
-        }
+        } 
     }
 
     return(
         <main>
-             
             <div id="competition-form">
                 <button id="back-button" onClick={() => navigate(-1)}><FontAwesomeIcon icon={faArrowLeftLong} size={'xs'}/> Back</button>
                 <form id="create-comp">
@@ -89,7 +90,6 @@ function CompetitionForm() {
                             
                             {compList.length > 0 ? (<Link to={'/categories/fiction'}>Add books <FontAwesomeIcon icon={faArrowRightLong}/></Link>): <></>}
                         </div>
-                         
                         
                         <ul id="book-list">
                         {compList.length > 0 ? (
@@ -115,11 +115,10 @@ function CompetitionForm() {
                                     </div>
                                     
                                )} 
-                                {compList.length != 0 ? (<button className="secondary">Clear Book List</button>) : <></>} 
+                                {compList.length != 0 ? (<button className="secondary" onClick={() => dispatch({type:ListTypes.CLEAR})}>Clear List</button>) : <></>} 
                             </ul>
                         </div>
                         <button className='primary' type="submit" onClick={handleSubmit}>Create Competition</button>    
-
                 </form>
               </div>
         </main>

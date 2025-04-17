@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import '../assets/css/CompetitionItem.css'
 import { BookItem, ContestItem, ContestParticipant, User } from '../types';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import axios from '../../axiosConfig';
 
 function CompetitionDetailPage() {
   const navigate = useNavigate();
+  const {name} = useParams();
   const competition:ContestItem = {
     contest_name: '',
     book_count: 0,
@@ -16,18 +18,29 @@ function CompetitionDetailPage() {
   const token = sessionStorage.getItem("access_token");
 
   var userParticipating = false; // Replace with real logic
-  // const [books, getBooks] = useState<BookItem[]>([]);
-  // const [leaderboard, setLeaderBoard] = useState<ContestParticipant[]>([]);
+  const [books, setBooks] = useState<BookItem[]>([]);
+  const [leaderboard, setLeaderBoard] = useState<ContestParticipant[]>([]);
   
   useEffect(() => {
     // axios call to get contest books
+    axios.get(`/contest/${name}/books`).then((response) => {
+      console.log(response.data);
+      setBooks(response.data);
+    
+    }
+    );
 
     //get contest participants, check if the current user is participating
+    axios.get(`/contest/${name}/participants`).then((response) => {
+      console.log(response.data);
+      setLeaderBoard(response.data);
+    });
 
     if(leaderboard.find((participant) => participant.username === currentUser.username)) {
+      console.log("HERE")
       userParticipating = true;
     }
-  });
+  }, []);
 
   function handleJoin() {
 
@@ -35,41 +48,6 @@ function CompetitionDetailPage() {
 
   }
 
-  const books:BookItem[] = [
-    {
-      title: '1984',
-      author: 'George Orwell',
-      work_id: '',
-      description: '',
-      img_S: '',
-      img_M: '',
-      img_L: ''
-    },
-    {
-      title: 'Brave New World',
-      author: 'Aldous Huxley',
-      work_id: '',
-      description: '',
-      img_S: '',
-      img_M: '',
-      img_L: ''
-    },
-  ];
-
-  const leaderboard:ContestParticipant[] = [
-    {
-      username: 'reader1',
-      completed_books: []
-    },
-    {
-      username: 'reader2',
-      completed_books: []
-    },
-    {
-      username: '5testusername6574',
-      completed_books: []
-    },
-  ];
 
   return (
     <div className="competition-container">
