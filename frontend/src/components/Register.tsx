@@ -40,12 +40,20 @@ function Register() {
               }
             );
             console.log("login" , loginRes.data.access_token)
-          
-            localStorage.setItem("access_token", loginRes.data.access_token);
-            localStorage.setItem("username", username);
-            navigate(`/${username}/profile`);
-          
-        } catch (error: any) {
+            sessionStorage.setItem("access_token", loginRes.data.access_token);
+            axios.get('/user', {
+                headers: {
+                        "Authorization": `Bearer ${loginRes.data.access_token}`
+                }
+                }).then((response) => {
+                    const resp = response.data
+                    console.log(resp.username)
+                    sessionStorage.setItem('User', JSON.stringify({username: resp.username, first_name: resp.first_name, last_name: resp.last_name, goal: resp.goal}))
+                }).catch((error) => {
+                    console.log(error)
+                });
+                navigate(`/${username}/profile`);
+            } catch (error: any) {
             console.error(error);
             setErrorMessage(
               error.response?.data?.error || "Registration failed. Try again."

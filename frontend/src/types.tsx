@@ -70,5 +70,16 @@ export interface ContextProps {
     username: string,
     first_name: string,
     last_name: string, 
-    access_token: string
+    goal: number
+  }
+
+  //this interface represents the items(books) in our shopping cart
+export class CompetitionBookListItem {
+    work_id:string;
+    book: BookItem;
+  
+    constructor(book: BookItem) {
+      this.work_id = book.work_id
+      this.book = book
+    }
   }

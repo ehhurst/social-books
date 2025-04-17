@@ -62,7 +62,7 @@ function CategoryPage() {
             <div id='book-list-page-nav'>
                 <CategoryNav/>
             </div>
-            <div>
+
                 {loading ? (<p>Loading books... </p>) 
                 : (error) ? (<p style={{ color: "red" }}>{error}</p>)
                 :  (
@@ -89,7 +89,7 @@ function CategoryPage() {
                 )
             }
                 
-            </div>
+
         </main>
     )
 }

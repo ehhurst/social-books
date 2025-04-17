@@ -1,6 +1,6 @@
 import axios from "../../axiosConfig";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { faArrowRight, faGear, faUser, faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {  getReviewsForUser } from "../hooks/fetch";
@@ -12,32 +12,40 @@ import UserNetwork from "./UserNetwork";
 import Popup from "reactjs-popup";
 import Settings from "./Settings";
 import UserReviewsPage from "./UserReviewsPage";
+import YearlyProgressChart from "./YearlyProgressChart";
+import UserProfile from "./UserProfile";
+import CompetitionsSection from "./UserProfileCompetitionsSection";
+import UserProfileCompetitionsSection from "./UserProfileCompetitionsSection";
+import { AuthStore } from "../Contexts/AuthContext";
 
 
 function ReaderProfilePage() {
   const nav = useNavigate();
 
+
   const [open, setOpen] = useState(false);
   const closeModal = () => setOpen(false);
+  const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}")
 
 
 
   const message:string = useLocation().state; 
-  const currentUser = localStorage.getItem("username");
   const token = localStorage.getItem("access_token");
   const [selected, setSelected] = useState('Profile');
   let currentUsersProfile = true;
-  // useEffect(() => {nav(0)}, [])
+  
 
   //looking at this users profile page vs anothers
   const {user} = useParams();
   let title = 'My';
-  if (user != currentUser) {
+  if (user != currentUser.username) {
     currentUsersProfile = false;
 
     title= user + "'s"};
   
     console.log("whose profile? " , currentUsersProfile);
+
+
 
 
   const {reviewData, loading, error} = getReviewsForUser(`/user/reviews`);
@@ -84,7 +92,7 @@ let year = new Date().getFullYear();
         {currentUsersProfile ? <FontAwesomeIcon icon={faGear} size={'xl'} onClick={() => setOpen(o => !o)}/> : <></>} {/* TODO add OCL*/}
           <Popup open={open} closeOnDocumentClick onClose={closeModal} modal>
             <div className="modal">
-              <span id='settings'> <Settings username={""} first_name={""} last_name={""} access_token={""} /></span>
+              <span id='settings'> <Settings /></span>
             </div>
           </Popup>
       </div>
@@ -95,17 +103,17 @@ let year = new Date().getFullYear();
             <FontAwesomeIcon icon={faUserCircle} size={'xl'}/>
             <h2>{user}</h2> 
           </div>
-          {/* <YearlyProgressChart props={[1, 2]} /> */}
+          <YearlyProgressChart props={[1, 2]} />
 
           {!currentUsersProfile ? <button className='primary' onClick={handleFollow}>Follow</button> :<></>} {/*Only display follow button on other user's profiles */}
         </div>
         
         <div id='header-stats'>
-          <div className='stats'>
+          <div className='stats' onClick={() => setSelected('Profile')}>
             <h3>{reviewData.length}</h3>
             <p>Books Read</p>
           </div>
-          <div className='stats'>
+          <div className='stats' onClick={() => setSelected('Profile')}>
             <h3>{reviewData.length}</h3>
             <p>{year} Goal</p>
           </div>
@@ -128,20 +136,23 @@ let year = new Date().getFullYear();
           <li id={(selected == 'Profile')? "selected" : "unselected"} onClick={() => setSelected('Profile')}>Profile</li>
           <li id={(selected == 'Library')? "selected" : "unselected"} onClick={() => setSelected('Library')}>Library</li>
           <li id={(selected == 'Reviews')? "selected" : "unselected"} onClick={() => setSelected('Reviews')}>Reviews</li>
-          <li id={(selected == 'Likes')? "selected" : "unselected"} onClick={() => setSelected('Likes')}>Likes</li>
+          <li id={(selected == 'Likes')? "selected" : "unselected"} onClick={() => setSelected('Likes')}>Likes</li>         
+          <li id={(selected == 'Library')? "selected" : "unselected"} onClick={() => setSelected('Competitions')}>Competitions</li>
           <li id={(selected == 'Network')? "selected" : "unselected"} onClick={() => setSelected('Network')}>Network</li>
         </ul>
       </div>
       <div id='profile-body-content'>
         {title} {selected}:
         {(selected == 'Profile') ?
-        <></>
+        <UserProfile/>
         : (selected == 'Library') ?
         <></>
         : (selected == 'Reviews') ? 
         <UserReviewsPage reviewData={reviewData} loading={loading} error={error}/>
         : (selected == 'Likes') ?
         <UserLikesList likedBookIds={likedBookIds}/>
+        : (selected == 'Competitions') ?
+        <UserProfileCompetitionsSection/>
         : (selected == 'Network') ? 
         <UserNetwork initialState={selected} followers={followers} following={following} />
         :
