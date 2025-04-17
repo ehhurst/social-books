@@ -64,15 +64,16 @@ div#profile-body-content {
 }
 
 li#selected {
-    color: rgb(186, 122, 251);
+    color: #6c63ff;
     font-weight: bold;
     border-bottom-style: solid;
-    border-color: rgb(186, 122, 251);
+    border-color: #6c63ff;
 }
 
 li#selected:hover, li#unselected:hover {
     cursor: pointer;
-    color: rgb(186, 122, 251);
+    color:#6c63ff;
+    text-decoration: none;;
 }
 
 

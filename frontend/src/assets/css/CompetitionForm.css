@@ -49,7 +49,7 @@ input#comp-name {
     width: 50%;
 }
 
-ul#book-list {
+form#create-comp ul#book-list {
     min-height: 20vh;
     display: flex;
 }
