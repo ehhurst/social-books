@@ -245,21 +245,13 @@ def set_goal():
 
 
 
-@app.route('/goals', methods=["GET"])
-@jwt_required()
-def get_goals():
-    current_user = get_jwt_identity()  # Get the current user's identity from the JWT
-    token = request.headers.get("Authorization")
-    print("here 22")
-
-    if not token:
-        return jsonify({"Error: Missing authorization token"}), 401
-    
+@app.route('/<string:username>/goals', methods=["GET"])
+def get_goals(username):
     conn = db_connect()
     cursor = conn.cursor()
 
     query = "SELECT goal FROM users WHERE username = ?"
-    cursor.execute(query, (current_user,))
+    cursor.execute(query, (username,))
     goal = cursor.fetchone()
     
     return jsonify(goal[0]), 200
@@ -599,7 +591,7 @@ def get_following(username):
     # are enumerations of the values of the sqlite3 rows. 
     # like 1, friendname
     followers = [
-        {"follows_"+str(index + 1): row[0]}
+        {"username": row[0]}
         for index, row in enumerate(rows)
     ]
     result = followers
@@ -656,6 +648,7 @@ def create_contest():
     #ADD WORKS AND CREATOR HERE
 
     for work in work_ids:
+        
         try:
             query = "INSERT INTO contest_books (contest_name, work_id) VALUES (?, ?)"
             cursor.execute(query, (contest_name, work))
@@ -664,8 +657,8 @@ def create_contest():
             return jsonify({"error": f"workfailure_{work} {e}"}), 500 #INTERNAL SERVER ERROR
         
     try:
-        query = "INSERT INTO contest_participants (contest_name, username, books_read, perm_level) VALUES (?, ?, ?, ?)"
-        cursor.execute(query, (contest_name, organizer, 0, 0))
+        query = "INSERT INTO contest_participants (contest_name, username, books_read, perm_lvl) VALUES (?, ?, ?, ?)"
+        cursor.execute(query, (contest_name, organizer[0], 0, 0))
         conn.commit()
     except sqlite3.Error as e:
         conn.close()
@@ -781,7 +774,7 @@ def get_contests():
     contest_list = []
     
     for contest_elem in contest_names:
-        query = "SELECT username FROM contest_participants WHERE perm_level = 0 AND contest_name = ?"
+        query = "SELECT username FROM contest_participants WHERE perm_lvl = 0 AND contest_name = ?"
         try:
             cursor.execute(query, (contest_elem[0],))
             organizer_row = cursor.fetchone()
@@ -791,8 +784,7 @@ def get_contests():
 
         # Ensure date is returned as ISO string (for JS Date parsing)
         end_date = contest_elem[2]
-        if isinstance(end_date, datetime):
-            end_date = end_date.isoformat()
+        end_date = end_date.format()
 
         contest_json = {
             "contest_name": contest_elem[0],
@@ -806,7 +798,7 @@ def get_contests():
     return jsonify(contest_list), 200 # OK
 
 #@CONTESTS GET CONTEST BOOKS
-@app.route("/contest/<string:contest_name>/getbooks", methods=["GET"])
+@app.route("/contest/<string:contest_name>/books", methods=["GET"])
 def get_books(contest_name):
     
     if not contest_name:
@@ -816,8 +808,8 @@ def get_books(contest_name):
     cursor = conn.cursor()
     
     try:
-        query = "SELECT work_id FROM contests_books WHERE contest_name = ?"
-        works = cursor.execute(query, (contest_name))
+        query = "SELECT work_id FROM contest_books WHERE contest_name = ?"
+        works = cursor.execute(query, (contest_name,))
     except sqlite3.Error as e:
         return jsonify({"error":f"sqlite3err {e}"}), 500 # INTERNAL SERVER ERROR
     book_list = []
@@ -828,6 +820,7 @@ def get_books(contest_name):
     return jsonify(book_list), 200 # OK
 
 #@CONTEST GET PARTICIPANTS
+@app.route("/contest/<string:contest_name>/participants", methods=["GET"])
 def get_participants(contest_name):
     
     if not contest_name:
@@ -838,7 +831,7 @@ def get_participants(contest_name):
     
     try:
         query = "SELECT username FROM contest_participants WHERE contest_name = ?"
-        all_participants = cursor.execute(query, (contest_name))
+        all_participants = cursor.execute(query, (contest_name,))
     except sqlite3.Error as e:
         return jsonify({"error":f"sqlite3err {e}"}), 500 # INTERNAL SERVER ERROR
     
@@ -846,8 +839,8 @@ def get_participants(contest_name):
     for participant in all_participants:
         work_list = []
         try:
-            query = "SELECT work_id FROM contests_books_read WHERE username = ? AND contest_name = ?"
-            works = cursor.execute(query, (contest_name))
+            query = "SELECT work_id FROM contest_books_read WHERE username = ? AND contest_name = ?"
+            works = cursor.execute(query, (participant[0], contest_name,))
         except sqlite3.Error as e:
             return jsonify({"error":f"sqlite3err {e}"}), 500 # INTERNAL SERVER ERROR
         
