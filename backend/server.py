@@ -103,7 +103,7 @@ def db_connect():
 
 
 # gets all user data for the reader profile page (only currently returning the username)
-@app.route("/users", methods=["GET"])
+@app.route("/user", methods=["GET"])
 @jwt_required()
 def return_user_data():
     """ Returns all user info as a json object. 
@@ -197,7 +197,7 @@ def delete_user():
 
 # NOTE: deleted the duplicate delete user method which was left over from the "reader_profiles" version
 
-@app.route("users/goals", methods=["PUT"])
+@app.route("/goals", methods=["PUT"])
 @jwt_required()
 def set_goal():
     current_user = get_jwt_identity()
@@ -206,17 +206,12 @@ def set_goal():
     if not token:
         return jsonify({"Error: Missing authorization token"}), 401
     
-    r_metadata = request.json
-    reading_goal = r_metadata.get("reading_goal")
+    reading_goal = request.json
 
     if not reading_goal:
-        conn.close()
-        return jsonify({"error": "work_ID, rating, or text is bad"}), 400 #BAD REQUEST
-    
+        return jsonify({"error": "No reading goal provided"}), 400 #BAD REQUEST
     if (reading_goal < 0):
-        conn.close()
-        return jsonify({"error": "reading goal must be >= 0"}), 412 #PRECONDITION FAILED
-
+        return jsonify({"error": "Reading goal must be >= 0"}), 412 #PRECONDITION FAILED
 
     conn = db_connect()
     cursor = conn.cursor()
@@ -232,19 +227,36 @@ def set_goal():
         query ="""UPDATE users
                 SET goal = ?
                 WHERE username = ?"""
-        cursor.execute(query, (user, reading_goal))
+        cursor.execute(query, (current_user, reading_goal))
         conn.commit()
 
     except sqlite3.Error as error:
         conn.close()
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
     
-    updated_profile = dict(cursor.execute("SELECT * FROM users where username = ?", (user)))
     conn.close()
+    return jsonify({"message": "Successfully updated reading goal", "user_id" : current_user, "goal" : reading_goal}), 201 #CREATED
 
 
-    return jsonify({"message": "Successfully updated reading goal", "user_id" : current_user, "user profile" : updated_profile}), 201 #CREATED
 
+@app.route('/goals', methods=["GET"])
+@jwt_required()
+def get_goals():
+    current_user = get_jwt_identity()  # Get the current user's identity from the JWT
+    token = request.headers.get("Authorization")
+    print("here 22")
+
+    if not token:
+        return jsonify({"Error: Missing authorization token"}), 401
+    
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    query = "SELECT goal FROM users WHERE username = ?"
+    cursor.execute(query, (current_user,))
+    goal = cursor.fetchone()
+    
+    return jsonify(goal[0]), 200
 
 
 @app.route("/reviews", methods=["POST"])
@@ -593,7 +605,7 @@ def get_following(username):
 
     return jsonify(result)
 
-@app.route("/contest/create/", methods=["POST"])
+@app.route("/contest/create", methods=["POST"])
 @jwt_required()
 def create_contest():
     """ Creates a contest with the provided name """
