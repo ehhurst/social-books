@@ -4,14 +4,15 @@ import { useEffect, useState } from "react";
 import { faArrowRight, faGear, faUser, faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {  getReviewsForUser } from "../hooks/fetch";
-import UserReviewsList from "./UserReviewsPage";
 import UserLikesList from "./UserLikesList";
 import '../assets/css/ReaderProfilePage.css'
 import { User } from "../types";
 import UserNetwork from "./UserNetwork";
-import YearlyProgressChart from "./YearlyProgressChart";
+// import YearlyProgressChart from "./YearlyProgressChart";
 import Popup from "reactjs-popup";
-import Settings from "./settings";
+import Settings from "./Settings";
+import UserReviewsPage from "./UserReviewsPage";
+
 
 function ReaderProfilePage() {
   const nav = useNavigate();
@@ -83,7 +84,7 @@ let year = new Date().getFullYear();
         {currentUsersProfile ? <FontAwesomeIcon icon={faGear} size={'xl'} onClick={() => setOpen(o => !o)}/> : <></>} {/* TODO add OCL*/}
           <Popup open={open} closeOnDocumentClick onClose={closeModal} modal>
             <div className="modal">
-              <span id='settings'> <Settings/></span>
+              <span id='settings'> <Settings username={""} first_name={""} last_name={""} access_token={""} /></span>
             </div>
           </Popup>
       </div>
@@ -94,7 +95,7 @@ let year = new Date().getFullYear();
             <FontAwesomeIcon icon={faUserCircle} size={'xl'}/>
             <h2>{user}</h2> 
           </div>
-          <YearlyProgressChart props={[1, 2]} />
+          {/* <YearlyProgressChart props={[1, 2]} /> */}
 
           {!currentUsersProfile ? <button className='primary' onClick={handleFollow}>Follow</button> :<></>} {/*Only display follow button on other user's profiles */}
         </div>
@@ -138,7 +139,7 @@ let year = new Date().getFullYear();
         : (selected == 'Library') ?
         <></>
         : (selected == 'Reviews') ? 
-        <UserReviewsList reviewData={reviewData} loading={loading} error={error}/>
+        <UserReviewsPage reviewData={reviewData} loading={loading} error={error}/>
         : (selected == 'Likes') ?
         <UserLikesList likedBookIds={likedBookIds}/>
         : (selected == 'Network') ? 

@@ -30,22 +30,6 @@ def home():
 	return jsonify({"message": "Flask API is running"}), 200
 
 
-@app.route('/parse', methods=['POST'])
-def parse_book():
-    try:
-        data = request.json  # Receive JSON from frontend
-        book_ISBN = list(data.keys())[0]
-        book_title = data[book_ISBN]["title"]
-        book_author = data[book_ISBN]["author"]
-        
-        return jsonify({
-            "ISBN": book_ISBN,
-            "title": book_title,
-            "author": book_author
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
 @app.route('/book/<string:work_id>', methods=['GET'])
 def book(work_id):
     """
@@ -68,18 +52,39 @@ def search_books():
     Returns:
         Response: JSON response containing search results or an error message.
     """
+    print("PARAM : ", request)
     query = request.args.get('q')
     title = request.args.get('title')
     author = request.args.get('author')
     subject = request.args.get('subject')
+    users = request.args.get('accounts')
+    contests = request.args.get('contests')
+    reviews = request.args.get('reviews')
     limit = request.args.get('limit')
+    print(users)
 
-    if not (query or title or author or subject):
+    if not (query or title or author or subject or users or contests or reviews):
         return jsonify({'error': 'Missing search parameter'}), 400
 
     # Use the fetch_books_from_api function to get the search results
-    books = fetch_books_from_api(query=query, title=title, author=author, subject=subject, limit=limit)
-    return jsonify(books)
+    if (query or title or author or subject):
+        books = fetch_books_from_api(query=query, title=title, author=author, subject=subject, limit=limit)
+        return jsonify(books)
+    if (users):
+        print('here')
+        result = fetch_users(users)
+        print(result)
+        return jsonify(result)
+    if (contests):
+        result = fetch_contests(contests)
+        return jsonify(result)
+    if (reviews):
+        result = fetch_reviews(reviews)
+        print("reviews: ", result)
+        return jsonify(result)
+
+
+    
 
 # @app.route('/api/data') <-- re-enable this line if things break, shouldn't need it
 def db_connect():
@@ -95,35 +100,10 @@ def db_connect():
 
     return conn
 
-@app.route("/search/competitions", methods=["GET"])
-def search_reviews(search):
-    conn = db_connect()
-    cursor = conn.cursor()
-
-    # search by keyword, user, or work id
-    query = "SELECT * FROM contests WHERE contests.contest_name = search"
-    if query:
-        cursor = conn.execute(query, (search,))
-    query = "SELECT * FROM contests WHERE contests.book_count = search"
-    if query:
-        cursor = conn.execute(query, (search,))
-    query = "SELECT * FROM contests WHERE contests.end_date = search"
-    if query:
-        cursor = conn.execute(query, (search,))
-    rows = cursor.fetchall()
-    columns = [description[0] for description in cursor.description]
-    competitions = [dict(zip(columns, row)) for row in rows]
-    conn.close()
-
-    if competitions:
-        return jsonify(competitions)
-    else:
-        return jsonify([])
 
 
-
-# gets all user data for the reader profile page
-@app.route("/users/reader-profile", methods=["GET"])
+# gets all user data for the reader profile page (only currently returning the username)
+@app.route("/users", methods=["GET"])
 @jwt_required()
 def return_user_data():
     """ Returns all user info as a json object. 
@@ -221,6 +201,54 @@ def delete_user():
 
 
 # NOTE: deleted the duplicate delete user method which was left over from the "reader_profiles" version
+
+@app.route("users/goals", methods=["PUT"])
+@jwt_required()
+def set_goal():
+    current_user = get_jwt_identity()
+    token = request.headers.get("Authorization")
+
+    if not token:
+        return jsonify({"Error: Missing authorization token"}), 401
+    
+    r_metadata = request.json
+    reading_goal = r_metadata.get("reading_goal")
+
+    if not reading_goal:
+        conn.close()
+        return jsonify({"error": "work_ID, rating, or text is bad"}), 400 #BAD REQUEST
+    
+    if (reading_goal < 0):
+        conn.close()
+        return jsonify({"error": "reading goal must be >= 0"}), 412 #PRECONDITION FAILED
+
+
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT username FROM users WHERE username = ?", (current_user,))
+    user = cursor.fetchone()
+
+    if not user:
+        conn.close()
+        return jsonify({"error": "user not found."}), 404 #NOT FOUND
+    
+    try:
+        query ="""UPDATE users
+                SET goal = ?
+                WHERE username = ?"""
+        cursor.execute(query, (user, reading_goal))
+        conn.commit()
+
+    except sqlite3.Error as error:
+        conn.close()
+        return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
+    
+    updated_profile = dict(cursor.execute("SELECT * FROM users where username = ?", (user)))
+    conn.close()
+
+
+    return jsonify({"message": "Successfully updated reading goal", "user_id" : current_user, "user profile" : updated_profile}), 201 #CREATED
 
 
 
@@ -726,6 +754,62 @@ def contest_markdone(contest_name, work_id):
     
     conn.close
     return jsonify({"message":f"Work {work_id} marked as done"}), 200 #OK
+
+
+def fetch_users(searchTerm):
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT username, first_name, last_name FROM users where username OR first_name OR last_name LIKE (?)", (("%" + searchTerm + "%"),))
+
+    rows = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]
+    users = [dict(zip(columns, row)) for row in rows]
+
+    conn.close()
+    return users
+
+
+def fetch_reviews(searchTerm):
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM reviews where review_text LIKE (?)", (("%" + searchTerm + "%"),))
+
+    rows = cursor.fetchall()
+    print(rows)
+    columns = [description[0] for description in cursor.description]
+    reviews = [dict(zip(columns, row)) for row in rows]
+
+    conn.close()
+    print("RESULTS " , reviews)
+    return reviews
+
+def fetch_contests(searchTerm):
+    conn = db_connect()
+    cursor = conn.cursor()
+
+
+    search_result = conn.execute("SELECT * FROM contests WHERE contests.contest_name LIKE (?)", (searchTerm,)).fetchall()
+
+    # query = "SELECT * FROM contests WHERE contests.book_count = search"
+    # if query:
+    #     cursor = conn.execute(query, (query))
+    # query = "SELECT * FROM contests WHERE contests.end_date = search"
+    # if query:
+    #     cursor = conn.execute(query, (search,))
+    # rows = cursor.fetchall()
+    # columns = [description[0] for description in cursor.description]
+    # competitions = [dict(zip(columns, row)) for row in rows]
+    conn.close()
+
+    if search_result:
+        return jsonify(search_result)
+    else:
+        return jsonify([])
+
+
+
 
 
 

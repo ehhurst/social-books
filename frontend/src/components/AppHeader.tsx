@@ -11,9 +11,7 @@ import { useEffect } from 'react';
 function AppHeader() {
     const nav = useNavigate();
     const par = useParams();
-    console.log("params" , par);
     const username = localStorage.getItem("username");
-    console.log("username" ,username);
     const token = localStorage.getItem('access_token');
 
     useEffect(() => {

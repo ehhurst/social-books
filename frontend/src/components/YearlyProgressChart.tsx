@@ -1,47 +1,47 @@
-import { Chart } from "chart.js/auto";
-import { useEffect, useRef } from "react";
+// import { Chart } from "chart.js/auto";
+// import { useEffect, useRef } from "react";
 
 
-function YearlyProgressChart({props}:{props:number[]}) {
-    const chartRef = useRef(null);
-    const chartInstance = useRef(null);
-    let year = new Date().getFullYear();
+// function YearlyProgressChart({props}:{props:number[]}) {
+//     const chartRef = useRef(null);
+//     const chartInstance = useRef(null);
+//     let year = new Date().getFullYear();
 
-    useEffect(() => {
-        if(chartInstance.current) {chartInstance.current.destroy() }
-        const myChartRef = chartRef.current.getContext('2d');
+//     useEffect(() => {
+//         if(chartInstance.current) {chartInstance.current.destroy() }
+//         const myChartRef = chartRef.current.getContext('2d');
 
-        chartInstance.current = new Chart(myChartRef, {
-            type:"pie", 
-            data: {
-                labels:[`Books read: ${props[0]}`, `${year} goal: ${props[1]}`], 
-                datasets: [{
+//         chartInstance.current = new Chart(myChartRef, {
+//             type:"pie", 
+//             data: {
+//                 labels:[`Books read: ${props[0]}`, `${year} goal: ${props[1]}`], 
+//                 datasets: [{
              
-                    data: props,
-                    backgroundColor: [
-                        '#829584',
-                        '#6f7588'
-                    ],
-                    hoverOffset: 4
-                }]}
+//                     data: props,
+//                     backgroundColor: [
+//                         '#829584',
+//                         '#6f7588'
+//                     ],
+//                     hoverOffset: 4
+//                 }]}
             
-        })
-        return(() => {
-            if(chartInstance.current) {
-                chartInstance.current.destroy()
-            }
-        })
-    }, [])
+//         })
+//         return(() => {
+//             if(chartInstance.current) {
+//                 chartInstance.current.destroy()
+//             }
+//         })
+//     }, [])
     
 
-    return(
-        <div>
-            <canvas ref={chartRef} style={{width:'20vh', height:'20vh'}}/>
-        </div>
+//     return(
+//         <div>
+//             <canvas ref={chartRef} style={{width:'20vh', height:'20vh'}}/>
+//         </div>
 
-    );
+//     );
 
-}
+// }
 
 
-export default YearlyProgressChart;
+// export default YearlyProgressChart;
