@@ -6,6 +6,7 @@ import datetime
 from flask_jwt_extended import JWTManager
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from auth import auth, bcrypt
+import json
 import os
 
 
@@ -767,6 +768,99 @@ def contest_markdone(contest_name, work_id):
     conn.close
     return jsonify({"message":f"Work {work_id} marked as done"}), 200 #OK
 
+#@CONTESTS GET CONTESTS LIST
+# Gen. AI was used to format the date parameter correctly.
+@app.route("/contest/info", methods=["GET"])
+def get_contests():
+    conn = db_connect()
+    cursor = conn.cursor()
+    
+    query = "SELECT * FROM contests"
+    contest_names = cursor.execute(query).fetchall()
+    
+    contest_list = []
+    
+    for contest_elem in contest_names:
+        query = "SELECT username FROM contest_participants WHERE perm_level = 0 AND contest_name = ?"
+        try:
+            cursor.execute(query, (contest_elem[0],))
+            organizer_row = cursor.fetchone()
+            organizer = organizer_row[0] if organizer_row else ""
+        except sqlite3.Error as e:
+            return jsonify({"error":f"sqlite3err {e} QUERY {query}"}), 500 # INTERNAL SERVER ERROR
+
+        # Ensure date is returned as ISO string (for JS Date parsing)
+        end_date = contest_elem[2]
+        if isinstance(end_date, datetime):
+            end_date = end_date.isoformat()
+
+        contest_json = {
+            "contest_name": contest_elem[0],
+            "book_count": contest_elem[1],
+            "end_date": end_date,
+            "organizer": organizer
+        }
+
+        contest_list.append(contest_json)
+    
+    return jsonify(contest_list), 200 # OK
+
+#@CONTESTS GET CONTEST BOOKS
+@app.route("/contest/<string:contest_name>/getbooks", methods=["GET"])
+def get_books(contest_name):
+    
+    if not contest_name:
+        return jsonify({"error":"Missing contest_name"}), 400 #INVALID REQUEST
+    
+    conn = db_connect()
+    cursor = conn.cursor()
+    
+    try:
+        query = "SELECT work_id FROM contests_books WHERE contest_name = ?"
+        works = cursor.execute(query, (contest_name))
+    except sqlite3.Error as e:
+        return jsonify({"error":f"sqlite3err {e}"}), 500 # INTERNAL SERVER ERROR
+    book_list = []
+    for work in works:
+        book = get_book(work[0])
+        book_list.append(book)
+        
+    return jsonify(book_list), 200 # OK
+
+#@CONTEST GET PARTICIPANTS
+def get_participants(contest_name):
+    
+    if not contest_name:
+        return jsonify({"error":"Missing contest_name"}), 400 #INVALID REQUEST
+    
+    conn = db_connect()
+    cursor = conn.cursor()
+    
+    try:
+        query = "SELECT username FROM contest_participants WHERE contest_name = ?"
+        all_participants = cursor.execute(query, (contest_name))
+    except sqlite3.Error as e:
+        return jsonify({"error":f"sqlite3err {e}"}), 500 # INTERNAL SERVER ERROR
+    
+    participant_list = []
+    for participant in all_participants:
+        work_list = []
+        try:
+            query = "SELECT work_id FROM contests_books_read WHERE username = ? AND contest_name = ?"
+            works = cursor.execute(query, (contest_name))
+        except sqlite3.Error as e:
+            return jsonify({"error":f"sqlite3err {e}"}), 500 # INTERNAL SERVER ERROR
+        
+        for work in works:
+            work_list.append(get_book(work[0]))
+            
+        participant = {
+            "username" : participant[0],
+            "completed_books" : work_list
+        }
+        participant_list.append(participant)
+        
+    return jsonify(participant_list), 200 # OK
 
 def fetch_users(searchTerm):
     conn = db_connect()
