@@ -664,7 +664,7 @@ def create_contest():
             return jsonify({"error": f"workfailure_{work} {e}"}), 500 #INTERNAL SERVER ERROR
         
     try:
-        query = "INSERT INTO contest_participants (contest_name, username, books_read, perms_level) VALUES (?, ?, ?, ?)"
+        query = "INSERT INTO contest_participants (contest_name, username, books_read, perm_level) VALUES (?, ?, ?, ?)"
         cursor.execute(query, (contest_name, organizer, 0, 0))
         conn.commit()
     except sqlite3.Error as e:
