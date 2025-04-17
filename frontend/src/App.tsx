@@ -9,10 +9,12 @@ import ReaderProfilePage from "./components/ReaderProfilePage"
 import ReviewForm from "./components/ReviewForm"
 import PageNotFound from "./components/PageNotFound"
 import BookListPage from "./components/BookListPage"
-import Competitions from "./components/Competitions";
+import Competitions from "./components/CompetitionsPage";
 
 import CategoryPage from "./components/CategoryPage"
 import SearchResultsPage from "./components/SearchResultsPage"
+import CompetitionsPage from "./components/CompetitionsPage"
+import CompetitionForm from "./components/CompetitionForm"
 
 function App() {
   return (
@@ -28,16 +30,12 @@ function App() {
           <Route path='/books/:work_id' element={<BookDetailPage/>}/>
           <Route path='/categories' element={<CategoryPage/>}>
             <Route path=':category' element={<CategoryPage/>}/>
-          </Route>
-          
-
-          
-          
-            
+          </Route> 
           <Route path="/review" element={<ReviewForm />} />
-          {/* <Route path="/competitions/:id" element={<Competitions />} /> */}
-          <Route path="/competitions" element={<Competitions />} />
-
+          
+          <Route path="/competitions" element={<CompetitionsPage />} />
+          <Route path="/competitions/create" element={<CompetitionForm/>}/> 
+          {/* <Route path="/competitions/:id" element={<CompetitionsDetailPage />} /> */}
           <Route path="*" element={<PageNotFound/>}/>     
         </Routes>
       <AppFooter/>

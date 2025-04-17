@@ -7,19 +7,15 @@ import Popup from "reactjs-popup";
 import { useNavigate } from "react-router-dom";
 
 
-function Settings(user:User) {
-    const token = localStorage.getItem("access_token")
+function Settings() {
+    const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}")
+    const token = sessionStorage.getItem("access_token")
     const [open, setOpen] = useState(false);
     const closeSettingsModal = () => setOpen(false);
     const nav = useNavigate();
 
     async function handleDelete() {
         try {
-          axios.delete("/users/delete", {
-            headers : {
-              "Authorization": `Bearer ${token}`, 
-            }
-          });
           const response = await axios.delete('/users/delete', {
             headers: {
             "Authorization": `Bearer ${token}`, 
@@ -27,8 +23,8 @@ function Settings(user:User) {
           }
           });
           console.log(response.data);
-          localStorage.removeItem("username");
-          localStorage.removeItem("access_token");
+          sessionStorage.removeItem('User');
+          sessionStorage.removeItem("access_token");
           nav("/"); // Redirect to homepage after account deletion
         } catch (error) {
           console.error(error);
@@ -42,7 +38,7 @@ function Settings(user:User) {
             <h2>Settings</h2>
             <div id="user-data">
             <FontAwesomeIcon id='user-icon' icon={faUserCircle} size={'xl'}/>
-            <h3>{user.username}</h3>
+            <h3>{currentUser.username}</h3>
 
         <button onClick={() => setOpen(o => !o)}>Delete My Account</button> 
         <Popup open={open} closeOnDocumentClick onClose={closeSettingsModal} modal>

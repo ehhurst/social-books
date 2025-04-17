@@ -6,10 +6,8 @@ function NavBar() {
         <nav>
             <ul>
                 <li><Link to='/'>Home</Link>         <p> | </p></li>
-                <li><Link to='/books'>Books</Link>        <p> | </p> </li>
-                <li><Link to='#'>Book Clubs</Link>   <p> | </p></li>
-                <li><Link to='/competitions'>Competitions</Link> <p> | </p></li>
-                <li><Link to='/categories/fiction'>Contact</Link>               </li>
+                <li><Link to='/categories/fiction'>Browse Books</Link>        <p> | </p> </li>
+                <li><Link to='/competitions'>Competitions</Link>  </li>
             </ul>
         </nav>     
  

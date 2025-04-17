@@ -39,7 +39,7 @@ function SearchResultsPage() {
     function setSearchQuery(item:CategoryItem) {
         setLoading(true);
         setError('');
-        console.log("QUERY: " ,item.query);
+        console.log("QUERY: " ,selected.query);
         console.log("search term: ", searchTerm)
 
         axios.get(`/search?${selected.query}=${searchTerm}&limit=9`, {
@@ -94,13 +94,13 @@ function SearchResultsPage() {
                         reviews && reviews.length > 0 ? (
                             reviews.map((review:Review) => (
                                 <ReviewCard 
-                                    key={''}
-                                    review_id={""} 
-                                    work_id={""} 
-                                    username={""} 
-                                    star_rating={0} 
-                                    review_text={""} 
-                                    liked={false} 
+                                    key={review.review_id}
+                                    review_id={review.review_id} 
+                                    work_id={review.work_id} 
+                                    username={review.username} 
+                                    star_rating={review.star_rating} 
+                                    review_text={review.review_text} 
+                                    liked={review.liked} 
                                 />
                             ))
                         ) : ( !loading && !error && <p>No reviews found.</p> )
@@ -108,7 +108,11 @@ function SearchResultsPage() {
                     : (selected.query == 'accounts') ? (
                         users && users.length > 0 ? (
                             users.map((user: User) => (
-                                <UserCard/>
+                                <UserCard 
+                                username={user.username} 
+                                first_name={user.first_name} 
+                                last_name={user.last_name} 
+                                />
                             ))
                         ) : (!loading && !error && <p>No users found.</p>)
                     ) 

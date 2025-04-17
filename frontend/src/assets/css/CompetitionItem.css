@@ -63,13 +63,13 @@
     margin-bottom: 1rem;
   }
   
-  .book-list {
+  div.competition-container .book-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 1.5rem;
   }
   
-  .book-box {
+  div.competition-container .book-box {
     background-color: #2b2b3b;
     border-radius: 10px;
     padding: 1rem;
@@ -87,7 +87,7 @@
     background-color: transparent;
   }
   
-  .secondary {
+  div.competition-container .secondary {
     background-color: #91a1ff;
     color: #fff;
     border: none;
@@ -131,14 +131,14 @@
     color: #bdbdbd;
   }
   
-  .leaderboard-list {
+  div.competition-container .leaderboard-list {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
     margin-top: 1rem;
   }
   
-  .user-card {
+  div.competition-container .user-card {
     display: flex;
     justify-content: space-between;
     padding: 0.7rem 1rem;
@@ -148,7 +148,7 @@
     transition: background-color 0.2s ease-in-out;
   }
   
-  .user-card.highlight {
+  div.competition-container .user-card.highlight {
     border: 2px solid #91a1ff;
     background-color: #484860;
   }

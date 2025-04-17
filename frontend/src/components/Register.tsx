@@ -40,24 +40,46 @@ function Register() {
               }
             );
             console.log("login" , loginRes.data.access_token)
-          
-            localStorage.setItem("access_token", loginRes.data.access_token);
-            localStorage.setItem("username", username);
-            navigate(`/${username}/profile`);
-          
-        } catch (error: any) {
+            sessionStorage.setItem("access_token", loginRes.data.access_token);
+            axios.get('/user', {
+                headers: {
+                        "Authorization": `Bearer ${loginRes.data.access_token}`
+                }
+                }).then((response) => {
+                    const resp = response.data
+                    console.log(resp.username)
+                    sessionStorage.setItem('User', JSON.stringify({username: resp.username, first_name: resp.first_name, last_name: resp.last_name, goal: resp.goal}))
+                }).catch((error) => {
+                    console.log(error)
+            });
+            //create bookshelves that apply to all users
+            console.log(loginRes.data.access_token)
+            axios.post('/shelf',{shelf_name: "top-5"},  {
+                headers: {
+                    "Authorization": `Bearer ${loginRes.data.access_token}`
+            }
+            }).then((response) => console.log(response.data)).catch((error) => console.error(error));
+            axios.post('/shelf', {shelf_name:"read-books"} , {
+                headers: {
+                    "Authorization": `Bearer ${loginRes.data.access_token}`
+                } 
+            }).then((response) => {
+                console.log(response.data);
+                navigate(`/${username}/profile`)}
+            ).catch((error) => console.error(error));
+            } catch (error: any) {
             console.error(error);
             setErrorMessage(
               error.response?.data?.error || "Registration failed. Try again."
-            );
+            ); 
         }
     }
 
     return (
         <main>
-            <div id='login-form'>
+            <div id='registration-form'>
                 <form onSubmit={handleSubmit} method='post'>
-                    <label htmlFor='first_name'></label>
+                    <label htmlFor='first_name'>First Name</label>
                         <input
                             type='text'
                             name='first_name'
@@ -66,7 +88,7 @@ function Register() {
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
                         />
-                    <label htmlFor='last_name'></label>
+                    <label htmlFor='last_name'>Last Name</label>
                         <input
                             type='text'
                             name='last_name'

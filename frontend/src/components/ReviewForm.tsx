@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { BookItem,  ReviewStatus } from "../types";
+import { BookItem,  ReviewStatus, User } from "../types";
 import { faHeart, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ChangeEvent, FormEvent, useState } from "react";
@@ -15,8 +15,8 @@ function ReviewForm() {
     const navigate = useNavigate();
 
     // retrieve book details from localstorage
-    const username = localStorage.getItem("username");
-    const token = localStorage.getItem("access_token");
+    const token = sessionStorage.getItem('access_token');
+    const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}")
 
     const [rating, setRating] = useState(0);
     const [ratingHover, setRatingHover] = useState(0);
@@ -30,7 +30,7 @@ function ReviewForm() {
       event.preventDefault();
       console.log(reviewText)
   
-      if (!token || !username || !book) {
+      if (!token || !currentUser.username || !book) {
         setMessage("Missing user or book info.");
         return;
       }

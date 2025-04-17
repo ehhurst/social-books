@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { BookItem, Review } from "../types";
+import { BookItem, Review, User } from "../types";
 import { FormEvent, useEffect, useState } from "react";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -9,13 +9,12 @@ import axios from "axios";
 
 
 function ReviewFormEdit(review: Review) {
+    const navigate = useNavigate();
     const book:BookItem = useLocation().state; // gets book data passed in url
     const [bookData, setBookData] = useState<BookItem>();
-    const navigate = useNavigate();
-
-    // retrieve book details from localstorage
-    const username = localStorage.getItem("username");
-    const token = localStorage.getItem("access_token");
+    
+    const token = sessionStorage.getItem('access_token');
+    const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}")
 
     const [rating, setRating] = useState(review.star_rating);
     const [ratingHover, setRatingHover] = useState(0);
@@ -40,7 +39,7 @@ function ReviewFormEdit(review: Review) {
       event.preventDefault();
       console.log(reviewText)
   
-      if (!token || !username || !book) {
+      if (!token || !currentUser.username || !book) {
         setMessage("Missing user or book info.");
         return;
       }
@@ -59,7 +58,7 @@ function ReviewFormEdit(review: Review) {
         setMessage("Review Edited Successfully!");
         console.log("response" , response.data);
         console.log(updatedReview);
-        // navigate(0); // Redirect after success
+        navigate(0); // Redirect after success
       } catch (err) {
         console.error(err);
         setMessage("Failed to submit review.");

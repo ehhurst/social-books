@@ -10,7 +10,6 @@ import '../assets/css/Login.css'
 function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-
     const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
 
@@ -31,14 +30,23 @@ function Login() {
                 }
             });
             console.log("login" , response.data.access_token)
-            localStorage.setItem("access_token", response.data.access_token); 
-            localStorage.setItem("username", username);
-            
-            navigate(`/${username}/profile`);
-        } catch (error) {
+            sessionStorage.setItem("access_token", response.data.access_token); 
+            axios.get('/user', {
+                headers: {
+                        "Authorization": `Bearer ${response.data.access_token}`
+                }
+                }).then((response) => {
+                    const resp = response.data
+                    console.log(resp.username)
+                    sessionStorage.setItem('User', JSON.stringify({username: resp.username, first_name: resp.first_name, last_name: resp.last_name, goal: resp.goal}))
+                }).catch((error) => {
+                    console.log(error)
+                });
+                navigate(`/${username}/profile`);
+            } catch (error) {
             console.error(error);
             setErrorMessage("Invalid username or password. Please try again.");
-        }
+            }
     }
 
     return(

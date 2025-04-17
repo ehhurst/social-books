@@ -6,13 +6,16 @@ import NavBar from './NavBar';
 import SearchBar from "./SearchBar";
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
+import { AuthStore } from '../Contexts/AuthContext';
+import { User } from '../types';
 
 function AppHeader() {
     const nav = useNavigate();
     const par = useParams();
-    const username = localStorage.getItem("username");
-    const token = localStorage.getItem('access_token');
+    const token = sessionStorage.getItem('access_token');
+    const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}")
+
 
     useEffect(() => {
         if (!token && !par) {
@@ -20,10 +23,11 @@ function AppHeader() {
         }
     }, [token, ])
 
+
     
     function logOut(){
-        localStorage.removeItem("username");
-        localStorage.removeItem("access_token");
+        sessionStorage.removeItem('User');
+        sessionStorage.removeItem("access_token");
         nav('/login');
     }
 
@@ -40,8 +44,8 @@ function AppHeader() {
                     <button className='secondary' onClick={() => nav('/register')}>Register</button>
                 </div>
                 : <div id='user-info'>
-                    <Link to={`${username}/profile`}><FontAwesomeIcon id='user-icon' icon={faUserCircle} size={'xl'}/></Link>
-                    <p>Welcome, {username}</p>
+                    <Link to={`${currentUser.username}/profile`}><FontAwesomeIcon id='user-icon' icon={faUserCircle} size={'xl'}/></Link>
+                    <p>Welcome, {currentUser.first_name}</p>
                     <Link to={'/login'} onClick={logOut}>Logout</Link>
                 </div>}
             </div>

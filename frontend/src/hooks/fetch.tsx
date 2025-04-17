@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BookItem, Review, Reviews } from "../types";
+import { BookItem, Review, Reviews, User } from "../types";
 import axios from "../../axiosConfig"
 import { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
@@ -105,4 +105,30 @@ export function getReviewsForBook(uri:string) {
 
 
     return {reviewData, loading, error}
+}
+
+
+export function getBooksInShelf(uri:string) {
+    const [shelfBooks, setShelfBooks] = useState<BookItem[]>();
+    const [loading, setLoading] = useState(true); // add loading state
+    const [error, setError] = useState(''); // handle errors gracefully  
+    const token = localStorage.getItem("access_token");
+    const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}")
+
+    useEffect(() => {
+        setLoading(true);
+        setError('');
+
+        axios.get(uri, {
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }
+
+        })
+        .then((response) => setShelfBooks(response.data))
+        .catch((error) => {
+            console.error("❌ Book Fetch Error:", error);
+            setError("Error loading book data. Please try again later.");
+        }).finally(() => setLoading(false))
+    }, [uri]);
+
+    return {shelfBooks, loading, error}
 }

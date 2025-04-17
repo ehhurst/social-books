@@ -4,6 +4,7 @@ import axios from "../../axiosConfig";
 import BookListCard from "./BookListCard";
 import { useNavigate, useParams } from "react-router-dom";
 import CategoryNav from "./CategoryNav";
+import CompStatus from "./CompStatus";
 
 
 
@@ -14,6 +15,8 @@ function CategoryPage() {
     const[error, setError] = useState('');
     const [loading, setLoading] = useState(true);
     const [books, setBooks] = useState<BookItem[]>([]);
+
+    const compStatus = sessionStorage.getItem("creatingComp");
 
     useEffect(() => {
         setLoading(true);
@@ -61,8 +64,9 @@ function CategoryPage() {
         <main>
             <div id='book-list-page-nav'>
                 <CategoryNav/>
+                {compStatus ? (<CompStatus/>) : <></>}
             </div>
-            <div>
+
                 {loading ? (<p>Loading books... </p>) 
                 : (error) ? (<p style={{ color: "red" }}>{error}</p>)
                 :  (
@@ -89,7 +93,7 @@ function CategoryPage() {
                 )
             }
                 
-            </div>
+
         </main>
     )
 }

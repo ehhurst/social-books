@@ -1,7 +1,11 @@
 
 
 function CompetitionCard() {
-    return(<></>)
+    return(
+        <div>
+            
+        </div>
+    );
 }
 
 export default CompetitionCard;
