@@ -1,7 +1,7 @@
+import sqlite3
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from flask_bcrypt import Bcrypt
-import sqlite3
 
 auth = Blueprint("auth", __name__)
 bcrypt = Bcrypt()
