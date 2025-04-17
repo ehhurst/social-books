@@ -1,5 +1,5 @@
 /* Styles for the login form's container*/
-div#login-form {
+div#login-form, div#registration-form {
     background-color: var(--light-primary-color);
     color: var(--secondary-font-color);
     width: 22vw;
@@ -9,15 +9,25 @@ div#login-form {
     float: left;
     margin: 13% 39%;
 }
-
 /* Styles for the form itself */
+div#registration-form {
+    width: 30vw;
+    margin:1% 39%;
+}
+
+div#registration-form form label {
+    display: block;
+    text-align: left;
+    padding: 1em 0 0.5em 7.5%;
+}
+
 div#login-form form label {
     display: block;
     text-align: left;
     padding: 1.5em 0 0.5em 7.5%;
 }
 
-input#username, input#password {
+input#username, input#password, input#first_name, input#last_name {
     width: 80%;
     height: 2.5em;
     margin-bottom: 1em;
@@ -34,8 +44,12 @@ input:focus {
     outline-color: var(--light-accent-color);
 }
 
+div#registration-form input {
+    padding-left: 2%;
+}
 
-div#login-form a {
+
+div#registration-form a, div#login-form a {
     color: var(--light-accent-color);
     font-weight: bold;
     text-decoration: underline;
@@ -48,7 +62,8 @@ p#error-message {
 }
 
 
-div#login-form button {
+
+div#registration-form button, div#login-form button {
     width: 86%;
     height: 3.5em;
     font-weight: bold;

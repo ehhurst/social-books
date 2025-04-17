@@ -63,9 +63,9 @@ function Register() {
 
     return (
         <main>
-            <div id='login-form'>
+            <div id='registration-form'>
                 <form onSubmit={handleSubmit} method='post'>
-                    <label htmlFor='first_name'></label>
+                    <label htmlFor='first_name'>First Name</label>
                         <input
                             type='text'
                             name='first_name'
@@ -74,7 +74,7 @@ function Register() {
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
                         />
-                    <label htmlFor='last_name'></label>
+                    <label htmlFor='last_name'>Last Name</label>
                         <input
                             type='text'
                             name='last_name'
