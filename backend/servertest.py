@@ -1,5 +1,6 @@
 import unittest
 import os
+import datetime
 import json
 from server import app  # Assuming 'app' is the Flask app instance in server.py
 from flask_jwt_extended import JWTManager
@@ -25,6 +26,8 @@ class ReviewTestCase(unittest.TestCase):
             "username" : "test",
             "password" : "12345"
         }
+        
+        # May need headers? Notify Yoon if required.
         
         self.app.post("/auth/register", json=self.test_user)
 
@@ -111,6 +114,7 @@ class ReviewTestCase(unittest.TestCase):
         print("----------------------------------\n")
         
     def test_get_token(self):
+        print("Testing user authentication")
         response = self.app.post("/auth/login")
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
@@ -119,7 +123,24 @@ class ReviewTestCase(unittest.TestCase):
         print("----------------------------------\n")
         
 
-
+    def test_contests_get(self):
+        print("Testing getting contest member checklist")
+        response = self.app.post("/contest/test_contest/fetch")
+        data = response.get_json()
+        print(f"Response code {response.status_code}")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(data), 3)
+        print("----------------------------------\n")
+        
+    def test_contests_deadline(self):
+        print("Testing contest deadline")
+        response = self.app.post("/contest/test_contest/deadline")
+        
+        self.assertIsNotNone(response)
+        
+        deadline_time = response["complete"]
+        
+        self.assertEqual(deadline_time, True)
 
     # next sprint
 

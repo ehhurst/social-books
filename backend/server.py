@@ -708,7 +708,7 @@ def contest_checklist(contest_name):
 
     conn.close()
 
-    return jsonify({"readbooks":readbooks})
+    return jsonify({"readbooks":readbooks}), 200 # OK
 
 @app.route("/contest/mark/<string:contest_name>/<string:work_id>")
 @jwt_required()
