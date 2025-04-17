@@ -28,9 +28,6 @@ export interface Review {
     liked: boolean;
 }
 
-export interface CompetitionItem {
-
-}
 
 
 //getting status back from post request
@@ -83,3 +80,8 @@ export class CompetitionBookListItem {
       this.book = book
     }
   }
+
+export interface ShelfItem {
+    shelf_name: string, 
+    books_list: BookItem[]
+}

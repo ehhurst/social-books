@@ -1,23 +1,28 @@
 import { FormEvent, useContext, useEffect, useState } from "react";
 import YearlyProgressChart from "./YearlyProgressChart";
 import axios, { AxiosError } from "axios";
+import { BookItem, ShelfItem, User } from "../types";
+import MinBookBox from "./MinBookBox";
+import { getBooksInShelf } from "../hooks/fetch";
 
 
-function UserProfile() {
+function UserProfile({library}: {library: ShelfItem[]}) {
     const [goal, setGoal] = useState(0);
     const token = localStorage.getItem("access_token");
+    const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}");
+    console.log(library);
+    const initialState:ShelfItem = {shelf_name: '', books_list: []}
+    console.log("Here", library.find((item) => item.shelf_name === "top-5"));
 
+    // const top5 = (library.find((item) => item.shelf_name === 'top-5')) ? (library.map? get specific item): (initialState)
+    const {shelfBooks, loading, error} = getBooksInShelf('/shelf/top-5');
+    console.log(shelfBooks);
+    const top5 =  (library.length == 0 ) ? (initialState) : (library.find((item) => item.shelf_name === "top-5"));
+    const readList = (library.length == 0 ) ? (initialState) : (library.find((item) => item.shelf_name === "read-books"));
+ 
+// not getting back actual item, only getting shelf name array
+    
 
-    useEffect(() => {
-        axios.get('/goals', {headers: {"Authorization": `Bearer ${token}`}}
-            ).then((response) => {
-                response.data == -1 ? setGoal(0) : setGoal(response.data);
-                console.log("CONVERTED RESP ", goal);
-        }).catch((error) => {
-            console.error(error);
-            console.log("ERROR RESPON " , error.response.status)
-        })
-    }, [])
 
     let year = new Date().getFullYear();
 
@@ -37,32 +42,60 @@ function UserProfile() {
         } catch {(error: any) => console.log(error)}
     }
     
-    
-
+  
 
     return(
          <div>
             <div id="reader-goals">
                 <div className='stats'>
-                    {(goal == 0)? (
-                        <form id="set-goals">
-                            <label htmlFor="goal">My reading goal for {year}: </label>
+                    <p>Books Read</p>
+
+                </div>          
+                <form id="set-goals">
+                     <label htmlFor="goal">My reading goal for {year}: </label>
                             <input type="number" id="goal" name="goal" min="0" max="100" value={goal} onChange={(e) => setGoal(parseInt(e.target.value))}/>
                             <input type="submit" onClick={submitGoal} />
                         </form>
-                    )
-                    : (<h3></h3>)}{/* add number of books read */}
-                    <p>Books Read</p>
-
-                </div>
                 <YearlyProgressChart props={[1, goal]} /> 
             </div>
-            <div id="top-five-list">
+            
+            {/* <div id="top-five-list">
+                <h3>Favorites: </h3>
+                {top5 && top5.books_list.length > 0 ? (
+                    top5.books_list.map((book:BookItem, index) => (
+                        <li key={index}>
+                            <MinBookBox 
+                                title={book.title} 
+                                author={book.author} 
+                                work_id={book.work_id} 
+                                description={book.description} 
+                                img_S={book.img_S} 
+                                img_M={book.img_M} 
+                                img_L={book.img_L}/>
+                        </li>
+                        
+                    ))
+                ): (<p>You don't have any favorites yet. </p>)}
 
             </div>
             <div id='read-list'>
-                <p>Books i've read:</p>
-            </div>
+                <h3>Books i've read:</h3>
+                {readList && readList.books_list.length > 0 ? (
+                    readList.books_list.map((book:BookItem, index) => (
+                        <li key={index}>
+                            <MinBookBox 
+                                title={book.title} 
+                                author={book.author} 
+                                work_id={book.work_id} 
+                                description={book.description} 
+                                img_S={book.img_S} 
+                                img_M={book.img_M} 
+                                img_L={book.img_L}/>
+                        </li>
+                        
+                    ))
+                ): (<p>You haven't marked any books as read yet.</p>)} */}
+            {/* </div> */}
               
     </div>
     );

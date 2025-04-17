@@ -1,7 +1,7 @@
 // import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '../assets/css/BookDetailCard.css'
-import { BookItem } from '../types';
+import { BookItem, User } from '../types';
 import { faStar, faX } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import Popup from 'reactjs-popup';
@@ -16,10 +16,9 @@ function BookDetailCard(props: {book:BookItem, avgRating:String}) {
     const [open, setOpen] = useState(false);
     const closeModal = () => setOpen(false);
 
-    const username = localStorage.getItem("username");
-    console.log(username);
+    const token = sessionStorage.getItem('access_token');
+    const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}")
       
-
     return(
     <div className="container book-detail-box">
             <div id='book-image-background'>
@@ -48,7 +47,7 @@ function BookDetailCard(props: {book:BookItem, avgRating:String}) {
                 </table>
 
             </div>
-            {(username) ? 
+            {(currentUser.username) ? 
             <div id='cta-container'>
                 <button className='secondary'>Mark as Read</button>
                 <button type="button" className="primary" onClick={() => setOpen(o => !o)}>+ New Review</button>

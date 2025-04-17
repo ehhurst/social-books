@@ -8,10 +8,11 @@ import { ListTypes } from "../Reducers/CompetitionBookListReducer";
 
 
 function BookListCard(props:BookItem) {
-    const preview = props.description.slice(0, 150); //shorten description to fit into book container
+    //shorten description to fit into book container
+    const preview = props.description.slice(0, 150);
     const { compList, dispatch } = useContext(ListStore);
+    const compStatus = sessionStorage.getItem("creatingComp");
 
-    useEffect (() => console.log(props))
     const addToComp = () => {
         dispatch({type: ListTypes.ADD, item: props, work_id: props.work_id})
     }
@@ -36,10 +37,8 @@ function BookListCard(props:BookItem) {
                         <h4>by <Link id="author-link" to={`${props.author}`}>{props.author}</Link></h4>
                     </div>
                     <p>{preview} ...<Link id="description-link" to={`/books/${props.work_id}`} state={props}>See more</Link></p>
-                    {isInList ? (<button className='secondary' onClick={removeFromComp}>Remove from Competition</button>) : (<button className='primary' onClick={addToComp}>Add to Competition</button>)
-                    }
-                    
-                    
+                    {compStatus ? (isInList ? (<button className='secondary' onClick={removeFromComp}>Remove from Competition</button>) : (<button className='primary' onClick={addToComp}>Add to Competition</button>)
+                    ) : (<></>)}
                 </div>
         </div>
     );

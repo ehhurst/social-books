@@ -834,11 +834,14 @@ def fetch_contests(searchTerm):
 
 # Creates an empty shelf from a new name
 # Returns an error if a shelf with that name already exists
-@app.route("/shelf/<string:shelf_name>", methods=['POST'])
+@app.route("/shelf", methods=['POST'])
 @jwt_required()
-def create_shelf(shelf_name):
+def create_shelf():
     current_user = get_jwt_identity()
     token = request.headers.get("Authorization")
+
+    shelf_name = request.json.get("shelf_name")
+    print(request.json)
 
     if not token:
         return jsonify({"error": "Missing authorization token"}), 401
@@ -1002,6 +1005,7 @@ def get_shelf(shelf_name):
     final += [{"books" : zipped_books}]
 
     conn.close()
+    print("finsl" , final)
 
     if final:
         return jsonify(final)
@@ -1026,6 +1030,7 @@ def get_user_shelves():
     zipped_shelves = [dict(zip(columns, shelf)) for shelf in shelves]
 
     conn.close()
+    print(zipped_shelves)
 
     return jsonify(zipped_shelves)
 

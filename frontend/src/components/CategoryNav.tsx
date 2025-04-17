@@ -4,7 +4,6 @@ import { CategoryItem } from "../types";
 
 function CategoryNav() {
     const {category} = useParams();
-    console.log("cat", category);
     const categories: CategoryItem[] = [
         {query: "fiction", title: "Fiction"}, 
         {query: "history", title: "History"}, 

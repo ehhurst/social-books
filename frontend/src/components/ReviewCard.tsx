@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { BookItem, Review } from "../types";
+import { BookItem, Review, User } from "../types";
 import StarRating from "./StarRating";
 import '../assets/css/ReviewCard.css'
 import { faPen, faTrash, faUserCircle } from "@fortawesome/free-solid-svg-icons";
@@ -13,10 +13,10 @@ import ReviewFormEdit from "./ReviewFormEdit";
 // Displays posted reviews
 function ReviewCard(review:Review) {
     const nav = useNavigate();
-    const user = localStorage.getItem("username");
+    const {user} = useParams();
+    const token = sessionStorage.getItem('access_token');
+    const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}")
     const [message, setMessage] = useState('');
-    // const {work_id} = useParams();
-    // console.log("param" , work_id);
     const [bookData, setBookData] = useState<BookItem>();
     const [open, setOpen] = useState(false);
     const closeModal = () => setOpen(false);
@@ -28,8 +28,6 @@ function ReviewCard(review:Review) {
             setBookData(response.data);
         }
         ).then(() => console.log("book data", bookData))
-
-
     }, [])
 
 
@@ -48,16 +46,11 @@ function ReviewCard(review:Review) {
         )
     }
 
-
-    // const {data, loading, error} = getBook(`/book/${review.work_id}`);
-
-
-
     return( // ADD LIKED TODO
     <div className='container review'>
-        <div id="">
+        {user ? (        <div>
             <img src={bookData?.img_S} alt='Book Cover Image' height={'50px'}/>
-        </div>
+        </div>) : (<></>) }
         <div id='review-content-top'>
             <Link to={`${review.username}/profile`}>
                 <FontAwesomeIcon icon={faUserCircle} />
@@ -65,7 +58,7 @@ function ReviewCard(review:Review) {
             </Link>
 
             <StarRating rating={review.star_rating}/> {/*Whole number ratings only*/}
-            {(user == review.username) ? 
+            {(currentUser.username == review.username) ? 
             <div>
                 <FontAwesomeIcon icon={faTrash} onClick={handleDelete} color={'var(--main-color)'}/>
                 <FontAwesomeIcon icon={faPen} onClick={() => setOpen(o => !o)} color={'var(--main-color)'}/>
@@ -82,7 +75,7 @@ function ReviewCard(review:Review) {
 
         </div>
         <div>
-            <p id='review-text'>a
+            <p id='review-text'>
             {review.review_text}
             </p>
         </div>

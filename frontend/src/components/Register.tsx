@@ -51,13 +51,27 @@ function Register() {
                     sessionStorage.setItem('User', JSON.stringify({username: resp.username, first_name: resp.first_name, last_name: resp.last_name, goal: resp.goal}))
                 }).catch((error) => {
                     console.log(error)
-                });
-                navigate(`/${username}/profile`);
+            });
+            //create bookshelves that apply to all users
+            console.log(loginRes.data.access_token)
+            axios.post('/shelf',{shelf_name: "top-5"},  {
+                headers: {
+                    "Authorization": `Bearer ${loginRes.data.access_token}`
+            }
+            }).then((response) => console.log(response.data)).catch((error) => console.error(error));
+            axios.post('/shelf', {shelf_name:"read-books"} , {
+                headers: {
+                    "Authorization": `Bearer ${loginRes.data.access_token}`
+                } 
+            }).then((response) => {
+                console.log(response.data);
+                navigate(`/${username}/profile`)}
+            ).catch((error) => console.error(error));
             } catch (error: any) {
             console.error(error);
             setErrorMessage(
               error.response?.data?.error || "Registration failed. Try again."
-            );
+            ); 
         }
     }
 

@@ -9,7 +9,7 @@ import { getBook } from "../hooks/fetch";
 
 function Home() {
   const nav = useNavigate();
-  const token = localStorage.getItem('access_token');
+  const token = sessionStorage.getItem('access_token');
 
   const {data, loading, error} = getBook(`book/OL468431W`);
   
