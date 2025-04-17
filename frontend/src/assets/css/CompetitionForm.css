@@ -116,4 +116,8 @@ div#competition-form div.book-box {
   }
 
   
-  
+  div#cancel-icon {
+    display: flex;
+    justify-content: flex-end;
+  }
+
