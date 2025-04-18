@@ -26,7 +26,7 @@ def remove_stopwords(text):
     words = nltk.word_tokenize(text.lower())
     return ' '.join(w for w in words if w not in stops)
 
-# 🎯 Main function to analyze sentiment
+# analyze sentiment and generate scores
 def analyze_sentiment(review):
     cleaned = clean_text(review)
     filtered = remove_stopwords(cleaned)
@@ -38,7 +38,7 @@ def categorize_sentiment(score_dict):
     Categorizes sentiment based on VADER compound score.
 
     Parameters:
-    score_dict (dict): A dictionary with sentiment scores containing at least the 'compound' key.
+    score_dict (dict): A dictionary with sentiment scores.
 
     Returns:
     str: One of 'Positive', 'Negative', or 'Neutral'.
@@ -68,11 +68,3 @@ def review_sentiment(review):
     """
     score = analyze_sentiment(review)
     return categorize_sentiment(score)
-
-# 🧪 Example usage
-if __name__ == "__main__":
-    review = "The book was ok, but I've read much better books."
-    result = analyze_sentiment(review)
-    category = review_sentiment(review)
-    print("📊 Sentiment Scores:", result)
-    print("Sentiment Category:", category)

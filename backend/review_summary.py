@@ -79,27 +79,5 @@ def review_analysis(book_id: str) -> str:
     
     # Generate and return the review summary
     book_data = get_book(book_id)
-    test_reviews = [
-        "I absolutely loved this book! The character development was incredible and the plot kept me engaged throughout.",
-        "The writing style was beautiful, but the pacing was too slow for my taste. Some parts dragged on unnecessarily.",
-        "A masterpiece! The author's ability to create such a vivid world is remarkable. Highly recommend to all fantasy lovers.",
-        "Disappointing. The premise seemed promising but the execution fell flat. The ending felt rushed and unsatisfying.",
-        "The book starts strong but loses its way in the middle. The protagonist's journey is compelling though."
-    ]
     
     return generate_review_summary(reviews_data['reviews_list'], book_data)
-
-# Test the functionality if this script is run directly
-if __name__ == "__main__":
-    # Example reviews
-    test_reviews = [
-        "I absolutely loved this book! The character development was incredible and the plot kept me engaged throughout.",
-        "The writing style was beautiful, but the pacing was too slow for my taste. Some parts dragged on unnecessarily.",
-        "A masterpiece! The author's ability to create such a vivid world is remarkable. Highly recommend to all fantasy lovers.",
-        "Disappointing. The premise seemed promising but the execution fell flat. The ending felt rushed and unsatisfying.",
-        "The book starts strong but loses its way in the middle. The protagonist's journey is compelling though."
-    ]
-
-    summary = review_analysis("OL262384W")
-    print("\n=== REVIEW SUMMARY ===\n")
-    print(summary)
