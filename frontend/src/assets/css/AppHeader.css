@@ -72,3 +72,13 @@ div#user-info a {
 #user-icon {
     padding-right: 0.5em;
 }
+
+div#user-status {
+    display: none;
+}
+
+@media all and (min-width: 768px) {
+    div#user-status {
+        display: inline
+    }
+}

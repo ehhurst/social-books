@@ -10,3 +10,14 @@ p, li {
 a:hover {
     text-decoration: underline;
 }
+/* don't show nav on mobile */
+nav#primary-nav {
+        display: none;
+}
+
+@media all and (min-width: 768px) {
+    /* show nav bar on non-mobile devices */
+    nav#primary-nav {
+        display: inline;
+    }
+}
