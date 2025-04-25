@@ -1,0 +1,56 @@
+div#hamburger-menu {
+    position: relative;
+}
+  
+div#hamburger-menu div.menu-icon {
+    width: 44px;
+    height: 44px;
+}
+  
+div#hamburger-menu div.menu-content {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 35px;
+    right: 0vw;
+    background-color: var(--light-primary-color);
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    font-size: 1.5em;
+}
+  
+div#hamburger-menu div.menu-content.show {
+    display: flex;
+    min-width: max-content;
+    align-items: center;
+}
+  
+div#hamburger-menu div.menu-content a {
+    padding: 10px;
+    text-decoration: none;
+    color: var(--secondary-font-color)
+}
+
+/* user login styles in hamburger menu */
+div#hamburger-menu div#user-status {
+    display: inline;
+}
+
+div#hamburger-menu div#user-status div {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5em;
+}
+
+div#hamburger-menu div#user-status div button.primary, 
+div#hamburger-menu div#user-status div button.secondary {
+    font-size: 1em;
+}
+
+@media all and (min-width: 768px) {
+    div#hamburger-menu {
+        display: none;
+    }
+   
+}
