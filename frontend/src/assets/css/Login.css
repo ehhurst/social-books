@@ -13,6 +13,7 @@ div#login-form, div#registration-form {
 div#registration-form {
     width: 30vw;
     margin:1% 39%;
+    padding-top: 1em;
 }
 
 div#registration-form form label {
@@ -77,3 +78,4 @@ div#alt {
     margin: 1em 7.5%;
     padding: 1em 0 1.5em 0;
 }
+
