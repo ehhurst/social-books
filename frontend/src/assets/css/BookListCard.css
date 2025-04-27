@@ -1,15 +1,10 @@
 div#category-book-box {
     display: flex;
-
     background-color: #eaeee6d4;
-    margin: 1em;
+    margin: 0.5em 1em;
     padding: 1em;
-
     height: min-content;
-    width: 25%;
     border-radius: 8px;
-    /* display: grid;
-    grid-template-columns: 0.75fr 1.25fr; */
 }
 
 div#category-book-box > * {
@@ -69,5 +64,11 @@ div#book-info-container p {
     border-color: grey;
     padding-top: 0.5em;
 
+}
+@media all and (min-width: 768px) {
+    div#category-book-box {
+        margin: 1em;
+        width: 25%;
+    }
 }
 

@@ -3,6 +3,7 @@ ul#book-list-page {
     flex-wrap: wrap;
     justify-content: space-evenly;
     margin-top: 0;
+    flex-direction: column;
 }
 
 div#page-header h2 {
@@ -21,4 +22,10 @@ li#selected a:hover, li#unselected a:hover {
     cursor: pointer;
     color:#6c63ff;
     text-decoration: none;;
+}
+@media all and (min-width: 768px) {
+    ul#book-list-page {
+        margin-top: 0;
+        flex-direction: row;
+    }
 }
