@@ -12,7 +12,7 @@ div#hamburger-menu div.menu-content {
     flex-direction: column;
     position: absolute;
     top: 35px;
-    right: 0vw;
+    right: 0;
     background-color: var(--light-primary-color);
     border-radius: 8px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);

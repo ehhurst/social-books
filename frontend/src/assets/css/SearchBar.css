@@ -32,3 +32,45 @@ form#search-bar button[type='submit'] {
     border: none;
     width: 1em;
 }
+
+/* form#search-bar input[type=text]::placeholder {
+    visibility: none;
+} */
+
+@media all and (min-width: 768px) {
+    
+    /* Search bar styles */
+    div#search-container {
+        display: flex;
+        align-items: center;
+        padding-right: 1vw;
+    }
+
+    form#search-bar {
+        width: 25vw;
+        height: 3.5vh;
+        background-color: var(--light-primary-color);
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+    }
+
+    form#search-bar input[type='text'] {
+        background-color: transparent;
+        color: var(--secondary-font-color);
+        border: none;
+        width: 67%;
+        padding:0.5em;
+    }
+
+    form#search-bar input[type='text']:focus {
+        outline-width: 0;
+    }
+
+    form#search-bar button[type='submit'] {
+        background-color: transparent;
+        border: none;
+        width: 1em;
+    }
+}
