@@ -157,3 +157,30 @@ export function getGoal(uri:string) {
 
     return {goal, loading, error}
 }
+
+export function getReviewAnalysis(workId: string) {
+    const [summaryData, setSummaryData] = useState<string>('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+  
+    const fetchSummary = () => {
+      setLoading(true);
+      setError('');
+  
+      return axios.get(`/review_analysis?work_id=${workId}`, {
+        headers: { "Content-Type": "application/json" }
+      })
+      .then((response) => {
+        setSummaryData(response.data.review_analysis);
+        return response.data.review_analysis;
+      })
+      .catch((error) => {
+        console.error("❌ Review Analysis Error:", error);
+        setError("Error generating review summary. Please try again later.");
+        return null;
+      })
+      .finally(() => setLoading(false));
+    };
+  
+    return { summaryData, loading, error, fetchSummary };
+}

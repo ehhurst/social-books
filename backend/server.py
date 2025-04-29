@@ -1119,6 +1119,23 @@ def get_user_shelves():
 
     return jsonify(zipped_shelves)
 
+@app.route('/review_analysis', methods=['GET'])
+def get_review_analysis():
+    from review_summary import review_analysis
+    try:
+        work_id = request.args.get('work_id')
+        return jsonify({"review_analysis": review_analysis(work_id)})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    
+@app.route('/review_sentiment', methods=['GET'])
+def review_sentiment():
+    from sentiment_analysis import review_sentiment
+    try:
+        review = request.args.get('review')
+        return jsonify({"review_sentiment": review_sentiment(review)})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True, port=5000)
