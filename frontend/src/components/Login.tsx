@@ -55,6 +55,7 @@ function Login() {
                 <form
                     onSubmit={(event)=>handleSubmit(event)}
                     method='post'>
+                        <p id='required'>* = required</p>
                     <label htmlFor='username'>Username</label>
                         <input 
                             type='text'

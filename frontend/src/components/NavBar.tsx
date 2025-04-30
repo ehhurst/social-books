@@ -3,7 +3,7 @@ import '../assets/css/NavBar.css'
 
 function NavBar() {
     return(       
-        <nav>
+        <nav id='primary-nav'>
             <ul>
                 <li><Link to='/'>Home</Link>         <p> | </p></li>
                 <li><Link to='/categories/fiction'>Browse Books</Link>        <p> | </p> </li>

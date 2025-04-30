@@ -17,12 +17,12 @@ function Home() {
     <main>
       <div id='home-container-top'>
         <h1>Welcome to ShelfLife</h1>
-        <h2>Connect through your reading journey</h2>
+        <p>Connect through your reading journey</p>
       </div>
       <div id='home-container-bottom'>
         <div id="description-review-container">
           <div id='site-description-container'>
-            <h3><FontAwesomeIcon icon={faBookOpen}/> ShelfLife</h3>
+            <h2><FontAwesomeIcon icon={faBookOpen}/> ShelfLife</h2>
             <p> a place for readers to log, review, and discover books and connect with others through discussions and competitions.</p>
           </div>
           <div id="example-review-container-background">
