@@ -1,5 +1,6 @@
 import unittest
 import os
+import datetime
 import json
 from server import app  # Assuming 'app' is the Flask app instance in server.py
 from flask_jwt_extended import JWTManager
@@ -44,6 +45,8 @@ class ReviewTestCase(unittest.TestCase):
             "lastName": "testlast"
         }
 
+        
+        # May need headers? Notify Yoon if required.
         # Register user
         self.app.post("/auth/register", json=self.test_user)
 
@@ -143,6 +146,7 @@ class ReviewTestCase(unittest.TestCase):
         print("----------------------------------\n")
         
     def test_get_token(self):
+        print("Testing user authentication")
         response = self.app.post("/auth/login", json=self.test_user)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
