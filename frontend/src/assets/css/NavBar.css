@@ -11,13 +11,13 @@ a:hover {
     text-decoration: underline;
 }
 /* don't show nav on mobile */
-nav#primary-nav {
+header nav#primary-nav {
         display: none;
 }
 
-@media all and (min-width: 768px) {
+@media all and (min-width: 934px) {
     /* show nav bar on non-mobile devices */
-    nav#primary-nav {
+    header nav#primary-nav {
         display: inline;
     }
 }

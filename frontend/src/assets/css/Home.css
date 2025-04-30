@@ -2,22 +2,19 @@
 div#home-container-top {
     background-color: var(--light-primary-color);
     color: var(--secondary-font-color);
-    min-height: max-content;
-    height: 29vh;
+    height: max-content;
     width: 95vw;
     text-align: center;
-    align-content: center;
-    padding: 1em 0;
-    margin: 2em;
+    padding: 2.5em 0;
+    margin: 3em;
+    align-content: center;;
 }
 
-div#home-container-top h1 {
-    font-size: 2em;
-}
 
-div#home-container-top h2{
-    color: var(--light-accent-color);
+div#home-container-top p {
+    color: var(--main-color);
     padding-top: 1%;
+    font-size: 1.2em;
     font-weight: normal;
 }
 /* end styles for top of home page*/
@@ -44,7 +41,7 @@ div#description-review-container {
 
 div#site-description-container {
     background-color: var(--dark-accent-color);
-    padding: 1em;
+    padding: 0.75em;
     border-radius: 8px;
     height:max-content;
     max-width: 90%;
@@ -53,15 +50,13 @@ div#site-description-container {
     box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.4);
 }
 
-div#site-description-container h3 {
-    font-size: 1.5em;
-}
+
 
 /*Example review styling*/
 div#example-review-container-background{
     background-color: var(--main-color);
     border-radius: 8px;
-    padding: 1.5em;
+    padding: 1em;
     box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.4);
     width: fit-content;
     height: fit-content;
@@ -156,7 +151,8 @@ div#cta-buttons div {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 2em;
+    margin: 1.5em 0;
+
 }
 
 div#cta-buttons div button {
@@ -166,16 +162,14 @@ div#cta-buttons div button {
 
 @media all and (min-width: 768px) {
     div#description-review-container {
-
         flex-direction: row;
-
-
     }
     
     div#site-description-container {
         max-width: 25%;
         font-size: 1em;
         margin: 0;
+        padding: 1em;
     }
 
     div#example-review-container {
@@ -185,12 +179,12 @@ div#cta-buttons div button {
         display: grid;
         grid-template-columns: 0.6fr 1.4fr;
         align-items: center;
-        max-width: 26vw;
+        max-width: 24em;
     }
 
     div#example-review-container-background{
-        padding: 1%;
-
+        padding: 1em;
+        min-width:24em;
     }
 
     div#cta-buttons p {
@@ -201,19 +195,14 @@ div#cta-buttons div button {
     div#cta-buttons div {
      flex-direction: row;
      justify-content: center;
-
-
-
     }
 
     div#cta-buttons div button {
         width: 6em;
         height: 2.5em;
+    }
 
+    div#home-container-top {
+        height: 29vh;
     }
-    div#home-container-top h1 {
-        font-size: 3.5em;
-    }
-    
- 
 }

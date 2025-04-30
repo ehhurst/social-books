@@ -11,7 +11,6 @@ div#hamburger-menu div.menu-content {
     display: none;
     flex-direction: column;
     position: absolute;
-    top: 35px;
     right: 0;
     background-color: var(--light-primary-color);
     border-radius: 8px;
@@ -45,12 +44,11 @@ div#hamburger-menu div#user-status div {
 
 div#hamburger-menu div#user-status div button.primary, 
 div#hamburger-menu div#user-status div button.secondary {
-    font-size: 1em;
+    font-size: 0.75em;
 }
 
-@media all and (min-width: 768px) {
+@media all and (min-width: 934px) {
     div#hamburger-menu {
         display: none;
     }
-   
 }

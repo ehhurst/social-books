@@ -13,21 +13,25 @@ div#page-header h2 {
 
 div#book-list-page-nav ul li {
     margin: 0.5em;
+    font-size: 1.5em;
 }
 
 div#book-list-page-nav ul li#selected a{
     color: #6c63ff;
 }
+
 li#selected a:hover, li#unselected a:hover {
     cursor: pointer;
     color:#6c63ff;
     text-decoration: none;;
 }
+
 @media all and (min-width: 768px) {
     ul#book-list-page {
         margin-top: 0;
         flex-direction: row;
     }
-    
-
+    div#book-list-page-nav ul li {
+        font-size: 1.2em;
+    }
 }
