@@ -9,7 +9,7 @@ describe('CompetitionCard', () => {
               <CompetitionDetailPage />
             </BrowserRouter>
           );
-    });
+    
 
     expect(screen.getByLabelText(/Spring Reading Challenge/i).toBeInTheDocument());
     expect(screen.getByLabelText(/Read as many books as you can this spring!/i).toBeInTheDocument());
@@ -21,5 +21,5 @@ describe('CompetitionCard', () => {
     expect(screen.getByLabelText(/Rank/i).toBeInTheDocument());
     expect(screen.getByLabelText(/Username/i).toBeInTheDocument());
     expect(screen.getByLabelText(/Progress/i).toBeInTheDocument());
-    
+    });
 });

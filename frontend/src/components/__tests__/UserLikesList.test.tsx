@@ -9,8 +9,8 @@ describe('UserLikesList', () => {
               <UserLikesList />
             </BrowserRouter>
           );
-    });
+    
 
     expect(screen.getByLabelText(/Loading.../i).toBeInTheDocument());
-
+    });
 });

@@ -9,9 +9,9 @@ describe('UserNetwork', () => {
               <UserNetwork />
             </BrowserRouter>
           );
-    });
+    
 
     expect(screen.getByLabelText(/Followers/i).toBeInTheDocument());
     expect(screen.getByLabelText(/Following/i).toBeInTheDocument());
-
+    });
 });

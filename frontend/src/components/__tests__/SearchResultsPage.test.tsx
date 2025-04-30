@@ -9,8 +9,8 @@ describe('SearchResultsPage', () => {
               <SearchResultsPage />
             </BrowserRouter>
           );
-    });
+    
 
     expect(screen.getByLabelText(/Loading books... /i).toBeInTheDocument());
-    
+    });
 });

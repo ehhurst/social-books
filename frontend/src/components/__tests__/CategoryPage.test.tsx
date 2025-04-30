@@ -9,8 +9,8 @@ describe('CategoryPage', () => {
               <BookDetailCard />
             </BrowserRouter>
           );
-    });
+    
 
     expect(screen.getByLabelText(/Loading books.../i).toBeInTheDocument());
-    
+    });
 });

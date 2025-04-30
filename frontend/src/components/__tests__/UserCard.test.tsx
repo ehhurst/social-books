@@ -9,8 +9,8 @@ describe('UserCard', () => {
               <UserCard />
             </BrowserRouter>
           );
-    });
+    
 
     expect(screen.getByRole('button', { name: /Follow/i}).toBeInTheDocument());
-    
+    });
 });

@@ -9,8 +9,8 @@ describe('UserReviewsPage', () => {
               <UserReviewsPage />
             </BrowserRouter>
           );
-    });
+    
 
     expect(screen.getByLabelText(/Loading reviews.../i).toBeInTheDocument());
-
+    });
 });

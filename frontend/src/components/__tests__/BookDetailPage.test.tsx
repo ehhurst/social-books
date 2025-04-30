@@ -9,10 +9,10 @@ describe('BookDetailPage', () => {
               <BookDetailPage />
             </BrowserRouter>
           );
-    });
+    
 
     expect(screen.getByRole('button', {name: /Back/i}).toBeInTheDocument());
     expect(screen.getByLabelText(/Reviews/i).toBeInTheDocument());
     expect(screen.getByLabelText(/Loading reviews.../i).toBeInTheDocument());
-    
+    });
 });

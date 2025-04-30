@@ -9,7 +9,7 @@ describe('Home', () => {
               <Home />
             </BrowserRouter>
           );
-    });
+    
 
     expect(screen.getByLabelText(/Welcome to ShelfLife/i).toBeInTheDocument());
     expect(screen.getByLabelText(/Connect through your reading journey/i).toBeInTheDocument());
@@ -24,5 +24,5 @@ describe('Home', () => {
     expect(screen.getByLabelText(/Ready to get started?/i).toBeInTheDocument());
     expect(screen.getByRole('button', { name: /Sign In/i}).toBeInTheDocument());
     expect(screen.getByRole('button', { name: /Register/i}).toBeInTheDocument());
-    
+    });
 });
