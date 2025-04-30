@@ -2,6 +2,7 @@ import { BookItem } from "../types";
 import { Link, RouterProviderProps } from "react-router-dom";
 import '../assets/css/BookListCard.css'
 import '../assets/css/global.css'
+import '../assets/css/CompStatus.css'
 import { useContext, useEffect } from "react"; // used for testing
 import { ListStore } from "../Contexts/CompetitionBookListContext";
 import { ListTypes } from "../Reducers/CompetitionBookListReducer";
@@ -37,7 +38,7 @@ function BookListCard(props:BookItem) {
                         <h4>by <Link id="author-link" to={`${props.author}`}>{props.author}</Link></h4>
                     </div>
                     <p>{preview} ...<Link id="description-link" to={`/books/${props.work_id}`} state={props}>See more</Link></p>
-                    {compStatus ? (isInList ? (<button className='secondary' onClick={removeFromComp}>Remove from Competition</button>) : (<button className='primary' onClick={addToComp}>Add to Competition</button>)
+                    {compStatus ? (isInList ? (<button className='clear' onClick={removeFromComp}>Remove from Competition</button>) : (<button className='primary list' onClick={addToComp}>Add to Competition</button>)
                     ) : (<></>)}
                 </div>
         </div>

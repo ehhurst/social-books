@@ -12,7 +12,7 @@ div#page-header h2 {
 }
 
 div#book-list-page-nav ul li {
-    padding: 0.5em;
+    margin: 0.5em;
 }
 
 div#book-list-page-nav ul li#selected a{
@@ -28,4 +28,6 @@ li#selected a:hover, li#unselected a:hover {
         margin-top: 0;
         flex-direction: row;
     }
+    
+
 }
