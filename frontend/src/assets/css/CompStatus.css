@@ -1,0 +1,50 @@
+div#comp-status-container {
+    background-color: var(--light-primary-color);
+    color: var(--secondary-font-color);
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    align-items: center;
+    width: 25vw;
+    float: right;
+}
+
+div#comp-container-top {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+div#comp-status-container a {
+    color: #6c63ff;
+}
+
+div#comp-container-data {
+    display: flex;
+    justify-content: space-evenly;
+    padding: 1em;
+    width: 100%;
+}
+
+button.clear {
+    background-color: var(--error-color);
+    border-style: solid;
+    border-width: thin;;
+    border-color: var(--default-font-color);
+    box-shadow: 5px 5px 7px rgba(0, 0, 0, 0.4);
+    width: max-content;
+}
+
+button.clear:hover {
+    color: var(--error-color);
+    background-color: var(--light-primary-color);
+    border-color: var(--error-color);
+}
+
+div#list-buttons button.secondary {
+    width: max-content;
+}
+button.secondary.list, button.primary.list {
+    width: max-content;
+}
