@@ -1,4 +1,4 @@
-import { FormEvent, useContext, useState } from "react";
+import { FormEvent, useContext, useEffect, useState } from "react";
 import { ListStore } from "../Contexts/CompetitionBookListContext";
 import { BookItem, CompetitionBookListItem, User } from "../types";
 import { Link, useNavigate } from "react-router-dom";
@@ -8,6 +8,7 @@ import { faArrowLeft, faArrowLeftLong, faArrowRight, faArrowRightLong, faLessTha
 import { ListTypes } from "../Reducers/CompetitionBookListReducer";
 import '../assets/css/CompetitionForm.css'
 import axios from "../../axiosConfig";
+import { AuthStore } from "../Contexts/AuthContext";
 
 function CompetitionForm() {
     const navigate = useNavigate();
@@ -18,10 +19,12 @@ function CompetitionForm() {
     
     const token = sessionStorage.getItem("access_token");
     const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}")
-
-    if(!token || !currentUser.username) {
-        navigate('/login')
-    }
+    useEffect(() => {
+          if(!token || !currentUser.username) {
+            navigate('/login');
+        }
+    }, [])
+  
 
     const { compList, dispatch } = useContext(ListStore);
     const isEmpty = compList.length == 0

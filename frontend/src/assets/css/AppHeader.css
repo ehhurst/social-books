@@ -37,7 +37,6 @@ button {
     margin: 0.5em;
 }
 
-
 /* Nav styles specific to the header */
 header nav ul p {
     display: none;
@@ -91,7 +90,7 @@ div.menu-icon {
         width: 50%;
         margin-left: 1em;
     }
-    
+
     header .app-header {
         padding: 10px 20px;
     }

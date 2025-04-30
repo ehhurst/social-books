@@ -1,22 +1,17 @@
 import axios from "../../axiosConfig";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { FormEvent, useContext, useEffect, useState } from "react";
-import { faArrowRight, faGear, faUser, faUserCircle } from "@fortawesome/free-solid-svg-icons";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { FormEvent, useEffect, useState } from "react";
+import { faGear, faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {  getBooksInShelf, getGoal, getReviewsForUser } from "../hooks/fetch";
 import UserLikesList from "./UserLikesList";
 import '../assets/css/ReaderProfilePage.css'
-import { BookItem, ShelfItem, ShelfName, User } from "../types";
+import { ShelfItem, ShelfName, User } from "../types";
 import UserNetwork from "./UserNetwork";
-// import YearlyProgressChart from "./YearlyProgressChart";
 import Popup from "reactjs-popup";
 import Settings from "./Settings";
 import UserReviewsPage from "./UserReviewsPage";
-import YearlyProgressChart from "./YearlyProgressChart";
-import UserProfile from "./UserProfile";
-import CompetitionsSection from "./UserProfileCompetitionsSection";
 import UserProfileCompetitionsSection from "./UserProfileCompetitionsSection";
-import { AuthStore } from "../Contexts/AuthContext";
 import '../assets/css/Settings.css'
 
 
@@ -179,7 +174,7 @@ const target = iscurrentUsersProfile ? (currentUser.username) : (user)
           </div>
           {!iscurrentUsersProfile ? <button className='primary' onClick={handleFollow}>Follow</button> :<></>} {/*Only display follow button on other user's profiles */}
         </div>
-        {currentUser.username == user ? (<YearlyProgressChart props={[currentUser.goal, 1]} />) : (<YearlyProgressChart props={[goal, 1]} />)}
+        {/* {currentUser.username == user ? (<YearlyProgressChart props={[currentUser.goal, 1]} />) : (<YearlyProgressChart props={[goal, 1]} />)} */}
         
         <div id='header-stats'>
           
@@ -232,7 +227,7 @@ const target = iscurrentUsersProfile ? (currentUser.username) : (user)
                          <input type="number" id="goal" name="goal" min="0" max="100" value={currentUserGoal} onChange={(e) => setCurrentUserGoal(parseInt(e.target.value ))}/>
                          <input type="submit" onClick={submitGoal} />
                  </form>
-             <YearlyProgressChart props={[1, currentUser.goal]} /> 
+             {/* <YearlyProgressChart props={[1, currentUser.goal]} />  */}
          </div>) : (<></>)}
          
          {/* <div id="top-five-list">
