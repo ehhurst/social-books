@@ -11,9 +11,9 @@ describe('ReviewFormEdit', () => {
           );
     
 
-    expect(screen.getByLabelText(/My Review for /i).toBeInTheDocument());
-    expect(screen.getByLabelText(/Rating: /i).toBeInTheDocument());
-    expect(screen.getByLabelText(/Liked: /i).toBeInTheDocument());
-    expect(screen.getByRole('button', { name: /Submit/i}).toBeInTheDocument());
+    expect(screen.getByLabelText(/My Review for /i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Rating: /i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Liked: /i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Submit/i})).toBeInTheDocument();
     });
 });

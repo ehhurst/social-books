@@ -11,8 +11,8 @@ describe('NavBar', () => {
           );
     
 
-    expect(screen.getByRole('Link', { name: /Home/i}).toBeInTheDocument());
-    expect(screen.getByRole('Link', { name: /Browse Books/i}).toBeInTheDocument());
-    expect(screen.getByRole('Link', { name: /Competitions/i}).toBeInTheDocument());
+    expect(screen.getByRole('Link', { name: /Home/i})).toBeInTheDocument();
+    expect(screen.getByRole('Link', { name: /Browse Books/i})).toBeInTheDocument();
+    expect(screen.getByRole('Link', { name: /Competitions/i})).toBeInTheDocument();
     });
 });

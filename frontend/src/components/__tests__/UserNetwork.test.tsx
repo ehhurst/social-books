@@ -11,7 +11,7 @@ describe('UserNetwork', () => {
           );
     
 
-    expect(screen.getByLabelText(/Followers/i).toBeInTheDocument());
-    expect(screen.getByLabelText(/Following/i).toBeInTheDocument());
+    expect(screen.getByLabelText(/Followers/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Following/i)).toBeInTheDocument();
     });
 });

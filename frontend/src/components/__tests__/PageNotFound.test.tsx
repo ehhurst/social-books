@@ -11,6 +11,6 @@ describe('PageNotFound', () => {
           );
     
 
-    expect(screen.getByLabelText(/Oops! We couldn't find the page you were looking for. /i).toBeInTheDocument());
+    expect(screen.getByLabelText(/Oops! We couldn't find the page you were looking for. /i)).toBeInTheDocument();
     });
 });

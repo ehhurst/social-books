@@ -11,6 +11,6 @@ describe('SearchResultsPage', () => {
           );
     
 
-    expect(screen.getByLabelText(/Loading books... /i).toBeInTheDocument());
+    expect(screen.getByLabelText(/Loading books... /i)).toBeInTheDocument();
     });
 });

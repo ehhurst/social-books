@@ -11,7 +11,7 @@ describe('UserProfile', () => {
           );
     
 
-    expect(screen.getByLabelText(/Books Read/i).toBeInTheDocument());
-    expect(screen.getByLabelText(/My reading goal for /i).toBeInTheDocument());
+    expect(screen.getByLabelText(/Books Read/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/My reading goal for /i)).toBeInTheDocument();
     });
 });

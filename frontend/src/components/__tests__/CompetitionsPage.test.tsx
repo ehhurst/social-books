@@ -11,8 +11,8 @@ describe('CompetitionsPage', () => {
           );
     
 
-    expect(screen.getByLabelText(/Competitions/i).toBeInTheDocument());
-    expect(screen.getbyRole('button', { name: /Create Competition/i}).toBeInTheDocument());
+    expect(screen.getByLabelText(/Competitions/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Create Competition/i})).toBeInTheDocument();
     
     });
   });

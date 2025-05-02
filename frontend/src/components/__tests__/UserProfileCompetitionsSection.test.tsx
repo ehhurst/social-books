@@ -11,8 +11,8 @@ describe('UserProfileCompetitionsSection', () => {
           );
     
 
-    expect(screen.getByLabelText(/Competitions: /i).toBeInTheDocument());
-    expect(screen.getByLabelText(/My Competitions: /i).toBeInTheDocument());
-    expect(screen.getByRole('button', { name: /+ Create Reading Competition/i}).toBeInTheDocument());
+    expect(screen.getByLabelText(/Competitions: /i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/My Competitions: /i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /+ Create Reading Competition/i})).toBeInTheDocument();
     });
 });

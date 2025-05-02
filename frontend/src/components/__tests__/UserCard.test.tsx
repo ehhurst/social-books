@@ -11,6 +11,6 @@ describe('UserCard', () => {
           );
     
 
-    expect(screen.getByRole('button', { name: /Follow/i}).toBeInTheDocument());
+    expect(screen.getByRole('button', { name: /Follow/i})).toBeInTheDocument();
     });
 });

@@ -11,6 +11,6 @@ describe('UserReviewsPage', () => {
           );
     
 
-    expect(screen.getByLabelText(/Loading reviews.../i).toBeInTheDocument());
+    expect(screen.getByLabelText(/Loading reviews.../i)).toBeInTheDocument();
     });
 });
