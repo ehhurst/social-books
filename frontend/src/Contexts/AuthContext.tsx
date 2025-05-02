@@ -27,7 +27,7 @@ function AuthContext({children} : ContextProps) {
                     (sessionStorage.removeItem("access_token"));
                     (sessionStorage.removeItem("User"));
                     sessionStorage.removeItem("creatingComp");
-                    logOut();
+
                 }
                 console.log(error);
             });

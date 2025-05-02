@@ -6,24 +6,31 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {  getBooksInShelf, getGoal, getReviewsForUser } from "../hooks/fetch";
 import UserLikesList from "./UserLikesList";
 import '../assets/css/ReaderProfilePage.css'
-import { ShelfItem, ShelfName, User } from "../types";
+import {  BookItem, ShelfItem, ShelfListItem, User } from "../types";
 import UserNetwork from "./UserNetwork";
 import Popup from "reactjs-popup";
 import Settings from "./Settings";
 import UserReviewsPage from "./UserReviewsPage";
 import UserProfileCompetitionsSection from "./UserProfileCompetitionsSection";
 import '../assets/css/Settings.css'
+import UserProfile from "./UserProfile";
+import YearlyProgressChart from "./YearlyProgressChart";
+import UserLibrary from "./UserLibrary";
+import LibraryShelfList from "./LibraryShelfList";
+
+type ShelfName= {
+  shelf_name:string
+}
 
 
 function ReaderProfilePage() {
   const nav = useNavigate();
   const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}")
   const token = sessionStorage.getItem("access_token");
+
   const [selected, setSelected] = useState('Profile');
+  const [goal, setGoal] = useState(0);
 
-
-  const [currentUserGoal, setCurrentUserGoal] = useState(0);
-  const initialState:ShelfItem = {shelf_name: '', books_list: []}
 
   // settings modal
   const [open, setOpen] = useState(false);
@@ -41,105 +48,95 @@ function ReaderProfilePage() {
 
   //looking at this users profile page vs anothers
   var {user} = useParams();
-  console.log(user)
-  console.log(currentUser.username)
   let title = 'My';
   if (user != currentUser.username) {
     iscurrentUsersProfile = false;
     title= user + "'s"};
 
-    console.log("whose profile? " , iscurrentUsersProfile);
-
 const target = iscurrentUsersProfile ? (currentUser.username) : (user)
 
 
   const {reviewData, loading, error} = getReviewsForUser(`/user/reviews`);
-  console.log("reviews" ,reviewData)
+
   const likedBookIds = (reviewData.filter(review => review.liked)).flatMap(item => item.work_id)
-  console.log("liked id's:", likedBookIds);
+
 
   const [followers, setFollowers] = useState<User[]>([]); // list of users that are following the user
   const [following, setFollowing] = useState<User[]>([]); // list of users that this user is following
-  const [shelfList, setShelfList] = useState<ShelfName[]>([{shelf_name: ""}]);
-  const [names, setNames] = useState<string[]>([]);
-  const library:ShelfItem[] = [];
   const [followersOrFollowingSelected, setFollowersOrFollowingSelected] = useState('');
+ var shelvesList:ShelfItem[] = [];
 
-
-
- const {goal} = getGoal(`/${user}/goals`);
- console.log("GOAL", goal)
 
   useEffect(() => {
-    if (iscurrentUsersProfile) {
-
-    }
- 
-    console.log("TARGET" , target);
     
+    // list of this users' followers
     axios.get(`/${user}/followers`)
     .then((response) => {
-      console.log("FOLLOWERS" , response.data);
       setFollowers(response.data)}
     ).catch((error) => console.log(error))
 
+    // list of people this user is following
     axios.get(`/${user}/following`)
     .then((response) => {
-      console.log("FOLLOWING" , response.data);
       setFollowing(response.data)}
     ).catch((error) => console.log(error));
 
+
+// get the user's reading goal and update graph on page reload
+      axios.get(`${currentUser.username}/goals`
+      ).then((response) => {
+          response.data === -1 ? setGoal(0) : setGoal(response.data);
+  }).catch((error) => console.log(error));
+
+
+      axios.get('/shelf', {
+          headers: { "Authorization": `Bearer ${token}`
+        }}).then((response) => { console.log(response.data)
+
+          const shelf_names:string[] = response.data.map((item:ShelfItem) => (item.shelf_name));
+
+         
+              // get books in the shelves
+                if (shelf_names) {
+                  
+                  for (var i=0; i < shelf_names.length; i++) {
+                    console.log(`${i} shelf processed`);
+                      axios.get(`/shelf/${shelf_names[i]}`, {
+                          headers: { "Authorization": `Bearer ${token}`
+                        }}).then((response) => {
+                          console.log(response.data)
+                          const shelfItem:ShelfListItem= {
+                            shelf_name: response.data[0].shelf_name,
+                            book_list: response.data[1].books,
+                          }
+                          console.log(shelfItem)
+                          console.log("SHELF NAME " , shelfItem.shelf_name, "BOOK ITEMS: ", shelfItem.book_list);
+                          // add shelf to the list of shelves
+                          shelvesList.length = shelvesList.push(...shelfItem);
+                        }).catch((error) => console.log(error));
+                  }
+                  console.log(shelvesList)
+                  console.log(shelvesList.length)
+                }
+        }).catch((error) => console.log(error)).finally(() => {
+console.log("SHELVES LIST" , shelvesList);
     
 
-    axios.get('/shelf', {
-      headers: { "Authorization": `Bearer ${token}`
-    }}).then((response) => {
-      const shelfNames:[{shelf_name:string}] = response.data;
+                  console.log(shelvesList)
+        })
 
-      console.log("SHELVES " , names);
-    }).catch((error) => console.log(error));
+        
 
-  },[]);
+        
+  }, []);
 
-  // get users bookshelves
-
-
-      console.log(names.length > 0);
-
-      for (let i = 0; i < names.length; i++ ) {
-        const shelfName = names[i];
-        const {shelfBooks, loading, error} = getBooksInShelf(`/shelf/${shelfName}`);
-        library.push({shelf_name: shelfName, books_list: shelfBooks? shelfBooks : []});
-        console.log("library item", library);
-      }
-
-
-      const submitGoal = async (event:FormEvent) => {
-        event.preventDefault();
-
-        try {
-            axios.put('/goals', currentUserGoal, {headers: {"Authorization":`Bearer ${token}`}}
-            ).then((response) => {
-                console.log(response.data.goal);
-                setCurrentUserGoal(response.data.goal);
-                
-                const updatedUser:User = {
-                    username: currentUser.username,
-                    first_name: currentUser.first_name,
-                    last_name: currentUser.last_name,
-                    goal: response.data.goal
-                }
-                console.log(updatedUser)
-                sessionStorage.setItem('User', JSON.stringify(updatedUser))
-            }
-            ).catch((error) => {
-                console.log(error);
-                console.log(error.response.status);
-            })
-        } catch {(error: any) => console.log(error)}
-    }
-
-
+  console.log("NAMES ")
+  console.log(shelvesList.length)
+  for (var i=0; i < shelvesList.length; i++) {
+    console.log(shelvesList[i].shelf_name)
+  }
+const topFive = shelvesList.find((item) => item.shelf_name === 'top-5')
+  console.log("TOP 5", topFive)
     
   function handleFollow() {
     axios.post(`/follow`, user,  
@@ -174,16 +171,16 @@ const target = iscurrentUsersProfile ? (currentUser.username) : (user)
           </div>
           {!iscurrentUsersProfile ? <button className='primary' onClick={handleFollow}>Follow</button> :<></>} {/*Only display follow button on other user's profiles */}
         </div>
-        {/* {currentUser.username == user ? (<YearlyProgressChart props={[currentUser.goal, 1]} />) : (<YearlyProgressChart props={[goal, 1]} />)} */}
+        {currentUser.username == user ? (<YearlyProgressChart progress={1} goal={currentUser.goal}  />) : (<YearlyProgressChart progress={0} goal={goal}  />)}
         
         <div id='header-stats'>
           
           <div className='stats' onClick={() => setSelected('Profile')}>
-            <h3>{reviewData.length}</h3>
+            <h3>{1}</h3>
             <p>Books Read</p>
           </div>
           <div className='stats' onClick={() => setSelected('Profile')}>
-            <h3>{reviewData.length}</h3>
+            <h3>{goal}</h3>
             <p>{year} Goal</p>
           </div>
           <div className='stats' onClick={() => setSelected('Reviews')}>
@@ -222,55 +219,11 @@ const target = iscurrentUsersProfile ? (currentUser.username) : (user)
         {(selected == 'Profile') ?
          <div>
           {iscurrentUsersProfile ? (<div id="reader-goals">
-             <form id="set-goals">
-                  <label htmlFor="goal">My reading goal for {year}: </label>
-                         <input type="number" id="goal" name="goal" min="0" max="100" value={currentUserGoal} onChange={(e) => setCurrentUserGoal(parseInt(e.target.value ))}/>
-                         <input type="submit" onClick={submitGoal} />
-                 </form>
-             {/* <YearlyProgressChart props={[1, currentUser.goal]} />  */}
+             <UserProfile library={shelvesList}/>
          </div>) : (<></>)}
-         
-         {/* <div id="top-five-list">
-             <h3>Favorites: </h3>
-             {top5 && top5.books_list.length > 0 ? (
-                 top5.books_list.map((book:BookItem, index) => (
-                     <li key={index}>
-                         <MinBookBox 
-                             title={book.title} 
-                             author={book.author} 
-                             work_id={book.work_id} 
-                             description={book.description} 
-                             img_S={book.img_S} 
-                             img_M={book.img_M} 
-                             img_L={book.img_L}/>
-                     </li>
-                     
-                 ))
-             ): (<p>You don't have any favorites yet. </p>)}
-
-         </div>
-         <div id='read-list'>
-             <h3>Books i've read:</h3>
-             {readList && readList.books_list.length > 0 ? (
-                 readList.books_list.map((book:BookItem, index) => (
-                     <li key={index}>
-                         <MinBookBox 
-                             title={book.title} 
-                             author={book.author} 
-                             work_id={book.work_id} 
-                             description={book.description} 
-                             img_S={book.img_S} 
-                             img_M={book.img_M} 
-                             img_L={book.img_L}/>
-                     </li>
-                     
-                 ))
-             ): (<p>You haven't marked any books as read yet.</p>)} */}
-         {/* </div> */}
-           
- </div>
+        </div>
         : (selected == 'Library') ?
-        <></>
+        <LibraryShelfList shelvesList={shelvesList}/>
         : (selected == 'Reviews') ? 
         <UserReviewsPage reviewData={reviewData} loading={loading} error={error}/>
         : (selected == 'Likes') ?
