@@ -232,8 +232,8 @@ def set_goal():
     try:
         query ="""UPDATE users
                 SET goal = ?
-                WHERE username = ?"""
-        cursor.execute(query, (current_user, reading_goal))
+                WHERE users.username = ?"""
+        cursor.execute(query, (reading_goal, current_user))
         conn.commit()
 
     except sqlite3.Error as error:
@@ -253,6 +253,7 @@ def get_goals(username):
     query = "SELECT goal FROM users WHERE username = ?"
     cursor.execute(query, (username,))
     goal = cursor.fetchone()
+    print(username, goal[0])
     
     return jsonify(goal[0]), 200
 
@@ -716,7 +717,7 @@ def contest_checklist(contest_name):
 
     conn.close()
 
-    return jsonify({"readbooks":readbooks})
+    return jsonify({"readbooks":readbooks}), 200 # OK
 
 @app.route("/contest/mark/<string:contest_name>/<string:work_id>", methods=["POST"])
 @jwt_required()

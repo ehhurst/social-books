@@ -70,7 +70,7 @@ export interface ContextProps {
     goal: number
   }
 
-  //this interface represents the items(books) in our shopping cart
+  //this interface represents the items(books) in the competition
 export class CompetitionBookListItem {
     work_id:string;
     book: BookItem;
@@ -81,9 +81,20 @@ export class CompetitionBookListItem {
     }
 }
 
+export class ShelfListItem {
+    shelf_name:string;
+    book_list:BookItem[];
+
+    constructor(shelfItem:ShelfItem) {
+        this.shelf_name= shelfItem.shelf_name
+        this.book_list = shelfItem.book_list
+
+    }
+
+}
 export interface ShelfItem {
     shelf_name: string, 
-    books_list: BookItem[]
+    book_list: BookItem[]
 }
 
 export interface ShelfName {

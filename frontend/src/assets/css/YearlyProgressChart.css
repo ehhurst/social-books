@@ -1,0 +1,14 @@
+span.key {
+    display: flex;
+    flex-direction: column;
+}
+
+div.chart {
+    display: flex;
+    flex-direction: column;
+}
+
+div#profile-header-content span.key {
+    display: none;
+}
+
