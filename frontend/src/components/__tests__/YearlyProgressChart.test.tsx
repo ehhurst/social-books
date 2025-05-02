@@ -6,7 +6,8 @@ describe('YearlyProgressChart', () => {
     it('renders Yearly Progress Chart', () => {
         render(
             <BrowserRouter>
-              <YearlyProgressChart />
+              <YearlyProgressChart 
+                props={[2020, 2021, 2022, 2023, 2024, 2025]}/>
             </BrowserRouter>
           );
     });

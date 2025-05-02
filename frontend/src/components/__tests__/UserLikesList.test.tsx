@@ -6,7 +6,9 @@ describe('UserLikesList', () => {
     it('renders User Likes List', () => {
         render(
             <BrowserRouter>
-              <UserLikesList />
+              <UserLikesList 
+                likedBookIds={["book1", "book2"]}
+              />
             </BrowserRouter>
           );
     

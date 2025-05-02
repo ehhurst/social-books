@@ -6,7 +6,12 @@ describe('UserCard', () => {
     it('renders User Card', () => {
         render(
             <BrowserRouter>
-              <UserCard />
+              <UserCard 
+                username="connorb24"
+                first_name="Connor"
+                last_name="Burch"
+                goal={5}
+              />
             </BrowserRouter>
           );
     

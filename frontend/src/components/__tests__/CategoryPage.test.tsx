@@ -6,7 +6,7 @@ describe('CategoryPage', () => {
     it('renders Category Page', () => {
         render(
             <BrowserRouter>
-              <BookDetailCard />
+              <CategoryPage />
             </BrowserRouter>
           );
     

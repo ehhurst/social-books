@@ -6,7 +6,14 @@ describe('ReviewFormEdit', () => {
     it('renders Review Form', () => {
         render(
             <BrowserRouter>
-              <ReviewFormEdit />
+              <ReviewFormEdit 
+                review_id="review_id"
+                work_id="work_id"
+                username="username"
+                star_rating={3}
+                review_text="review_text"
+                liked={true} 
+                />
             </BrowserRouter>
           );
     

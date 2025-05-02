@@ -6,7 +6,9 @@ describe('Star', () => {
     it('renders Star', () => {
         render(
             <BrowserRouter>
-              <Star />
+              <Star 
+                filled={true}
+              />
             </BrowserRouter>
           );
     });

@@ -7,7 +7,15 @@ describe('BookListCard', () => {
     it('renders List Card', () => {
         render(
             <BrowserRouter>
-              <BookListCard />
+              <BookListCard 
+              title="title"
+              author="author"
+              work_id="work_id"
+              description="description"
+              img_S="img_S"
+              img_M="img_M"
+              img_L="img_L"
+              />
             </BrowserRouter>
           );
     

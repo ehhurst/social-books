@@ -6,7 +6,9 @@ describe('StarRating', () => {
     it('renders Star Rating', () => {
         render(
             <BrowserRouter>
-              <StarRating />
+              <StarRating 
+                rating={3}
+              />
             </BrowserRouter>
           );
     });
