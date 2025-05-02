@@ -1,12 +1,9 @@
 import { render, fireEvent, screen, cleanup } from '@testing-library/react';
-import { MemoryRouter, Route, Routes, UNSAFE_getSingleFetchDataStrategy } from 'react-router-dom';
+import { BrowserRouter, MemoryRouter, Route, Routes } from 'react-router-dom';
 import NavBar from '../NavBar';
 import CategoryPage from '../CategoryPage';
-import { text } from '@fortawesome/fontawesome-svg-core';
 import CompetitionsPage from '../CompetitionsPage';
 import Home from '../Home';
-import AppHeader from '../AppHeader';
-import AppFooter from '../AppFooter';
 
 describe('NavBar Navigation', () => {
     afterEach(cleanup);
@@ -55,5 +52,17 @@ describe('NavBar Navigation', () => {
     });
 
 
+
+    it('renders Nav Bar', () => {
+        render(
+            <BrowserRouter>
+              <NavBar />
+            </BrowserRouter>
+          );
     
-})
+
+    expect(screen.getByRole('Link', { name: /Home/i}).toBeInTheDocument());
+    expect(screen.getByRole('Link', { name: /Browse Books/i}).toBeInTheDocument());
+    expect(screen.getByRole('Link', { name: /Competitions/i}).toBeInTheDocument());
+    });
+});
