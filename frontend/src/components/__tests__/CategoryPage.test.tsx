@@ -11,6 +11,6 @@ describe('CategoryPage', () => {
           );
     
 
-    expect(screen.getByLabelText(/Loading books.../i)).toBeInTheDocument();
+    expect(screen.getByText(/Loading books.../i)).toBeInTheDocument();
     });
 });

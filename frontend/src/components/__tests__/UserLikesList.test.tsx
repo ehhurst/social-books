@@ -13,6 +13,6 @@ describe('UserLikesList', () => {
           );
     
 
-    expect(screen.getByLabelText(/Loading.../i)).toBeInTheDocument();
+    expect(screen.getByText(/Loading.../i)).toBeInTheDocument();
     });
 });
