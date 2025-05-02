@@ -79,7 +79,8 @@ function Register() {
         <main>
             <div id='registration-form'>
                 <form onSubmit={handleSubmit} method='post'>
-                    <label htmlFor='first_name'>First Name</label>
+                    <p id='required'>* = required</p>
+                    <label htmlFor='first_name'>First Name*</label>
                         <input
                             type='text'
                             name='first_name'
@@ -88,7 +89,7 @@ function Register() {
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
                         />
-                    <label htmlFor='last_name'>Last Name</label>
+                    <label htmlFor='last_name'>Last Name*</label>
                         <input
                             type='text'
                             name='last_name'
@@ -99,7 +100,7 @@ function Register() {
                         />
 
 
-                    <label htmlFor='username'>Username</label>
+                    <label htmlFor='username'>Username*</label>
                     <input
                         type='text'
                         name='username'
@@ -109,7 +110,7 @@ function Register() {
                         onChange={(e) => setUsername(e.target.value)}
                     />
 
-                    <label htmlFor='password'>Password</label>
+                    <label htmlFor='password'>Password*</label>
                     <input
                         type='password'
                         name='password'

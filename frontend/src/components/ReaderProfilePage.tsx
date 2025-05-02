@@ -1,90 +1,142 @@
 import axios from "../../axiosConfig";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { useContext, useEffect, useState } from "react";
-import { faArrowRight, faGear, faUser, faUserCircle } from "@fortawesome/free-solid-svg-icons";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { FormEvent, useEffect, useState } from "react";
+import { faGear, faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {  getReviewsForUser } from "../hooks/fetch";
+import {  getBooksInShelf, getGoal, getReviewsForUser } from "../hooks/fetch";
 import UserLikesList from "./UserLikesList";
 import '../assets/css/ReaderProfilePage.css'
-import { BookItem, ShelfItem, User } from "../types";
+import {  BookItem, ShelfItem, ShelfListItem, User } from "../types";
 import UserNetwork from "./UserNetwork";
-// import YearlyProgressChart from "./YearlyProgressChart";
 import Popup from "reactjs-popup";
 import Settings from "./Settings";
 import UserReviewsPage from "./UserReviewsPage";
-import YearlyProgressChart from "./YearlyProgressChart";
-import UserProfile from "./UserProfile";
-import CompetitionsSection from "./UserProfileCompetitionsSection";
 import UserProfileCompetitionsSection from "./UserProfileCompetitionsSection";
-import { AuthStore } from "../Contexts/AuthContext";
+import '../assets/css/Settings.css'
+import UserProfile from "./UserProfile";
+import YearlyProgressChart from "./YearlyProgressChart";
+import UserLibrary from "./UserLibrary";
+import LibraryShelfList from "./LibraryShelfList";
+
+type ShelfName= {
+  shelf_name:string
+}
 
 
 function ReaderProfilePage() {
   const nav = useNavigate();
+  const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}")
+  const token = sessionStorage.getItem("access_token");
+
+  const [selected, setSelected] = useState('Profile');
+  const [goal, setGoal] = useState(0);
 
 
+  // settings modal
   const [open, setOpen] = useState(false);
   const closeModal = () => setOpen(false);
-  const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}")
 
-
+  if(!token || !currentUser.username) {
+    nav('/login')
+  }
 
   const message:string = useLocation().state; 
-  const token = sessionStorage.getItem("access_token");
-  const [selected, setSelected] = useState('Profile');
-  let currentUsersProfile = true;
+
+
+  let iscurrentUsersProfile = true;
   
 
   //looking at this users profile page vs anothers
-  const {user} = useParams();
+  var {user} = useParams();
   let title = 'My';
   if (user != currentUser.username) {
-    currentUsersProfile = false;
-
+    iscurrentUsersProfile = false;
     title= user + "'s"};
-  
-    console.log("whose profile? " , currentUsersProfile);
 
-
+const target = iscurrentUsersProfile ? (currentUser.username) : (user)
 
 
   const {reviewData, loading, error} = getReviewsForUser(`/user/reviews`);
-  console.log("reviews" ,reviewData)
+
   const likedBookIds = (reviewData.filter(review => review.liked)).flatMap(item => item.work_id)
-  console.log("liked id's:", likedBookIds);
+
 
   const [followers, setFollowers] = useState<User[]>([]); // list of users that are following the user
   const [following, setFollowing] = useState<User[]>([]); // list of users that this user is following
-    const [shelfList, setShelfList] = useState<ShelfItem[]>([]);
+  const [followersOrFollowingSelected, setFollowersOrFollowingSelected] = useState('');
+ var shelvesList:ShelfItem[] = [];
+
 
   useEffect(() => {
+    
+    // list of this users' followers
     axios.get(`/${user}/followers`)
     .then((response) => {
-      console.log("FOLLOWERS" , response.data);
       setFollowers(response.data)}
     ).catch((error) => console.log(error))
 
+    // list of people this user is following
     axios.get(`/${user}/following`)
     .then((response) => {
-      console.log("FOLLOWING" , response.data);
       setFollowing(response.data)}
     ).catch((error) => console.log(error));
 
-    axios.get('/shelf', {
-      headers: { "Authorization": `Bearer ${token}`
-    }}).then((response) => {
-      console.log("SHELVES " , response.data);
-      setShelfList(response.data);
-    }).catch((error) => console.log(error));
-  },[]);
 
-  // get users bookshelves
+// get the user's reading goal and update graph on page reload
+      axios.get(`${currentUser.username}/goals`
+      ).then((response) => {
+          response.data === -1 ? setGoal(0) : setGoal(response.data);
+  }).catch((error) => console.log(error));
 
 
+      axios.get('/shelf', {
+          headers: { "Authorization": `Bearer ${token}`
+        }}).then((response) => { console.log(response.data)
 
+          const shelf_names:string[] = response.data.map((item:ShelfItem) => (item.shelf_name));
 
+         
+              // get books in the shelves
+                if (shelf_names) {
+                  
+                  for (var i=0; i < shelf_names.length; i++) {
+                    console.log(`${i} shelf processed`);
+                      axios.get(`/shelf/${shelf_names[i]}`, {
+                          headers: { "Authorization": `Bearer ${token}`
+                        }}).then((response) => {
+                          console.log(response.data)
+                          const shelfItem:ShelfListItem= {
+                            shelf_name: response.data[0].shelf_name,
+                            book_list: response.data[1].books,
+                          }
+                          console.log(shelfItem)
+                          console.log("SHELF NAME " , shelfItem.shelf_name, "BOOK ITEMS: ", shelfItem.book_list);
+                          // add shelf to the list of shelves
+                          shelvesList.length = shelvesList.push(...shelfItem);
+                        }).catch((error) => console.log(error));
+                  }
+                  console.log(shelvesList)
+                  console.log(shelvesList.length)
+                }
+        }).catch((error) => console.log(error)).finally(() => {
+console.log("SHELVES LIST" , shelvesList);
+    
 
+                  console.log(shelvesList)
+        })
 
+        
+
+        
+  }, []);
+
+  console.log("NAMES ")
+  console.log(shelvesList.length)
+  for (var i=0; i < shelvesList.length; i++) {
+    console.log(shelvesList[i].shelf_name)
+  }
+const topFive = shelvesList.find((item) => item.shelf_name === 'top-5')
+  console.log("TOP 5", topFive)
     
   function handleFollow() {
     axios.post(`/follow`, user,  
@@ -103,7 +155,7 @@ function ReaderProfilePage() {
   return(
     <div id="profile-page-container">
       <div id='settings'>
-        {currentUsersProfile ? <FontAwesomeIcon icon={faGear} size={'xl'} onClick={() => setOpen(o => !o)}/> : <></>} {/* TODO add OCL*/}
+        {iscurrentUsersProfile ? <FontAwesomeIcon icon={faGear} size={'xl'} onClick={() => setOpen(o => !o)}/> : <></>} {/* TODO add OCL*/}
           <Popup open={open} closeOnDocumentClick onClose={closeModal} modal>
             <div className="modal">
               <span id='settings'> <Settings /></span>
@@ -115,31 +167,38 @@ function ReaderProfilePage() {
         <div id='user-container'>
           <div id='user'>
             <FontAwesomeIcon icon={faUserCircle} size={'xl'}/>
-            <h2>{user}</h2> 
+            <h2>{user === currentUser.username ? (currentUser.username) : (user)}</h2> 
           </div>
-          <YearlyProgressChart props={[1, 2]} />
-
-          {!currentUsersProfile ? <button className='primary' onClick={handleFollow}>Follow</button> :<></>} {/*Only display follow button on other user's profiles */}
+          {!iscurrentUsersProfile ? <button className='primary' onClick={handleFollow}>Follow</button> :<></>} {/*Only display follow button on other user's profiles */}
         </div>
+        {currentUser.username == user ? (<YearlyProgressChart progress={1} goal={currentUser.goal}  />) : (<YearlyProgressChart progress={0} goal={goal}  />)}
         
         <div id='header-stats'>
+          
           <div className='stats' onClick={() => setSelected('Profile')}>
-            <h3>{reviewData.length}</h3>
+            <h3>{1}</h3>
             <p>Books Read</p>
           </div>
           <div className='stats' onClick={() => setSelected('Profile')}>
-            <h3>{reviewData.length}</h3>
+            <h3>{goal}</h3>
             <p>{year} Goal</p>
           </div>
           <div className='stats' onClick={() => setSelected('Reviews')}>
             <h3>{reviewData.length}</h3>
             <p>Reviews</p>
           </div>
-          <div className='stats' onClick={() => setSelected('Network')}>
+          <div className='stats' onClick={() => {
+            setFollowersOrFollowingSelected('Following');
+            setSelected('Network');
+          }
+          }>
             <h3>{following.length}</h3>
             <p>Following</p>
           </div>
-          <div className='stats followers' onClick={() => setSelected('Network')}>
+          <div className='stats followers' onClick={() => {
+            setFollowersOrFollowingSelected('Followers');
+            setSelected('Network');
+          }}>
           <h3>{followers.length}</h3>
             <p>Followers</p>
           </div>
@@ -158,9 +217,13 @@ function ReaderProfilePage() {
       <div id='profile-body-content'>
         {title} {selected}:
         {(selected == 'Profile') ?
-        <UserProfile library={shelfList}/>
+         <div>
+          {iscurrentUsersProfile ? (<div id="reader-goals">
+             <UserProfile library={shelvesList}/>
+         </div>) : (<></>)}
+        </div>
         : (selected == 'Library') ?
-        <></>
+        <LibraryShelfList shelvesList={shelvesList}/>
         : (selected == 'Reviews') ? 
         <UserReviewsPage reviewData={reviewData} loading={loading} error={error}/>
         : (selected == 'Likes') ?
@@ -168,7 +231,7 @@ function ReaderProfilePage() {
         : (selected == 'Competitions') ?
         <UserProfileCompetitionsSection/>
         : (selected == 'Network') ? 
-        <UserNetwork initialState={selected} followers={followers} following={following} />
+        <UserNetwork initialState={followersOrFollowingSelected} followers={followers} following={following} />
         :
         <></>}
       </div>

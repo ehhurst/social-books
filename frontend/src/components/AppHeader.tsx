@@ -9,6 +9,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useContext, useEffect } from 'react';
 import { AuthStore } from '../Contexts/AuthContext';
 import { User } from '../types';
+import HamburgerMenu from './HamburgerMenu';
+import UserLoginStatus from './UserLoginStatus';
 
 function AppHeader() {
     const nav = useNavigate();
@@ -19,9 +21,10 @@ function AppHeader() {
 
     useEffect(() => {
         if (!token && !par) {
+            sessionStorage.removeItem("creatingComp");
             logOut();
         }
-    }, [token, ])
+    })
 
 
     
@@ -37,17 +40,9 @@ function AppHeader() {
             </Link>
             <div className='header-content'>
                 <SearchBar />  
+                <HamburgerMenu/>
                 <NavBar />
-                {(!token) ? 
-                <div>
-                    <button className='primary' onClick={() => nav('/login')}>Sign In</button>
-                    <button className='secondary' onClick={() => nav('/register')}>Register</button>
-                </div>
-                : <div id='user-info'>
-                    <Link to={`${currentUser.username}/profile`}><FontAwesomeIcon id='user-icon' icon={faUserCircle} size={'xl'}/></Link>
-                    <p>Welcome, {currentUser.first_name}</p>
-                    <Link to={'/login'} onClick={logOut}>Logout</Link>
-                </div>}
+                <UserLoginStatus/>
             </div>
         </header>);
 }

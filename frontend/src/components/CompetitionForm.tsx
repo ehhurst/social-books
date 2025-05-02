@@ -1,13 +1,14 @@
-import { FormEvent, useContext, useState } from "react";
+import { FormEvent, useContext, useEffect, useState } from "react";
 import { ListStore } from "../Contexts/CompetitionBookListContext";
 import { BookItem, CompetitionBookListItem, User } from "../types";
 import { Link, useNavigate } from "react-router-dom";
 import BookListCard from "./BookListCard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faArrowLeftLong, faArrowRight, faArrowRightLong, faLessThan } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faArrowLeftLong, faArrowRight, faArrowRightLong, faLessThan, faX } from "@fortawesome/free-solid-svg-icons";
 import { ListTypes } from "../Reducers/CompetitionBookListReducer";
 import '../assets/css/CompetitionForm.css'
 import axios from "../../axiosConfig";
+import { AuthStore } from "../Contexts/AuthContext";
 
 function CompetitionForm() {
     const navigate = useNavigate();
@@ -18,10 +19,12 @@ function CompetitionForm() {
     
     const token = sessionStorage.getItem("access_token");
     const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}")
-
-    if(!token || !currentUser.username) {
-        navigate('/login')
-    }
+    useEffect(() => {
+          if(!token || !currentUser.username) {
+            navigate('/login');
+        }
+    }, [])
+  
 
     const { compList, dispatch } = useContext(ListStore);
     const isEmpty = compList.length == 0
@@ -58,19 +61,27 @@ function CompetitionForm() {
             }
           );
           setMessage("Competition successfully created!");
-          navigate(0); // Redirect after success
+          dispatch({type:ListTypes.CLEAR});
+          sessionStorage.removeItem('creatingComp');
+          navigate('/competitions'); // Redirect after success
         } catch (err) {
           console.error(err);
           setMessage("Failed to create competition. Please try again later.");
-        }
+        } 
     }
 
     return(
         <main>
-             
             <div id="competition-form">
                 <button id="back-button" onClick={() => navigate(-1)}><FontAwesomeIcon icon={faArrowLeftLong} size={'xs'}/> Back</button>
                 <form id="create-comp">
+                    <div id='cancel-icon'>
+                        <FontAwesomeIcon id="cancel" icon={faX} onClick={() => {
+                        sessionStorage.removeItem("creatingComp");
+                        navigate('/competitions');
+                    }}/>
+                    </div>
+                    
                     <h2>New Competition</h2>
                     <label htmlFor="comp-name">Competition Name: 
                     <input type="text" id="comp-name" onChange={(e) => setCompName(e.target.value)} required></input></label>
@@ -82,7 +93,6 @@ function CompetitionForm() {
                             
                             {compList.length > 0 ? (<Link to={'/categories/fiction'}>Add books <FontAwesomeIcon icon={faArrowRightLong}/></Link>): <></>}
                         </div>
-                         
                         
                         <ul id="book-list">
                         {compList.length > 0 ? (
@@ -108,11 +118,10 @@ function CompetitionForm() {
                                     </div>
                                     
                                )} 
-                                {compList.length != 0 ? (<button className="secondary">Clear Book List</button>) : <></>} 
+                                {compList.length != 0 ? (<button className="secondary" onClick={() => dispatch({type:ListTypes.CLEAR})}>Clear List</button>) : <></>} 
                             </ul>
                         </div>
                         <button className='primary' type="submit" onClick={handleSubmit}>Create Competition</button>    
-
                 </form>
               </div>
         </main>

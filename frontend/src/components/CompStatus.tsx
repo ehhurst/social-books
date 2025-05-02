@@ -4,6 +4,7 @@ import { ListStore } from "../Contexts/CompetitionBookListContext";
 import { ListTypes } from "../Reducers/CompetitionBookListReducer";
 import { faPen, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import '../assets/css/CompStatus.css'
 
 
 function CompStatus() {
@@ -12,17 +13,25 @@ function CompStatus() {
 
     return(
         <div id="comp-status-container">
-            <div id="close">
-                <p># Books: {compList.length} / 10</p>
-                <FontAwesomeIcon icon={faX} onClick={() => {
-                    sessionStorage.removeItem("creatingComp");
-                    nav('/competitions');
-                }}/>
+            <div id="comp-container-top">
+                <h3>Create Competition: </h3>
+                <div id='cancel-icon'>
+                        <FontAwesomeIcon id="cancel" icon={faX} onClick={() => {
+                        sessionStorage.removeItem("creatingComp");
+                        nav('/competitions');
+                    }}/>
+                </div>
             </div>
-            
-            <p color="red"><FontAwesomeIcon icon={faPen}/> Edit</p>  
-            <Link to={'/competitions/create'} color="red">Edit</Link>
-            <button onClick={() => dispatch({type:ListTypes.CLEAR})}>Clear List</button>
+            <div id="comp-container-data">
+                 <p># Books Added: {compList.length} / 10</p>
+                <Link to={'/competitions/create'} ><FontAwesomeIcon icon={faPen}/> Edit List</Link>
+            </div>
+            <div id="list-buttons">
+                <button className="clear" onClick={() => dispatch({type:ListTypes.CLEAR})}>Clear List</button>
+                <button className="secondary">I'm Finished Adding Books</button>
+            </div>
+           
+           
         </div>
     ) 
 }
