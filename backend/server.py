@@ -736,7 +736,7 @@ def contest_markdone(contest_name, work_id):
 
     if not competitor:
         conn.close()
-        return jsonify({"error":f"user {current_user} not found, not updating contest books"}), 400 #BAD REQUEST
+        return jsonify({"error":f"user {current_user} not found, not updating contest books read"}), 400 #BAD REQUEST
 
     if not contest_name:
         conn.close()
@@ -753,9 +753,9 @@ def contest_markdone(contest_name, work_id):
         conn.close()
         return jsonify({"error":"Book already read, this should not occur"}), 500 #INTERNAL SERVER ERROR
     
-    query = "INSERT INTO contest_books_read (contest_name, work_id) VALUES (?, ?)"
+    query = "INSERT INTO contest_books_read (username, contest_name, work_id) VALUES (?, ?)"
     try:
-        cursor.execute(query, (contest_name, work_id))
+        cursor.execute(query, (competitor, contest_name, work_id))
     except sqlite3.Error as e:
         print("PROBLEM: " + str(e))
         return jsonify({"error":f"{e}"}), 500 #INTERNAL SERVER ERROR

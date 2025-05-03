@@ -259,11 +259,11 @@ class ReviewTestCase(unittest.TestCase):
             cursor.execute("""
                 INSERT INTO contest_books (contest_name, work_id)
                 VALUES (?, ?)
-            """, ("test_contest", "TESTWORK"))
+            """, ("test_contest", "1"))
             cursor.execute("""
                 INSERT INTO contest_books (contest_name, work_id)
                 VALUES (?, ?)
-            """, ("test_contest", "TESTWORK2"))
+            """, ("test_contest", "2"))
 
             # Add participant
             cursor.execute("""
@@ -277,12 +277,14 @@ class ReviewTestCase(unittest.TestCase):
             empty_works_read = response.get_json()
             self.assertEqual(len(empty_works_read["readbooks"]), 0)
 
-            response = self.app.post("/contest/mark/test_contest/TESTWORK", headers=self.auth_header)
+            response = self.app.post("/contest/mark/test_contest/1", headers=self.auth_header)
             self.assertEqual(response.status_code, 200)
 
             response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
-            empty_works_read = response.get_json()
-            self.assertEqual(len(empty_works_read["readbooks"]), 1)
+            works_read = response.get_json()
+            print("problem")
+            print(works_read)
+            self.assertEqual(len(works_read["readbooks"]), 1)
 
             response = self.app.get('/contest/test_contest/deadline')
             deadline = json.loads(response.get_json())
