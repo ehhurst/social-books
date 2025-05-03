@@ -918,6 +918,7 @@ def fetch_contests(searchTerm):
 
 
 
+
 # Creates an empty shelf from a new name
 # Returns an error if a shelf with that name already exists
 @app.route("/shelf", methods=['POST'])

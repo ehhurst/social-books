@@ -27,15 +27,6 @@ if "auth" not in app.blueprints:
 # NOTE: You can run this with python3 -m unittest servertest.py
 # Ask Connor for any clarification
 class ReviewTestCase(unittest.TestCase):
-    # def setUp(self):
-    #     self.app = app.test_client()  # Create a test client for the app
-    #     self.test_user = {
-    #         "username" : "test",
-    #         "password" : "12345"
-    #     }
-        
-    #     self.app.post("/auth/register", json=self.test_user)
-
     def setUp(self):
         self.app = app.test_client()
         self.test_user = {
@@ -248,176 +239,143 @@ class ReviewTestCase(unittest.TestCase):
 
     # Contest testing
     def test_contests(self):
-        conn = db_connect(DATABASE)
+        conn = db_connect()
         cursor = conn.cursor()
-        
-        query = """
-        INSERT INTO contests (contest_name, book_count, end_date) values (?, ?, ?)
-        """
-        
-        cursor.execute(query, ("test_contest", 1, "2050-01-01"))
-        conn.commit()
-        
-        query = """
-        INSERT INTO contest_books (contest_name, work_id) values (?, ?)
-        """
-        
-        cursor.execute(query, ("test_contest", "TESTWORK"))
-        conn.commit()
-        
-        query = """
-        INSERT INTO contest_books (contest_name, work_id) values (?, ?)
-        """
-        
-        cursor.execute(query, ("test_contest", "TESTWORK"))
-        conn.commit()
-        
-        query = """
-        INSERT INTO contest_participants (contest_name, username, books_read, perms_level) VALUES (?, ?, ?, ?)"""
-        cursor.execute(query, ("test_contest", "test", 0, 0))
-        conn.commit()
-        
-        response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
-        empty_works_read = response.get_json()
-        self.assertEqual(len(empty_works_read["readbooks"]), 0)
-        
-        response = self.app.post("/contest/mark/test_contest/TESTWORK", headers=self.auth_header)
-        self.assertEqual(response.status_code, 200)
-        
-        response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
-        empty_works_read = response.get_json()
-        self.assertEqual(len(empty_works_read["readbooks"]), 1)
-        
-        response = self.app.get('contest/test_contest/deadline')
-        deadline = json.loads(response.get_json())
-        deadline_bool = deadline["complete"]
-        self.assertEquals(deadline_bool, "False")
-        
-        # Cleanup after test
-        query =  "DELETE FROM contests WHERE contest_name = ?"
-        cursor.execute(query, ("test_contest",))
-        conn.commit()
-        
-        query =  "DELETE FROM contest_participants WHERE contest_name = ?"
-        cursor.execute(query, ("test_contest",))
-        conn.commit()
-        
-        query =  "DELETE FROM contest_books WHERE contest_name = ?"
-        cursor.execute(query, ("test_contest",))
-        conn.commit()
-        
-        conn.close()
-        
-    def test_book_search(self):
-        # Test with general query parameter
-        response = self.app.get('/search?q=harry+potter&limit=5')
-        self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        self.assertTrue(isinstance(data, list))
-        self.assertTrue(len(data) > 0)
-        
-        # Validate fields in first result
-        first_book = data[0]
-        self.assertTrue('title' in first_book)
-        self.assertTrue('author' in first_book)
-        self.assertTrue('work_id' in first_book)
-        self.assertTrue('description' in first_book)
-        self.assertTrue('img_S' in first_book)
-        self.assertTrue('img_M' in first_book)
-        self.assertTrue('img_L' in first_book)
-        
-        # Test with title parameter
-        response = self.app.get('/search?title=Lord+of+the+Rings&limit=5')
-        self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        self.assertTrue(isinstance(data, list))
-        self.assertTrue(len(data) > 0)
-        
-        # Test with author parameter
-        response = self.app.get('/search?author=J.K.+Rowling&limit=5')
-        self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        self.assertTrue(isinstance(data, list))
-        
-        # Test with limit parameter
-        response = self.app.get('/search?q=fantasy&limit=5')
-        self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        self.assertTrue(isinstance(data, list))
-        self.assertTrue(len(data) <= 5)
-        
-        # Test invalid/missing parameters
-        response = self.app.get('/search')
-        self.assertEqual(response.status_code, 400)
-        data = response.get_json()
-        self.assertTrue('error' in data)
-        self.assertEqual(data['error'], 'Missing search parameter')
-        
-    def test_book(self):        
-        # Test with valid work ID
-        work_id = "OL45804W"  # A known work ID
-        response = self.app.get(f'/book/{work_id}')
-        self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        # check for accurate title field
-        self.assertTrue('title' in data)
-        self.assertEqual(data['title'], 'Fantastic Mr Fox')  # Example title
-        # Check of accurate author field
-        self.assertTrue('author' in data)
-        self.assertEqual(data['author'], 'Roald Dahl')  # Example title
-        # Check of work_id field
-        self.assertTrue('work_id' in data)
-        self.assertEqual(data['work_id'], work_id)
-        # Check of description field
-        self.assertTrue('description' in data)
-        self.assertTrue(len(data['description']) > 0)
-        # Check for image url fields
-        self.assertTrue('img_L' in data)
-        self.assertTrue('img_S' in data)
-        self.assertTrue('img_M' in data)
-        
-        # Test with invalid work ID - API still returns 200 with available fields
-        bad_id = "InvalidWorkID"
-        response = self.app.get(f'/book/{bad_id}')
-        self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        self.assertTrue('error' in data)
-        self.assertEqual(data['error'], '404 Client Error: Not Found for url: https://openlibrary.org/works/InvalidWorkID.json')
-        
-    # next sprint
 
-    # def test_has_followers(self):
-    #     print ("check JSON format for people with followers")
-    #     response = self.app.get('/followers/Philippe')
+        try:
+            # Cleanup *before* inserting, in case of prior leftover data
+            cursor.execute("DELETE FROM contest_participants WHERE contest_name = ?", ("test_contest",))
+            cursor.execute("DELETE FROM contest_books WHERE contest_name = ?", ("test_contest",))
+            cursor.execute("DELETE FROM contests WHERE contest_name = ?", ("test_contest",))
+            conn.commit()
 
-    #     # 200 = good
+            # Insert a test contest
+            cursor.execute("""
+                INSERT INTO contests (contest_name, book_count, end_date)
+                VALUES (?, ?, ?)
+            """, ("test_contest", 1, "2050-01-01"))
+
+            # Add contest books
+            cursor.execute("""
+                INSERT INTO contest_books (contest_name, work_id)
+                VALUES (?, ?)
+            """, ("test_contest", "TESTWORK"))
+            cursor.execute("""
+                INSERT INTO contest_books (contest_name, work_id)
+                VALUES (?, ?)
+            """, ("test_contest", "TESTWORK2"))
+
+            # Add participant
+            cursor.execute("""
+                INSERT INTO contest_participants (contest_name, username, books_read, perm_lvl)
+                VALUES (?, ?, ?, ?)
+            """, ("test_contest", "test", 0, 0))
+            conn.commit()
+
+            # API tests
+            # line 696
+            response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
+            empty_works_read = response.get_json()
+            self.assertEqual(len(empty_works_read["readbooks"]), 0)
+
+            response = self.app.post("/contest/mark/test_contest/TESTWORK", headers=self.auth_header)
+            self.assertEqual(response.status_code, 200)
+
+            response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
+            empty_works_read = response.get_json()
+            self.assertEqual(len(empty_works_read["readbooks"]), 1)
+
+            response = self.app.get('/contest/test_contest/deadline')
+            deadline = json.loads(response.get_json())
+            self.assertEqual(deadline["complete"], "False")
+
+        finally:
+            # Cleanup after test
+            cursor.execute("DELETE FROM contest_participants WHERE contest_name = ?", ("test_contest",))
+            cursor.execute("DELETE FROM contest_books WHERE contest_name = ?", ("test_contest",))
+            cursor.execute("DELETE FROM contests WHERE contest_name = ?", ("test_contest",))
+            conn.commit()
+            conn.close()
+
+
+
+
+    # def test_book_search(self):
+    #     # Test with general query parameter
+    #     response = self.app.get('/search?q=harry+potter&limit=5')
     #     self.assertEqual(response.status_code, 200)
-    #     data=response.get_json()
-    #     print(data)
-    #     self.assertTrue(len(data) > 0) # no friends
-    #     print("----------------------------------\n")
-
-
-    # def test_followerless(self):
-    #     print ("check for empty list when return followerless users's friends")
-    #     response = self.app.get('/followers/Connor')
-
-    #     # 200 = good
-    #     self.assertEqual(response.status_code, 200)
-    #     data=response.get_json()
-    #     print(data)
-    #     self.assertTrue(len(data) == 0) # no friends
-    #     print("----------------------------------\n")
-
-    # def test_wrong_user_followers(self):
-    #     print ("test for error when checking followers of non-user")
-    #     response = self.app.get('/followers/McGillicudy')
-
-    #     self.assertEqual(response.status_code, 404)
     #     data = response.get_json()
-    #     print(data)
-    #     self.assertTrue(len(data) > 0) # error message
-    #     print("----------------------------------\n")
+    #     self.assertTrue(isinstance(data, list))
+    #     self.assertTrue(len(data) > 0)
+        
+    #     # Validate fields in first result
+    #     first_book = data[0]
+    #     self.assertTrue('title' in first_book)
+    #     self.assertTrue('author' in first_book)
+    #     self.assertTrue('work_id' in first_book)
+    #     self.assertTrue('description' in first_book)
+    #     self.assertTrue('img_S' in first_book)
+    #     self.assertTrue('img_M' in first_book)
+    #     self.assertTrue('img_L' in first_book)
+        
+    #     # Test with title parameter
+    #     response = self.app.get('/search?title=Lord+of+the+Rings&limit=5')
+    #     self.assertEqual(response.status_code, 200)
+    #     data = response.get_json()
+    #     self.assertTrue(isinstance(data, list))
+    #     self.assertTrue(len(data) > 0)
+        
+    #     # Test with author parameter
+    #     response = self.app.get('/search?author=J.K.+Rowling&limit=5')
+    #     self.assertEqual(response.status_code, 200)
+    #     data = response.get_json()
+    #     self.assertTrue(isinstance(data, list))
+        
+    #     # Test with limit parameter
+    #     response = self.app.get('/search?q=fantasy&limit=5')
+    #     self.assertEqual(response.status_code, 200)
+    #     data = response.get_json()
+    #     self.assertTrue(isinstance(data, list))
+    #     self.assertTrue(len(data) <= 5)
+        
+    #     # Test invalid/missing parameters
+    #     response = self.app.get('/search')
+    #     self.assertEqual(response.status_code, 400)
+    #     data = response.get_json()
+    #     self.assertTrue('error' in data)
+    #     self.assertEqual(data['error'], 'Missing search parameter')
+        
+    # def test_book(self):        
+    #     # Test with valid work ID
+    #     work_id = "OL45804W"  # A known work ID
+    #     response = self.app.get(f'/book/{work_id}')
+    #     self.assertEqual(response.status_code, 200)
+    #     data = response.get_json()
+    #     # check for accurate title field
+    #     self.assertTrue('title' in data)
+    #     self.assertEqual(data['title'], 'Fantastic Mr Fox')  # Example title
+    #     # Check of accurate author field
+    #     self.assertTrue('author' in data)
+    #     self.assertEqual(data['author'], 'Roald Dahl')  # Example title
+    #     # Check of work_id field
+    #     self.assertTrue('work_id' in data)
+    #     self.assertEqual(data['work_id'], work_id)
+    #     # Check of description field
+    #     self.assertTrue('description' in data)
+    #     self.assertTrue(len(data['description']) > 0)
+    #     # Check for image url fields
+    #     self.assertTrue('img_L' in data)
+    #     self.assertTrue('img_S' in data)
+    #     self.assertTrue('img_M' in data)
+        
+    #     # Test with invalid work ID - API still returns 200 with available fields
+    #     bad_id = "InvalidWorkID"
+    #     response = self.app.get(f'/book/{bad_id}')
+    #     self.assertEqual(response.status_code, 200)
+    #     data = response.get_json()
+    #     self.assertTrue('error' in data)
+    #     self.assertEqual(data['error'], '404 Client Error: Not Found for url: https://openlibrary.org/works/InvalidWorkID.json')
+        
 
 
 if __name__ == '__main__':
