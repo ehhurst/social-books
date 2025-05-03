@@ -273,7 +273,6 @@ class ReviewTestCase(unittest.TestCase):
             conn.commit()
 
             # API tests
-            # line 696
             response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
             empty_works_read = response.get_json()
             self.assertEqual(len(empty_works_read["readbooks"]), 0)

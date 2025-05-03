@@ -704,19 +704,19 @@ def contest_checklist(contest_name):
     cursor = conn.cursor()
 
     find_user_query = "SELECT username FROM users WHERE username = ?" # replaced profile_id with uesrname
-    competitor = cursor.execute(find_user_query, (current_user,)).fetchone()
+    competitor = cursor.execute(find_user_query, (current_user,)).fetchone()["username"]
 
     if not competitor:
         conn.close()
         return jsonify({"error":f"user {current_user} not found, not fetching checklist"}), 400 #BAD REQUEST
     
+
     query = "SELECT work_id FROM contest_books_read WHERE username = ? AND contest_name = ?"
     cursor.execute(query, (competitor, contest_name))
     readbooks = [work_id[0] for work_id in cursor.fetchall()] # Should return just the string out of each tuple in the result...
     # [("workname"), ("workname1"), ...] <-- double check if needed. Should work out the box
 
     conn.close()
-
     return jsonify({"readbooks":readbooks}), 200 # OK
 
 @app.route("/contest/mark/<string:contest_name>/<string:work_id>", methods=["POST"])
@@ -732,7 +732,7 @@ def contest_markdone(contest_name, work_id):
     cursor = conn.cursor()
 
     find_user_query = "SELECT username FROM users WHERE username = ?" # replaced profile_id with uesrname
-    competitor = cursor.execute(find_user_query, (current_user,)).fetchone()
+    competitor = cursor.execute(find_user_query, (current_user,)).fetchone()["username"]
 
     if not competitor:
         conn.close()
@@ -753,13 +753,14 @@ def contest_markdone(contest_name, work_id):
         conn.close()
         return jsonify({"error":"Book already read, this should not occur"}), 500 #INTERNAL SERVER ERROR
     
-    query = "INSERT INTO contest_books (username, work_id, contest_name) VALUES (?, ?, ?)"
+    query = "INSERT INTO contest_books_read (contest_name, work_id) VALUES (?, ?)"
     try:
-        cursor.execute(query, (competitor, work_id, contest_name))
+        cursor.execute(query, (contest_name, work_id))
     except sqlite3.Error as e:
+        print("PROBLEM: " + str(e))
         return jsonify({"error":f"{e}"}), 500 #INTERNAL SERVER ERROR
     
-    conn.close
+    conn.close()
     return jsonify({"message":f"Work {work_id} marked as done"}), 200 #OK
 
 #@CONTESTS GET CONTESTS LIST
@@ -795,7 +796,7 @@ def get_contests():
         }
 
         contest_list.append(contest_json)
-    
+    conn.close()
     return jsonify(contest_list), 200 # OK
 
 #@CONTESTS GET CONTEST BOOKS
@@ -818,6 +819,7 @@ def get_books(contest_name):
         book = get_book(work[0])
         book_list.append(book)
         
+    conn.close()
     return jsonify(book_list), 200 # OK
 
 #@CONTEST GET PARTICIPANTS
@@ -853,7 +855,8 @@ def get_participants(contest_name):
             "completed_books" : work_list
         }
         participant_list.append(participant)
-        
+    
+    conn.close()
     return jsonify(participant_list), 200 # OK
 
 def fetch_users(searchTerm):
