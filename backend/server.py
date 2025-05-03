@@ -58,31 +58,30 @@ def search_books():
     title = request.args.get('title')
     author = request.args.get('author')
     subject = request.args.get('subject')
-    users = request.args.get('accounts')
-    contests = request.args.get('contests')
-    reviews = request.args.get('reviews')
+    # users = request.args.get('accounts')
+    # contests = request.args.get('contests')
+    # reviews = request.args.get('reviews')
     limit = request.args.get('limit')
-    print(users)
 
-    if not (query or title or author or subject or users or contests or reviews):
+    if not (query or title or author or subject):
         return jsonify({'error': 'Missing search parameter'}), 400
 
     # Use the fetch_books_from_api function to get the search results
     if (query or title or author or subject):
         books = fetch_books_from_api(query=query, title=title, author=author, subject=subject, limit=limit)
         return jsonify(books)
-    if (users):
-        print('here')
-        result = fetch_users(users)
-        print(result)
-        return jsonify(result)
-    if (contests):
-        result = fetch_contests(contests)
-        return jsonify(result)
-    if (reviews):
-        result = fetch_reviews(reviews)
-        print("reviews: ", result)
-        return jsonify(result)
+    # if (users):
+    #     print('here')
+    #     result = fetch_users(users)
+    #     print(result)
+    #     return jsonify(result)
+    # if (contests):
+    #     result = fetch_contests(contests)
+    #     return jsonify(result)
+    # if (reviews):
+    #     result = fetch_reviews(reviews)
+    #     print("reviews: ", result)
+    #     return jsonify(result)
 
 
     
@@ -103,7 +102,7 @@ def db_connect():
 
 
 
-# gets all user data for the reader profile page (only currently returning the username)
+# gets all user data for the reader profile page 
 @app.route("/user", methods=["GET"])
 @jwt_required()
 def return_user_data():
@@ -201,7 +200,6 @@ def delete_user():
 
 
 
-# NOTE: deleted the duplicate delete user method which was left over from the "reader_profiles" version
 
 @app.route("/goals", methods=["PUT"])
 @jwt_required()
@@ -926,7 +924,7 @@ def create_shelf():
     current_user = get_jwt_identity()
     token = request.headers.get("Authorization")
 
-    shelf_name = request.json.get("shelf_name")
+    shelf_name = request.json.get("shelfName")
     print(request.json)
 
     if not token:
@@ -941,7 +939,7 @@ def create_shelf():
 
     if not user:
         conn.close()
-        return jsonify({"error":f"user {current_user} not found, no shelf update"}), 400 #BAD REQUEST
+        return jsonify({"error":f"user {current_user} not found, no shelf update"}), 404 #BAD REQUEST
 
     find_shelf_query = "SELECT shelf_name FROM user_shelves WHERE username = ? AND shelf_name = ?"
     shelf = cursor.execute(find_shelf_query, (current_user, shelf_name)).fetchone()
@@ -964,11 +962,15 @@ def create_shelf():
 
 
 # add a book to a user's shelf
-@app.route("/shelf/<string:shelf_name>/<string:work_id>", methods=['POST'])
+## CHANGED - post methods require data sent in the request itself
+@app.route("/shelf/<string:shelf_name>", methods=['POST'])
 @jwt_required()
-def shelve_book(shelf_name, work_id):
+def shelve_book(shelf_name):
+    print("here")
     current_user = get_jwt_identity()
     token = request.headers.get("Authorization")
+    work_id = request.json.get("work_id")
+    print(work_id)
 
     if not token:
         return jsonify({"error": "Missing authorization token"}), 401
@@ -1059,44 +1061,45 @@ def delete_shelf(shelf_name):
     return jsonify({"message": "Shelf deleted successfully", "user_id" : current_user, "shelf name" : shelf_name}), 200 #OK
 
 
-# NOTE: test this
-# Get all books in current user's specific shelf
-@app.route("/shelf/<string:shelf_name>", methods=['GET'])
-@jwt_required()
-def get_shelf(shelf_name):
-    current_user = get_jwt_identity()
-    token = request.headers.get("Authorization")
+# # NOTE: test this
+# # Get all books in current user's specific shelf
+# @app.route("/shelf/<string:shelf_name>", methods=['GET'])
+# @jwt_required()
+# def get_shelf(shelf_name):
+#     current_user = get_jwt_identity()
+#     token = request.headers.get("Authorization")
 
-    if not token:
-        return jsonify({"error": "Missing authorization token"}), 401
+#     if not token:
+#         return jsonify({"error": "Missing authorization token"}), 401
 
-    conn = db_connect()
-    cursor = conn.cursor()
+#     conn = db_connect()
+#     cursor = conn.cursor()
 
-    find_shelf = "SELECT shelf_name FROM user_shelves WHERE username = ? AND shelf_name = ?"
-    shelf = cursor.execute(find_shelf, (current_user, shelf_name)).fetchone()
+#     find_shelf = "SELECT shelf_name FROM user_shelves WHERE username = ? AND shelf_name = ?"
+#     shelf = cursor.execute(find_shelf, (current_user, shelf_name)).fetchone()
 
-    if not shelf:
-        conn.close()
-        return jsonify({"error":f"shelf with name {shelf_name} not found. no action taken."}), 400 #BAD REQUEST 
+#     if not shelf:
+#         conn.close()
+#         return jsonify({"error":f"shelf with name {shelf_name} not found. no action taken."}), 400 #BAD REQUEST 
 
-    query = "SELECT work_id FROM shelved_books WHERE username = ? AND shelf_name = ?"
-    cursor.execute(query, (current_user, shelf_name))
-    books = cursor.fetchall()
-    columns = [description[0] for description in cursor.description]
-    zipped_books = [dict(zip(columns, book)) for book in books]
+#     query = "SELECT work_id FROM shelved_books WHERE username = ? AND shelf_name = ?"
+#     cursor.execute(query, (current_user, shelf_name))
+#     books = cursor.fetchall()
+#     columns = [description[0] for description in cursor.description]
+#     zipped_books = [dict(zip(columns, book)) for book in books]
 
-    # NOTE : circular logic. you're using the input
-    final = [{"shelf_name" : shelf_name}]
-    final += [{"books" : zipped_books}]
+#     # NOTE : circular logic. you're using the input
+#     final = [{"shelf_name" : shelf_name}]
+#     final += [{"books" : zipped_books}]
 
-    conn.close()
-    print("finsl" , final)
+#     conn.close()
+#     print("final" , final)
+#     ## ERROR - saying final is not JSON serializable. Also not returning book items, only returns 
+#     #work id's in a list
+#     if final:
+#         return jsonify(final)
 
-    if final:
-        return jsonify(final)
-
-
+#return list of names of shelves in the current user's library
 @app.route("/shelf", methods=['GET'])
 @jwt_required()
 def get_user_shelves():
@@ -1120,6 +1123,55 @@ def get_user_shelves():
 
     return jsonify(zipped_shelves)
 
+# added by emily, needed get for shelves not dependent on JWT
+# same as above, removed JWT. Don't really need above. 
+@app.route("/shelves/<string:username>", methods=['GET'])
+def get_shelves(username):
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    query = "SELECT shelf_name FROM user_shelves WHERE username = ?"
+    cursor.execute(query, (username,))
+    shelves = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]
+    zipped_shelves = [dict(zip(columns, shelf)) for shelf in shelves]
+    print(zipped_shelves)
+
+    conn.close()
+    return jsonify(zipped_shelves)
+
+
+# # NOTE: test this
+# Get all books in current user's specific shelf, not dependent on jwt
+@app.route("/<string:username>/shelf/<string:shelf_name>/books", methods=['GET'])
+def get_books_in_shelf(username, shelf_name):
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    find_shelf = "SELECT shelf_name FROM user_shelves WHERE username = ? AND shelf_name = ?"
+    shelf = cursor.execute(find_shelf, (username, shelf_name,)).fetchone()
+
+    if not shelf:
+        conn.close()
+        return jsonify({"error":f"shelf with name {shelf_name} not found. no action taken."}), 400 #BAD REQUEST 
+
+    query = "SELECT work_id FROM shelved_books WHERE username = ? AND shelf_name = ?"
+    cursor.execute(query, (username, shelf_name))
+    books = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]
+    zipped_books = [dict(zip(columns, book)) for book in books]
+
+    # NOTE : circular logic. you're using the input
+    final = [{"shelf_name" : shelf_name}]
+    final += [{"books" : zipped_books}]
+
+    conn.close()
+    print("final" , final)
+    ## ERROR - saying final is not JSON serializable. Also not returning book items, only returns 
+    #work id's in a list, also missing constraint for adding multiple books to the same list
+
+    if final:
+        return jsonify(final)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True, port=5000)

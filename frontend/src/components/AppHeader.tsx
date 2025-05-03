@@ -1,24 +1,31 @@
 import '../assets/css/global.css';
 import '../assets/css/AppHeader.css';
 import AppLogo from '../assets/images/logo.svg';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import NavBar from './NavBar';
 import SearchBar from "./SearchBar";
 import { useEffect } from 'react';
 import HamburgerMenu from './HamburgerMenu';
 import UserLoginStatus from './UserLoginStatus';
-import { logout } from './utils/UserActions';
 
 function AppHeader() {
-    const par = useParams();
+    const nav = useNavigate();
     const token = sessionStorage.getItem('access_token');
 
 
     useEffect(() => {
-        if (!token && !par) {
-            logout();
+        if (!token) {
+            sessionStorage.removeItem("creatingComp");
+            logOut();
         }
-    }, [token])
+    }, [])
+    
+    function logOut(){
+        sessionStorage.removeItem('User');
+        sessionStorage.removeItem("access_token");
+        localStorage.removeItem("createComp");
+        nav('/login');
+    }
 
     return (<header className="app-header">
             <Link to="/">
