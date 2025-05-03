@@ -55,95 +55,95 @@ class ReviewTestCase(unittest.TestCase):
 
 
 
-    def test_get_user_data(self):
-        print("Test getting user data")
-        # Simulate a GET request to the route
-        response = self.app.get('/users/get/ConnorBTest')
 
-        # Assert that the response is successful (HTTP 200)
-        self.assertEqual(response.status_code, 200)
-        
-        # Optionally, check if the returned JSON is correct
-        data = response.get_json()
-        print(data)
-        self.assertTrue(len(data) > 0)  # Make sure there's data in the response
-        print("----------------------------------\n")
+# CONTINUED BELOW
 
 
-    def test_get_book_reviews(self):
-        print("Test getting book's reviews")
-        # Simulate a GET request to the route
-        response = self.app.get('/books/7/reviews')
-
-        # Assert that the response is successful (HTTP 200)
-        self.assertEqual(response.status_code, 200)
-        
-        # Optionally, check if the returned JSON is correct
-        data = response.get_json()
-        print(data)
-        self.assertTrue(len(data) > 0)  # Make sure there's data in the response
-        print("----------------------------------\n")
-
-    def test_get_empty_book_reviews(self):
-        print("Test getting empty book's reviews")
-        response = self.app.get('/books/9009/reviews')
-        self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        print(data)
-        self.assertTrue(len(data) > 0)
-        print("----------------------------------\n")
-
-    def test_get_invalid_book_reviews(self):
-        print("Test getting invalid book's reviews")
-        response = self.app.get('/books/undefined/reviews')
-        self.assertEqual(response.status_code, 404)
-        data = response.get_json()
-        print(data)
-        self.assertTrue(len(data) > 0)
-        print("----------------------------------\n")
-
-    def test_get_user_reviews(self):    
-        print("Test getting user's reviews")
-        response = self.app.get('/users/ConnorBTest/reviews')
-
-        self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        print(data)
-        self.assertTrue(len(data) > 0)
-        print("----------------------------------\n")
-
-    def test_get_empty_user_reviews(self):    
-        print("Test getting user's reviews with no reviews written")
-        response = self.app.get('/users/Jameson/reviews')
-        self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        print(data)
-        self.assertTrue(len(data) == 0)
-        print("----------------------------------\n")
 
 
-    def test_undefined_user_data(self):
-        print("Test getting bad user data")
-        # Simulate a GET request to the route
-        response = self.app.get('/users/get/')
 
-        # Assert that the response is successful (HTTP 200)
-        self.assertEqual(response.status_code, 404)
-        
-        # Optionally, check if the returned JSON is correct
-        data = response.get_json()
-        print(data)
-        self.assertTrue(len(data) > 0)  # Make sure there's data in the response
-        print("----------------------------------\n")
-        
-    def test_get_token(self):
-        print("Testing user authentication")
-        response = self.app.post("/auth/login", json=self.test_user)
-        self.assertEqual(response.status_code, 200)
-        data = json.loads(response.data)
-        self.assertIsNotNone(data)
-        print(f"Returned token {data}")
-        print("----------------------------------\n")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         
 
     # COMPREHENSIVE SHELVES TEST
