@@ -1064,10 +1064,9 @@ def delete_shelf(shelf_name):
 
 
 # Get all books in current user's specific shelf
-@app.route("/shelf/<string:shelf_name>", methods=['GET'])
-@jwt_required()
-def get_shelf(shelf_name):
-    current_user = get_jwt_identity()
+@app.route("/shelf/<string:username>/<string:shelf_name>", methods=['GET'])
+def get_shelf(username, shelf_name):
+    current_user = username
     token = request.headers.get("Authorization")
 
     if not token:
@@ -1100,10 +1099,9 @@ def get_shelf(shelf_name):
         return jsonify(final)
 
 
-@app.route("/shelf", methods=['GET'])
-@jwt_required()
-def get_user_shelves():
-    current_user = get_jwt_identity()
+@app.route("/shelf/<string:username>", methods=['GET'])
+def get_user_shelves(username):
+    current_user = username
     token = request.headers.get("Authorization")
 
     if not token:
@@ -1122,6 +1120,19 @@ def get_user_shelves():
     print(zipped_shelves)
 
     return jsonify(zipped_shelves)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 if __name__ == '__main__':
