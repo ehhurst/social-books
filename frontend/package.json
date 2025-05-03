@@ -24,6 +24,9 @@
     "serve": "^14.2.4"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.27.1",
+    "@babel/preset-react": "^7.27.1",
+    "@babel/preset-typescript": "^7.27.1",
     "@eslint/js": "^9.21.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
@@ -31,6 +34,7 @@
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
+    "babel-jest": "^29.7.0",
     "encoding": "^0.1.13",
     "eslint": "^9.21.0",
     "eslint-plugin-react-hooks": "^5.0.0",

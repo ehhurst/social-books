@@ -2,12 +2,14 @@
 export default {
   testEnvironment: 'jsdom',
   transform: {
-    '^.+\\.tsx?$': ['ts-jest', {}],
+    '^.+\\.(ts|tsx)$': 'ts-jest',
+    '^.+\\.(js|jsx)$': 'babel-jest',
   },
-  setupFilesAfterEnv: ['./jest.setup.ts'],
+    setupFilesAfterEnv: ['./jest.setup.ts'],
 
   moduleNameMapper: {
-    '\\.(css|less)$': 'identity-obj-proxy'
+    '\\.svg$': './__mocks__/svgMock.ts',
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   }
-  
+    
 };

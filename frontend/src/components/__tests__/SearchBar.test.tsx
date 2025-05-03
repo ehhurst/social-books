@@ -1,26 +1,60 @@
+import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
 import SearchBar from '../SearchBar';
+import { BrowserRouter } from 'react-router-dom';
 
-describe('SearchBar', () => {
-  it('renders input and button', () => {
-    render(
-      <BrowserRouter>
-        <SearchBar />
-      </BrowserRouter>
-    );
-    expect(screen.getByPlaceholderText(/Search by title or author/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Search/i })).toBeInTheDocument();
+// Mock useNavigate from react-router-dom
+const mockedNavigate = jest.fn();
+jest.mock('react-router-dom', () => {
+  const actual = jest.requireActual('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => mockedNavigate,
+  };
+});
+
+describe('SearchBar Component', () => {
+  beforeEach(() => {
+    mockedNavigate.mockClear();
   });
 
-  it('updates input value and triggers search', () => {
+  test('renders input and button correctly', () => {
     render(
       <BrowserRouter>
         <SearchBar />
       </BrowserRouter>
     );
-    const input = screen.getByPlaceholderText(/Search by title or author/i);
-    fireEvent.change(input, { target: { value: 'test book' } });
-    expect(input).toHaveValue('test book');
+
+    expect(screen.getByPlaceholderText('Search by title or author')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /search/i })).toBeInTheDocument();
+  });
+
+  test('navigates to correct URL on submit with input', () => {
+    render(
+      <BrowserRouter>
+        <SearchBar />
+      </BrowserRouter>
+    );
+
+    const input = screen.getByPlaceholderText('Search by title or author');
+    const button = screen.getByRole('button', { name: /search/i });
+
+    fireEvent.change(input, { target: { value: 'Orwell' } });
+    fireEvent.click(button);
+
+    expect(mockedNavigate).toHaveBeenCalledWith('/books?search=Orwell&limit=9');
+  });
+
+  test('does not navigate on empty input', () => {
+    render(
+      <BrowserRouter>
+        <SearchBar />
+      </BrowserRouter>
+    );
+
+    const button = screen.getByRole('button', { name: /search/i });
+    fireEvent.click(button);
+
+    expect(mockedNavigate).not.toHaveBeenCalled();
   });
 });

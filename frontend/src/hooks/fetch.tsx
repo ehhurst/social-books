@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 export function getBook(uri:string) {
     const [data, setData] = useState<BookItem>();
     const [loading, setLoading] = useState(true); // add loading state
-    const [error, setError] = useState(null); // handle errors gracefully  
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         setLoading(true);
@@ -30,7 +30,7 @@ export function getBook(uri:string) {
 export function getBooks(uri:string) {
     const [data, setData] = useState<BookItem[]>([]);
     const [loading, setLoading] = useState(true); // add loading state
-    const [error, setError] = useState(null); // handle errors gracefully   
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         setLoading(true);
@@ -53,7 +53,7 @@ export function getReviewsForUser(uri:string) {
     const [reviewData, setReviewData] = useState<Review[]>([]);
     const nav = useNavigate();
     const [loading, setLoading] = useState(true); // add loading state
-    const [error, setError] = useState(null); // handle errors gracefully
+    const [error, setError] = useState<string | null>(null);
     const token = localStorage.getItem("access_token");
 
     useEffect(() => {
@@ -84,7 +84,7 @@ export function getReviewsForUser(uri:string) {
 export function getReviewsForBook(uri:string) {
     const [reviewData, setReviewData] = useState<Reviews>();
     const [loading, setLoading] = useState(true); // add loading state
-    const [error, setError] = useState(null); // handle errors gracefully
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         setLoading(true);
