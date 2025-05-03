@@ -162,10 +162,8 @@ class ReviewTestCase(unittest.TestCase):
         print("Test shelf functionality")
 
         # clean up: 
-        # response = self.app.delete('/shelf/TEST_SHELF', headers=self.auth_header)
-        # self.assertEqual(response.status_code, 200) # deleted - supposedly
-        # response = self.app.delete('/shelf/TEST_SHELF_2', headers=self.auth_header)
-        # self.assertEqual(response.status_code, 200) # deleted - supposedly
+        self.app.delete('/shelf/TEST_SHELF', headers=self.auth_header)
+        self.app.delete('/shelf/TEST_SHELF_2', headers=self.auth_header)
 
         # get nothing
         response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
@@ -173,12 +171,13 @@ class ReviewTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
 
         # add shelves
-        response = self.app.post('/shelf/TEST_SHELF', headers=self.auth_header)
+        response = self.app.post('/shelf/', headers=self.auth_header, json={"shelf_name": "TEST_SHELF"})
         self.assertEqual(response.status_code, 201)
-        response = self.app.post('/shelf/TEST_SHELF_2', headers=self.auth_header)
+        response = self.app.post('/shelf/', headers=self.auth_header, json={"shelf_name": "TEST_SHELF_2"})
         self.assertEqual(response.status_code, 201)
-        response = self.app.post('/shelf/TEST_SHELF_2', headers=self.auth_header)
+        response = self.app.post('/shelf/', headers=self.auth_header, json={"shelf_name": "TEST_SHELF_2"})
         self.assertEqual(response.status_code, 400)
+
 
         # get empty
         response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
@@ -213,7 +212,7 @@ class ReviewTestCase(unittest.TestCase):
         # get empty shelf
         response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
         data_shelf = response.get_json()
-        print(data_shelf)
+        print("empty shelf: " + str(data_shelf))
         self.assertTrue(len(data_shelf) == 2) # empty length is 2
 
         # delete both shelves
@@ -231,9 +230,9 @@ class ReviewTestCase(unittest.TestCase):
         # get user's shelves
         response = self.app.get('/shelf', headers=self.auth_header)
         data_shelves = response.get_json()
-        print(len(data_shelves)) # eyeball it
-        self.assertTrue(len(data_shelves) == 0) # 2 shelves
 
+        print("all user shelves deleted. length: " + str(len(data_shelves))) # eyeball it
+        self.assertTrue(len(data_shelves) == 0) # all shelves deleted
         print("PASS SHELVES")
         print("----------------------------------\n")
 

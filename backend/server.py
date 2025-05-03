@@ -924,7 +924,7 @@ def fetch_contests(searchTerm):
 
 # Creates an empty shelf from a new name
 # Returns an error if a shelf with that name already exists
-@app.route("/shelf", methods=['POST'])
+@app.route("/shelf/", methods=['POST'])
 @jwt_required()
 def create_shelf():
     current_user = get_jwt_identity()
@@ -1063,7 +1063,6 @@ def delete_shelf(shelf_name):
     return jsonify({"message": "Shelf deleted successfully", "user_id" : current_user, "shelf name" : shelf_name}), 200 #OK
 
 
-# NOTE: test this
 # Get all books in current user's specific shelf
 @app.route("/shelf/<string:shelf_name>", methods=['GET'])
 @jwt_required()
