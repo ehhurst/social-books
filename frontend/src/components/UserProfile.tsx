@@ -4,9 +4,7 @@ import axios, { AxiosError } from "axios";
 import {BookItem, ShelfItem, User } from "../types";
 import { useNavigate } from "react-router-dom";
 import YearlyProgressChart from "./YearlyProgressChart";
-import LibraryShelfList from "./LibraryShelfList";
-
-
+import LibraryShelfList from "./ShelfBookList";
 
 
 function UserProfile({library}: {library: ShelfItem[]}) {
@@ -21,11 +19,6 @@ function UserProfile({library}: {library: ShelfItem[]}) {
     
 
     const readList = (library.length === 0 ) ? (initialState) : (library.find((item) => item.shelf_name === "read-books"));
-    // const topFive = (library.length == 0 ) ? (initialState) : (library.find((item:ShelfItem) => item.shelf_name == "top-five"));
-    // console.log("TOP 5", topFive)
-    // console.log(topFive ? (true) : (false))
- 
-// not getting back actual item, only getting shelf name array
 
     // get the user's reading goal and update graph on page reload
     useEffect(() => {

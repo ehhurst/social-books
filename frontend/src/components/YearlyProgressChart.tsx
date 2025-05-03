@@ -24,7 +24,7 @@ function YearlyProgressChart({progress, goal}: {progress:number, goal:number}) {
                 totalValue={goal}
                 background='#6f7588'
                 labelPosition={60}
-                label={({ dataEntry }) => (dataEntry.value/goal *100) + dataEntry.title } 
+                label={({ dataEntry }) => Math.trunc(dataEntry.value/goal *100) + dataEntry.title } 
                 labelStyle={
                     {
                         "fontSize": "5px",

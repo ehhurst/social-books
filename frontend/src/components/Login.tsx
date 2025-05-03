@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import '../assets/css/global.css'
 import '../assets/css/Login.css'
+import { Bounce, toast } from 'react-toastify';
 
 
 function Login() {
@@ -13,6 +14,17 @@ function Login() {
     const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
 
+    const yell = () => toast('🦄 Wow so easy!', {
+        position: "top-left",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+        });
 
     async function handleSubmit(event:FormEvent) {
         event.preventDefault();
@@ -42,6 +54,7 @@ function Login() {
                 }).catch((error) => {
                     console.log(error)
                 });
+       
                 navigate(`/${username}/profile`);
             } catch (error) {
             console.error(error);

@@ -1061,43 +1061,43 @@ def delete_shelf(shelf_name):
     return jsonify({"message": "Shelf deleted successfully", "user_id" : current_user, "shelf name" : shelf_name}), 200 #OK
 
 
-# # NOTE: test this
-# # Get all books in current user's specific shelf
-# @app.route("/shelf/<string:shelf_name>", methods=['GET'])
-# @jwt_required()
-# def get_shelf(shelf_name):
-#     current_user = get_jwt_identity()
-#     token = request.headers.get("Authorization")
+# NOTE: test this
+# Get all books in current user's specific shelf
+@app.route("/shelf/<string:shelf_name>", methods=['GET'])
+@jwt_required()
+def get_shelf(shelf_name):
+    current_user = get_jwt_identity()
+    token = request.headers.get("Authorization")
 
-#     if not token:
-#         return jsonify({"error": "Missing authorization token"}), 401
+    if not token:
+        return jsonify({"error": "Missing authorization token"}), 401
 
-#     conn = db_connect()
-#     cursor = conn.cursor()
+    conn = db_connect()
+    cursor = conn.cursor()
 
-#     find_shelf = "SELECT shelf_name FROM user_shelves WHERE username = ? AND shelf_name = ?"
-#     shelf = cursor.execute(find_shelf, (current_user, shelf_name)).fetchone()
+    find_shelf = "SELECT shelf_name FROM user_shelves WHERE username = ? AND shelf_name = ?"
+    shelf = cursor.execute(find_shelf, (current_user, shelf_name)).fetchone()
 
-#     if not shelf:
-#         conn.close()
-#         return jsonify({"error":f"shelf with name {shelf_name} not found. no action taken."}), 400 #BAD REQUEST 
+    if not shelf:
+        conn.close()
+        return jsonify({"error":f"shelf with name {shelf_name} not found. no action taken."}), 400 #BAD REQUEST 
 
-#     query = "SELECT work_id FROM shelved_books WHERE username = ? AND shelf_name = ?"
-#     cursor.execute(query, (current_user, shelf_name))
-#     books = cursor.fetchall()
-#     columns = [description[0] for description in cursor.description]
-#     zipped_books = [dict(zip(columns, book)) for book in books]
+    query = "SELECT work_id FROM shelved_books WHERE username = ? AND shelf_name = ?"
+    cursor.execute(query, (current_user, shelf_name))
+    books = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]
+    zipped_books = [dict(zip(columns, book)) for book in books]
 
-#     # NOTE : circular logic. you're using the input
-#     final = [{"shelf_name" : shelf_name}]
-#     final += [{"books" : zipped_books}]
+    # NOTE : circular logic. you're using the input
+    final = []
+    final += [{"books" : zipped_books}]
 
-#     conn.close()
-#     print("final" , final)
-#     ## ERROR - saying final is not JSON serializable. Also not returning book items, only returns 
-#     #work id's in a list
-#     if final:
-#         return jsonify(final)
+    conn.close()
+    print("final" , final)
+    ## ERROR - saying final is not JSON serializable. Also not returning book items, only returns 
+    #work id's in a list
+    if final:
+        return jsonify(final)
 
 #return list of names of shelves in the current user's library
 @app.route("/shelf", methods=['GET'])
@@ -1156,7 +1156,7 @@ def get_books_in_shelf(username, shelf_name):
         return jsonify({"error":f"shelf with name {shelf_name} not found. no action taken."}), 400 #BAD REQUEST 
 
     query = "SELECT work_id FROM shelved_books WHERE username = ? AND shelf_name = ?"
-    cursor.execute(query, (username, shelf_name))
+    cursor.execute(query, (username, shelf_name,))
     books = cursor.fetchall()
     columns = [description[0] for description in cursor.description]
     zipped_books = [dict(zip(columns, book)) for book in books]

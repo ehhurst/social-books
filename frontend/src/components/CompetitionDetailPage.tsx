@@ -26,7 +26,6 @@ function CompetitionDetailPage() {
     axios.get(`/contest/${name}/books`).then((response) => {
       console.log(response.data);
       setBooks(response.data);
-    
     }
     );
 
@@ -34,12 +33,17 @@ function CompetitionDetailPage() {
     axios.get(`/contest/${name}/participants`).then((response) => {
       console.log(response.data);
       setLeaderBoard(response.data);
-    });
+    }).finally(() => console.log("leaderboard" , leaderboard))
+
+    
 
     if(leaderboard.find((participant) => participant.username === currentUser.username)) {
       console.log("HERE")
       userParticipating = true;
+
     }
+
+
   }, []);
 
   function handleJoin() {
@@ -73,14 +77,17 @@ function CompetitionDetailPage() {
         <div className="book-list">
           {books.map((book, index) => (
             <div className="book-box" key={index}>
-              <img src={book.img_L} alt={book.title} />
-              <div className="book-details">
-                <h4>{book.title}</h4>
-                <p>{book.author}</p>
-                {userParticipating && (
-                  <button className="secondary">Mark as Completed</button>
-                )}
-              </div>
+              <Link to={`/books/${book.work_id}`} state={book}> {/* link to book's page */ }
+                <img src={book.img_L} alt={book.title} />
+                <div className="book-details">
+                  <h4>{book.title}</h4>
+                  <p>{book.author}</p>
+                  {/*mark book as completed or show completed status here */}
+                  {userParticipating && (
+                    <button className="secondary">Mark as Completed</button>
+                  )}
+                </div>
+              </Link>
             </div>
           ))}
         </div>

@@ -15,8 +15,10 @@ import UserProfileCompetitionsSection from "./UserProfileCompetitionsSection";
 import '../assets/css/Settings.css'
 import UserProfile from "./UserProfile";
 import YearlyProgressChart from "./YearlyProgressChart";
-import UserLibrary from "./UserLibrary";
-import LibraryShelfList from "./LibraryShelfList";
+import UserLibrary from "./UserProfileLibrary";
+import LibraryShelfList from "./ShelfBookList";
+import UserProfileLibrary from "./UserProfileLibrary";
+import { Bounce, toast } from "react-toastify";
 
 type ShelfName= {
   shelf_name:string
@@ -64,9 +66,21 @@ const target = iscurrentUsersProfile ? (currentUser.username) : (user)
   const [followers, setFollowers] = useState<User[]>([]); // list of users that are following the user
   const [following, setFollowing] = useState<User[]>([]); // list of users that this user is following
   const [followersOrFollowingSelected, setFollowersOrFollowingSelected] = useState('');
- var shelvesList:ShelfItem[] = [];
+  var shelvesList:ShelfItem[] = [];
+  const [library, setLibrary] = useState<ShelfItem[]>([]) 
+  const [readBooks, setReadBooksList] = useState<BookItem[]>([]);
 
-
+  const yell = () => toast.success('Wow so easy!', {
+    position: "top-left",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "dark",
+    transition: Bounce,
+    });
   useEffect(() => {
     
     // list of this users' followers
@@ -86,52 +100,58 @@ const target = iscurrentUsersProfile ? (currentUser.username) : (user)
       axios.get(`${currentUser.username}/goals`
       ).then((response) => {
           response.data === -1 ? setGoal(0) : setGoal(response.data);
-  }).catch((error) => console.log(error));
+  }).catch((error) => console.log(error)).finally(yell);
+
+  // list of this user's read books
+  axios.get(`/${user}/shelf/read-books/books`, {
+      headers: { "Content-Type": "application/json" }
+  })
+  .then((response) => setReadBooksList(response.data))
+  .catch((error) => {
+      console.error("❌ Book Fetch Error:", error);
+      // setError("Error loading book data. Please try again later.");
+  });
 
 
-      axios.get('/shelf', {
-          headers: { "Authorization": `Bearer ${token}`
-        }}).then((response) => { console.log(response.data)
+//       axios.get('/shelf', {
+//           headers: { "Authorization": `Bearer ${token}`
+//         }}).then((response) => { console.log(response.data)
 
-          const shelf_names:string[] = response.data.map((item:ShelfItem) => (item.shelf_name));
+//           const shelf_names:string[] = response.data.map((item:ShelfItem) => (item.shelf_name));
 
          
-              // get books in the shelves
-                if (shelf_names) {
+//               // get books in the shelves
+//                 if (shelf_names) {
                   
-                  for (var i=0; i < shelf_names.length; i++) {
-                    console.log(`${i} shelf processed`);
-                      axios.get(`/shelf/${shelf_names[i]}`, {
-                          headers: { "Authorization": `Bearer ${token}`
-                        }}).then((response) => {
-                          console.log(response.data)
-                          const shelfItem:ShelfListItem= {
-                            shelf_name: response.data[0].shelf_name,
-                            book_list: response.data[1].books,
-                          }
-                          console.log(shelfItem)
-                          console.log("SHELF NAME " , shelfItem.shelf_name, "BOOK ITEMS: ", shelfItem.book_list);
-                          // add shelf to the list of shelves
-                          shelvesList.length = shelvesList.push(...shelfItem);
-                        }).catch((error) => console.log(error));
-                  }
-                  console.log(shelvesList)
-                  console.log(shelvesList.length)
-                }
-        }).catch((error) => console.log(error)).finally(() => {
-console.log("SHELVES LIST" , shelvesList);
+//                   for (var i=0; i < shelf_names.length; i++) {
+//                     console.log(`${i} shelf processed`);
+//                       axios.get(`/shelf/${shelf_names[i]}`, {
+//                           headers: { "Authorization": `Bearer ${token}`
+//                         }}).then((response) => {
+//                           console.log(response.data)
+//                           const shelfItem:ShelfListItem= {
+//                             shelf_name: response.data[0].shelf_name,
+//                             book_list: response.data[1].books,
+//                           }
+//                           console.log(shelfItem)
+//                           console.log("SHELF NAME " , shelfItem.shelf_name, "BOOK ITEMS: ", shelfItem.book_list);
+//                           // add shelf to the list of shelves
+//                           shelvesList.push({shelf_name: response.data[0].shelf_name, book_list:response.data[1].books})
+//                         }).catch((error) => console.log(error));
+//                   }
+//                 }
+//         }).catch((error) => console.log(error)).finally(() => {
+//           setLibrary(shelvesList);
+//           console.log("LIBRARY " ,library);
+          
+//         })
+// console.log("SHELVES LIST" , shelvesList);
     
 
-                  console.log(shelvesList)
-        })
-
-        
-
+//                   console.log(shelvesList.length)
         
   }, []);
 
-  console.log("NAMES ")
-  console.log(shelvesList.length)
   for (var i=0; i < shelvesList.length; i++) {
     console.log(shelvesList[i].shelf_name)
   }
@@ -144,7 +164,7 @@ const topFive = shelvesList.find((item) => item.shelf_name === 'top-5')
         "Authorization": `Bearer ${token}`, 
         "Content-Type": "application/json",
       }},)
-    .then(response => console.log("here", response.data))
+    .then(yell)
     .catch((error) => console.log(error)).finally(() => nav(0))
   }
     
@@ -155,7 +175,7 @@ const topFive = shelvesList.find((item) => item.shelf_name === 'top-5')
   return(
     <div id="profile-page-container">
       <div id='settings'>
-        {iscurrentUsersProfile ? <FontAwesomeIcon icon={faGear} size={'xl'} onClick={() => setOpen(o => !o)}/> : <></>} {/* TODO add OCL*/}
+        {iscurrentUsersProfile ? <FontAwesomeIcon icon={faGear} size={'xl'} onClick={() => setOpen(o => !o)}/> : <></>} 
           <Popup open={open} closeOnDocumentClick onClose={closeModal} modal>
             <div className="modal">
               <span id='settings'> <Settings /></span>
@@ -223,7 +243,10 @@ const topFive = shelvesList.find((item) => item.shelf_name === 'top-5')
          </div>) : (<></>)}
         </div>
         : (selected == 'Library') ?
-        <LibraryShelfList shelvesList={shelvesList}/>
+        <div>
+          <button className="primary" onClick={() => nav('/shelf/create')}>+ Create a New Shelf</button>
+          <UserProfileLibrary/>
+        </div>
         : (selected == 'Reviews') ? 
         <UserReviewsPage reviewData={reviewData} loading={loading} error={error}/>
         : (selected == 'Likes') ?

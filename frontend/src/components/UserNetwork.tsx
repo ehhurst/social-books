@@ -6,11 +6,6 @@ import { User } from "../types";
 
 function UserNetwork({initialState, followers, following }:{initialState: string, followers:User[], following: User[]}) {
     const [selected, setSelected] = useState(initialState);
-    console.log
-    console.log("followers" , followers)
-    console.log("following" , following)
-
-
 
     return (
         <div>
@@ -37,14 +32,10 @@ function UserNetwork({initialState, followers, following }:{initialState: string
                     : <p>You have no followers.</p>
                     } 
                 </ul>
-                
                 : <></> }
             </div>
-
-
         </div>
     );
-
 }
 
 

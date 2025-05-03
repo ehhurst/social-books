@@ -1,29 +1,33 @@
 import '../assets/css/global.css';
 import '../assets/css/AppHeader.css';
 import AppLogo from '../assets/images/logo.svg';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import NavBar from './NavBar';
 import SearchBar from "./SearchBar";
-import { useEffect } from 'react';
+import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useContext, useEffect } from 'react';
+import { AuthStore } from '../Contexts/AuthContext';
+import { User } from '../types';
 import HamburgerMenu from './HamburgerMenu';
 import UserLoginStatus from './UserLoginStatus';
 
 function AppHeader() {
     const nav = useNavigate();
+    const par = useParams();
     const token = sessionStorage.getItem('access_token');
 
 
     useEffect(() => {
-        if (!token) {
-            sessionStorage.removeItem("creatingComp");
+        if (!token && !par) {
             logOut();
         }
-    }, [])
+    })
     
     function logOut(){
         sessionStorage.removeItem('User');
         sessionStorage.removeItem("access_token");
-        localStorage.removeItem("createComp");
+        localStorage.removeItem("CompBookList");
         nav('/login');
     }
 

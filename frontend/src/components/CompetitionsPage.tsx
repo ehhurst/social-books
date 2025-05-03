@@ -25,13 +25,13 @@ function CompetitionsPage() {
       </div>
       
       <ul id="book-list-page">
-        {competitions && competitions.length > 0 ? (
+        {competitions ? (competitions.length > 0 ? (
           competitions.map((competition:ContestItem) => 
           <li key={competition.contest_name}>
             <Link to={`/competitions/${competition.contest_name}`}>
             <div className="competition-item">
               <div className="contest-info">
-              <h2>{competition.contest_name}</h2>
+              <h3>{competition.contest_name}</h3>
               <p>Organized by {competition.organizer}</p>
             </div>
             <p>Ends on: {competition.end_date.toString()}</p>
@@ -43,7 +43,7 @@ function CompetitionsPage() {
             
           </li>
           )
-        ) : (<p>Error loading competitions. Please try again later</p>)}
+        ) : (<p>No book contests have been added yet.</p>)) : (<p>Error loading book contests. Please try again later.</p>)}
 
       </ul>
     </main>

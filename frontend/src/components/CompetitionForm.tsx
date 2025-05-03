@@ -82,7 +82,7 @@ function CompetitionForm() {
                     }}/>
                     </div>
                     
-                    <h2>New Competition</h2>
+                    <h2>Create Competition</h2>
                     <label htmlFor="comp-name">Competition Name: 
                     <input type="text" id="comp-name" onChange={(e) => setCompName(e.target.value)} required></input></label>
                     <label htmlFor="end-date" >Competition end date: 
@@ -121,7 +121,7 @@ function CompetitionForm() {
                                 {compList.length != 0 ? (<button className="secondary" onClick={() => dispatch({type:ListTypes.CLEAR})}>Clear List</button>) : <></>} 
                             </ul>
                         </div>
-                        <button className='primary' type="submit" onClick={handleSubmit}>Create Competition</button>    
+                        <button className='primary' type="submit" onClick={handleSubmit}>Submit</button>    
                 </form>
               </div>
         </main>
