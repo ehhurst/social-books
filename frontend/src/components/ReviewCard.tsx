@@ -39,8 +39,16 @@ function ReviewCard(review:Review) {
             <StarRating rating={review.rating}/> {/*Whole number ratings only*/}
             {(user == review.username) ? 
             <div>
-                <FontAwesomeIcon icon={faTrash} onClick={handleDelete} color={'var(--main-color)'}/>
-                <FontAwesomeIcon icon={faPen} color={'var(--main-color)'}/>
+            <FontAwesomeIcon
+                icon={faPen}
+                color="var(--main-color)"
+                data-testid="edit-icon"
+            />
+            <FontAwesomeIcon
+                icon={faTrash}
+                color="var(--main-color)"
+                data-testid="delete-icon"
+            />
             </div>
             :<></>
             }

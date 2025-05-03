@@ -37,6 +37,6 @@
     "src/axiosConfig.tsx",
     "src/hooks/fetch.tsx",
     "src/components/__tests__"
-  ],
+, "__mocks__"  ],
   "exclude": ["node_modules", "dist", "src/**/*.js"]
 }

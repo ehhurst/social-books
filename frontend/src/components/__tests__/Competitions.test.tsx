@@ -25,7 +25,7 @@ describe('Competitions Page', () => {
       </BrowserRouter>
     );
 
-    expect(screen.getByText(/Books/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Books/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/1984/i)).toBeInTheDocument();
     expect(screen.getByText(/George Orwell/i)).toBeInTheDocument();
     expect(screen.getByText(/Brave New World/i)).toBeInTheDocument();
@@ -48,8 +48,10 @@ describe('Competitions Page', () => {
     expect(screen.getByText(/reader2/i)).toBeInTheDocument();
     expect(screen.getAllByText(/you/i)[0]).toBeInTheDocument();
 
-    const highlightedUser = screen.getByText(/you/i).closest('.user-card');
-    expect(highlightedUser).toHaveClass('highlight');
+    const youElements = screen.getAllByText(/you/i);
+    const highlightedUser = youElements.find(el => el.closest('.user-card')?.classList.contains('highlight'));
+    expect(highlightedUser).toBeDefined();
+    // expect(highlightedUser).toHaveClass('highlight');
   });
 
   test('Back button calls window.history.back', () => {

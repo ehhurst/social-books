@@ -48,7 +48,7 @@ function ReviewForm() {
             navigate(0);
         } catch (err: any) {
             console.error(err);
-            const errorMsg = err?.response?.data?.error || "Failed to submit review.";
+            const errorMsg = err?.response?.data?.error || "Failed to submit review";
             setMessage(errorMsg);
           }
           

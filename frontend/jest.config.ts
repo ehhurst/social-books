@@ -5,11 +5,9 @@ export default {
     '^.+\\.(ts|tsx)$': 'ts-jest',
     '^.+\\.(js|jsx)$': 'babel-jest',
   },
-    setupFilesAfterEnv: ['./jest.setup.ts'],
-
+  setupFilesAfterEnv: ['./jest.setup.ts'],
   moduleNameMapper: {
-    '\\.svg$': './__mocks__/svgMock.ts',
+    '\\.svg$': '<rootDir>/__mocks__/svgMock.ts',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   }
-    
 };

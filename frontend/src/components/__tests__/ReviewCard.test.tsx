@@ -30,24 +30,26 @@ describe("ReviewCard Component", () => {
     expect(screen.getByText("A very enjoyable book!")).toBeInTheDocument();
   });
 
-//   it("shows delete/edit icons for user's own review", () => {
-//     render(
-//       <BrowserRouter>
-//         <ReviewCard {...mockReview} />
-//       </BrowserRouter>
-//     );
-    // screen.getByTestId('delete-icon') // Add data-testid="delete-icon" to SVG
-    expect(screen.getByRole("img", { name: /pen/i })).toBeInTheDocument();
-  });
-
-  it("hides delete/edit icons for other users' reviews", () => {
-    localStorage.setItem("username", "someone_else");
+  it("shows delete/edit icons for user's own review", () => {
     render(
       <BrowserRouter>
         <ReviewCard {...mockReview} />
       </BrowserRouter>
     );
-    expect(screen.queryByRole("img", { name: /trash/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole("img", { name: /pen/i })).not.toBeInTheDocument();
+    expect(screen.getByTestId("edit-icon")).toBeInTheDocument();
+    expect(screen.getByTestId("delete-icon")).toBeInTheDocument();
   });
-// });
+  
+  it("hides delete/edit icons for other users' reviews", () => {
+    localStorage.setItem("username", "someone_else");
+  
+    render(
+      <BrowserRouter>
+        <ReviewCard {...mockReview} />
+      </BrowserRouter>
+    );
+  
+    expect(screen.queryByTestId("edit-icon")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("delete-icon")).not.toBeInTheDocument();
+  });
+});
