@@ -161,8 +161,7 @@ class ReviewTestCase(unittest.TestCase):
     def test_shelves(self):
         print("Test shelf functionality")
 
-
-        # clean up: 
+        # PRE TEST CLEANUP: 
         self.app.delete('/shelf/TEST_SHELF', headers=self.auth_header)
         self.app.delete('/shelf/TEST_SHELF_2', headers=self.auth_header)
 
@@ -204,9 +203,16 @@ class ReviewTestCase(unittest.TestCase):
         print("full shelf: " + str(full_shelf))
         self.assertTrue(str(full_shelf) == "[{'shelf_name': 'TEST_SHELF'}, {'books': [{'work_id': '777'}, {'work_id': '999'}]}]")
 
-        # unshelve book 777 and 999
+        # unshelve book 777
         response = self.app.delete('/shelf/TEST_SHELF/777', headers=self.auth_header)
         self.assertEqual(response.status_code, 200) # deleted - supposedly
+
+        response = self.app.get('/shelf/test/TEST_SHELF', headers=self.auth_header)
+        modified_shelf = response.get_json()
+        print("modified shelf: " + str(modified_shelf))
+        self.assertTrue(str(modified_shelf) == "[{'shelf_name': 'TEST_SHELF'}, {'books': [{'work_id': '999'}]}]")
+
+        # unshelve 999
         response = self.app.delete('/shelf/TEST_SHELF/999', headers=self.auth_header)
         self.assertEqual(response.status_code, 200) # deleted - supposedly
 
@@ -297,6 +303,95 @@ class ReviewTestCase(unittest.TestCase):
             cursor.execute("DELETE FROM contests WHERE contest_name = ?", ("test_contest",))
             conn.commit()
             conn.close()
+
+    # ChatGPT used to generate this test. Validated and edited by Connor.abs
+    # "Generate a test for followers in the style of our shelves test"
+    def test_followers(self):
+        print("Test follower functionality")
+
+        # Set up a second test user to follow
+        test_user_2 = {
+            "username": "testuser2",
+            "password": "password",
+            "firstName": "Second",
+            "lastName": "User"
+        }
+
+
+        # Attempt to unfollow testuser2 from test user (just in case it already exists)
+        self.app.delete('/unfollow/testuser2', headers=self.auth_header)
+
+        # Try to delete testuser2 account (if a delete-user endpoint exists)
+        # You might wrap this in a try if it's not implemented yet
+        self.app.post("/auth/login", json={
+            "username": "testuser2",
+            "password": "password"
+        })
+
+
+
+
+        # Register and log in second user
+        self.app.post("/auth/register", json=test_user_2)
+        login_response = self.app.post("/auth/login", json=test_user_2)
+        self.assertEqual(login_response.status_code, 200)
+        user2_token = login_response.get_json()["access_token"]
+        user2_auth_header = {
+            "Authorization": f"Bearer {user2_token}"
+        }
+
+        # Ensure user2 is initially not followed by user1
+        response = self.app.get('/testuser2/followers')
+        self.assertEqual(response.status_code, 200)
+        followers = response.get_json()
+        print("Initial followers of testuser2:", followers)
+        self.assertFalse(any(f['username'] == self.test_user["username"] for f in followers))
+
+        # Ensure user1 is not following anyone
+        response = self.app.get('/test/following')
+        self.assertEqual(response.status_code, 200)
+        following = response.get_json()
+        print("Initial following list for test:", following)
+        self.assertFalse(any(f['username'] == "testuser2" for f in following))
+
+        # User1 follows user2
+        response = self.app.post('/follow', headers=self.auth_header, json={"username": "testuser2"})
+        self.assertEqual(response.status_code, 201)
+        print("Follow response:", response.get_json())
+
+        # User1 tries to follow again (should fail)
+        response = self.app.post('/follow', headers=self.auth_header, json={"username": "testuser2"})
+        self.assertEqual(response.status_code, 500) # 500 because it violates primary key
+
+        # Check user2's followers again (should include "test")
+        response = self.app.get('/testuser2/followers')
+        self.assertEqual(response.status_code, 200)
+        followers = response.get_json()
+        print("Updated followers of testuser2:", followers)
+        self.assertTrue(any(f['username'] == "test" for f in followers))
+
+        # Check user1's following list
+        response = self.app.get('/test/following')
+        self.assertEqual(response.status_code, 200)
+        following = response.get_json()
+        print("Updated following list for test:", following)
+        self.assertTrue(any(f['username'] == "testuser2" for f in following))
+
+
+        # Attempt to unfollow testuser2 from test user (just in case it already exists)
+        self.app.delete('/unfollow/testuser2', headers=self.auth_header)
+
+        # Try to delete testuser2 account (if a delete-user endpoint exists)
+        # You might wrap this in a try if it's not implemented yet
+        self.app.post("/auth/login", json={
+            "username": "testuser2",
+            "password": "password"
+        })
+
+        print("PASS FOLLOWERS")
+        print("----------------------------------\n")
+
+
 
 
 

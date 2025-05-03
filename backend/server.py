@@ -167,7 +167,7 @@ def add_user(username):
 
     return jsonify({"message": f"user {username} added successfully"}), 201 #CREATED
 
-
+#  ChatGPT generated: generate a function for unfollowing
 @app.route("/users/delete", methods=["DELETE"])
 @jwt_required()
 def delete_user():
@@ -502,7 +502,7 @@ def add_follower():
         conn.close()
         return jsonify({"error":f"user {user} not found, not updating followers"}), 400 #BAD REQUEST
     
-    user_to_follow = request.json
+    user_to_follow = request.json["username"]
 
     if not user_to_follow:
         conn.close()
@@ -513,6 +513,7 @@ def add_follower():
         cursor.execute(query, (current_user, user_to_follow,))
         conn.commit()
     except sqlite3.Error as error:
+        conn.close()
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
     
     conn.close()
@@ -600,6 +601,43 @@ def get_following(username):
     conn.close()
 
     return jsonify(result)
+
+
+@app.route("/unfollow/<string:username>", methods=["DELETE"])
+@jwt_required()
+def unfollow_user(username):
+    """Removes a following relationship between the current user and the target user."""
+    current_user = get_jwt_identity()
+    token = request.headers.get("Authorization")
+
+    if not token:
+        return jsonify({"error": "Missing authorization token"}), 401
+
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    existing = cursor.execute(
+        "SELECT 1 FROM followers WHERE follower_username = ? AND follows_username = ?",
+        (current_user, username)
+    ).fetchone()
+
+    if not existing:
+        conn.close()
+        return jsonify({"error": f"You are not following {username}"}), 400
+
+    try:
+        cursor.execute(
+            "DELETE FROM followers WHERE follower_username = ? AND follows_username = ?",
+            (current_user, username)
+        )
+        conn.commit()
+    except sqlite3.Error as error:
+        conn.close()
+        return jsonify({"error": str(error)}), 500
+
+    conn.close()
+    return jsonify({"message": f"Unfollowed {username} successfully"}), 200
+
 
 @app.route("/contest/create", methods=["POST"])
 @jwt_required()
