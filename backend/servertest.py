@@ -519,10 +519,6 @@ class ReviewTestCase(unittest.TestCase):
         print("----------------------------------\n")
 
 
-
-
-
-
     def test_book_search(self):
         # Test with general query parameter
         response = self.app.get('/search?q=harry+potter&limit=5')
