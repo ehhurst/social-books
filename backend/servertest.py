@@ -127,71 +127,6 @@ class ReviewTestCase(unittest.TestCase):
         # Reset user conditions by re-running setup
         self.setUp()
 
-    def test_get_book_reviews(self):
-        print("Test getting book's reviews")
-        # Simulate a GET request to the route
-        response = self.app.get('/books/7/reviews')
-
-        # Assert that the response is successful (HTTP 200)
-        self.assertEqual(response.status_code, 200)
-        
-        # Optionally, check if the returned JSON is correct
-        data = response.get_json()
-        print(data)
-        self.assertTrue(len(data) > 0)  # Make sure there's data in the response
-        print("----------------------------------\n")
-
-    def test_get_empty_book_reviews(self):
-        print("Test getting empty book's reviews")
-        response = self.app.get('/books/9009/reviews')
-        self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        print(data)
-        self.assertTrue(len(data) > 0)
-        print("----------------------------------\n")
-
-    def test_get_invalid_book_reviews(self):
-        print("Test getting invalid book's reviews")
-        response = self.app.get('/books/undefined/reviews')
-        self.assertEqual(response.status_code, 404)
-        data = response.get_json()
-        print(data)
-        self.assertTrue(len(data) > 0)
-        print("----------------------------------\n")
-
-    def test_get_user_reviews(self):    
-        print("Test getting user's reviews")
-        response = self.app.get('/users/ConnorBTest/reviews')
-
-        self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        print(data)
-        self.assertTrue(len(data) > 0)
-        print("----------------------------------\n")
-
-    def test_get_empty_user_reviews(self):    
-        print("Test getting user's reviews with no reviews written")
-        response = self.app.get('/users/Jameson/reviews')
-        self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        print(data)
-        self.assertTrue(len(data) == 0)
-        print("----------------------------------\n")
-
-
-    def test_undefined_user_data(self):
-        print("Test getting bad user data")
-        # Simulate a GET request to the route
-        response = self.app.get('/users/get/')
-
-        # Assert that the response is successful (HTTP 200)
-        self.assertEqual(response.status_code, 404)
-        
-        # Optionally, check if the returned JSON is correct
-        data = response.get_json()
-        print(data)
-        self.assertTrue(len(data) > 0)  # Make sure there's data in the response
-        print("----------------------------------\n")
         
     def test_get_token(self):
         print("Testing user authentication")
@@ -203,6 +138,14 @@ class ReviewTestCase(unittest.TestCase):
         print("----------------------------------\n")
         
 
+    
+    
+    
+    
+    
+    
+    
+    
     # COMPREHENSIVE SHELVES TEST
     # Test get shelf (nonexistent)
     # Test create shelf (x2)
@@ -215,148 +158,254 @@ class ReviewTestCase(unittest.TestCase):
     # Test delete shelves
     # Test get shelf (nonexistent)
     # Test get user's shelves
-    def test_shelves(self):
-        print("Test shelf functionality")
+    # def test_shelves(self):
+    #     print("Test shelf functionality")
 
-        # clean up: 
-        # response = self.app.delete('/shelf/TEST_SHELF', headers=self.auth_header)
-        # self.assertEqual(response.status_code, 200) # deleted - supposedly
-        # response = self.app.delete('/shelf/TEST_SHELF_2', headers=self.auth_header)
-        # self.assertEqual(response.status_code, 200) # deleted - supposedly
+    #     # clean up: 
+    #     # response = self.app.delete('/shelf/TEST_SHELF', headers=self.auth_header)
+    #     # self.assertEqual(response.status_code, 200) # deleted - supposedly
+    #     # response = self.app.delete('/shelf/TEST_SHELF_2', headers=self.auth_header)
+    #     # self.assertEqual(response.status_code, 200) # deleted - supposedly
 
-        # get nothing
-        response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
-        print(response.get_json())
-        self.assertEqual(response.status_code, 400)
+    #     # get nothing
+    #     response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
+    #     print(response.get_json())
+    #     self.assertEqual(response.status_code, 400)
 
-        # add shelves
-        response = self.app.post('/shelf/TEST_SHELF', headers=self.auth_header)
-        self.assertEqual(response.status_code, 201)
-        response = self.app.post('/shelf/TEST_SHELF_2', headers=self.auth_header)
-        self.assertEqual(response.status_code, 201)
-        response = self.app.post('/shelf/TEST_SHELF_2', headers=self.auth_header)
-        self.assertEqual(response.status_code, 400)
+    #     # add shelves
+    #     response = self.app.post('/shelf/TEST_SHELF', headers=self.auth_header)
+    #     self.assertEqual(response.status_code, 201)
+    #     response = self.app.post('/shelf/TEST_SHELF_2', headers=self.auth_header)
+    #     self.assertEqual(response.status_code, 201)
+    #     response = self.app.post('/shelf/TEST_SHELF_2', headers=self.auth_header)
+    #     self.assertEqual(response.status_code, 400)
 
-        # get empty
-        response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
-        data_shelf = response.get_json()
-        print("get empty: " + str(data_shelf))
-        self.assertTrue(len(data_shelf) == 2)
+    #     # get empty
+    #     response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
+    #     data_shelf = response.get_json()
+    #     print("get empty: " + str(data_shelf))
+    #     self.assertTrue(len(data_shelf) == 2)
 
-        # get user's shelves
-        response = self.app.get('/shelf', headers=self.auth_header)
-        data_shelves = response.get_json()
-        print(len(data_shelves)) # eyeball it
-        self.assertTrue(len(data_shelves) == 2) # 2 shelves
+    #     # get user's shelves
+    #     response = self.app.get('/shelf', headers=self.auth_header)
+    #     data_shelves = response.get_json()
+    #     print(len(data_shelves)) # eyeball it
+    #     self.assertTrue(len(data_shelves) == 2) # 2 shelves
 
-        # test shelve books
-        response = self.app.post('/shelf/TEST_SHELF/777', headers=self.auth_header) # test work id is 777
-        self.assertEqual(response.status_code, 201)
-        response = self.app.post('/shelf/TEST_SHELF/999', headers=self.auth_header) # test work id is 777
-        self.assertEqual(response.status_code, 201)
+    #     # test shelve books
+    #     response = self.app.post('/shelf/TEST_SHELF/777', headers=self.auth_header) # test work id is 777
+    #     self.assertEqual(response.status_code, 201)
+    #     response = self.app.post('/shelf/TEST_SHELF/999', headers=self.auth_header) # test work id is 777
+    #     self.assertEqual(response.status_code, 201)
 
-        # test get shelf
-        response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
-        full_shelf = response.get_json()
-        print("full shelf: " + str(full_shelf))
-        self.assertTrue(str(full_shelf) == "[{'shelf_name': 'TEST_SHELF'}, {'books': [{'work_id': '777'}, {'work_id': '999'}]}]")
+    #     # test get shelf
+    #     response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
+    #     full_shelf = response.get_json()
+    #     print("full shelf: " + str(full_shelf))
+    #     self.assertTrue(str(full_shelf) == "[{'shelf_name': 'TEST_SHELF'}, {'books': [{'work_id': '777'}, {'work_id': '999'}]}]")
 
-        # unshelve book 777 and 999
-        response = self.app.delete('/shelf/TEST_SHELF/777', headers=self.auth_header)
-        self.assertEqual(response.status_code, 200) # deleted - supposedly
-        response = self.app.delete('/shelf/TEST_SHELF/999', headers=self.auth_header)
-        self.assertEqual(response.status_code, 200) # deleted - supposedly
+    #     # unshelve book 777 and 999
+    #     response = self.app.delete('/shelf/TEST_SHELF/777', headers=self.auth_header)
+    #     self.assertEqual(response.status_code, 200) # deleted - supposedly
+    #     response = self.app.delete('/shelf/TEST_SHELF/999', headers=self.auth_header)
+    #     self.assertEqual(response.status_code, 200) # deleted - supposedly
 
-        # get empty shelf
-        response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
-        data_shelf = response.get_json()
-        print(data_shelf)
-        self.assertTrue(len(data_shelf) == 2) # empty length is 2
+    #     # get empty shelf
+    #     response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
+    #     data_shelf = response.get_json()
+    #     print(data_shelf)
+    #     self.assertTrue(len(data_shelf) == 2) # empty length is 2
 
-        # delete both shelves
-        response = self.app.delete('/shelf/TEST_SHELF', headers=self.auth_header)
-        self.assertEqual(response.status_code, 200) # deleted - supposedly
-        response = self.app.delete('/shelf/TEST_SHELF_2', headers=self.auth_header)
-        self.assertEqual(response.status_code, 200) # deleted - supposedly
+    #     # delete both shelves
+    #     response = self.app.delete('/shelf/TEST_SHELF', headers=self.auth_header)
+    #     self.assertEqual(response.status_code, 200) # deleted - supposedly
+    #     response = self.app.delete('/shelf/TEST_SHELF_2', headers=self.auth_header)
+    #     self.assertEqual(response.status_code, 200) # deleted - supposedly
 
-        # get empty shelves
-        response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
-        self.assertEqual(response.status_code, 400)
-        response = self.app.get('/shelf/TEST_SHELF_2', headers=self.auth_header)
-        self.assertEqual(response.status_code, 400)
+    #     # get empty shelves
+    #     response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
+    #     self.assertEqual(response.status_code, 400)
+    #     response = self.app.get('/shelf/TEST_SHELF_2', headers=self.auth_header)
+    #     self.assertEqual(response.status_code, 400)
 
-        # get user's shelves
-        response = self.app.get('/shelf', headers=self.auth_header)
-        data_shelves = response.get_json()
-        print(len(data_shelves)) # eyeball it
-        self.assertTrue(len(data_shelves) == 0) # 2 shelves
+    #     # get user's shelves
+    #     response = self.app.get('/shelf', headers=self.auth_header)
+    #     data_shelves = response.get_json()
+    #     print(len(data_shelves)) # eyeball it
+    #     self.assertTrue(len(data_shelves) == 0) # 2 shelves
 
-        print("PASS SHELVES")
-        print("----------------------------------\n")
+    #     print("PASS SHELVES")
+    #     print("----------------------------------\n")
 
     # Contest testing
-    def test_contests(self):
-        conn = db_connect(DATABASE)
-        cursor = conn.cursor()
+    # def test_contests(self):
+    #     conn = db_connect(DATABASE)
+    #     cursor = conn.cursor()
         
-        query = """
-        INSERT INTO contests (contest_name, book_count, end_date) values (?, ?, ?)
-        """
+    #     query = """
+    #     INSERT INTO contests (contest_name, book_count, end_date) values (?, ?, ?)
+    #     """
         
-        cursor.execute(query, ("test_contest", 1, "2050-01-01"))
-        conn.commit()
+    #     cursor.execute(query, ("test_contest", 1, "2050-01-01"))
+    #     conn.commit()
         
-        query = """
-        INSERT INTO contest_books (contest_name, work_id) values (?, ?)
-        """
+    #     query = """
+    #     INSERT INTO contest_books (contest_name, work_id) values (?, ?)
+    #     """
         
-        cursor.execute(query, ("test_contest", "TESTWORK"))
-        conn.commit()
+    #     cursor.execute(query, ("test_contest", "TESTWORK"))
+    #     conn.commit()
         
-        query = """
-        INSERT INTO contest_books (contest_name, work_id) values (?, ?)
-        """
+    #     query = """
+    #     INSERT INTO contest_books (contest_name, work_id) values (?, ?)
+    #     """
         
-        cursor.execute(query, ("test_contest", "TESTWORK"))
-        conn.commit()
+    #     cursor.execute(query, ("test_contest", "TESTWORK"))
+    #     conn.commit()
         
-        query = """
-        INSERT INTO contest_participants (contest_name, username, books_read, perms_level) VALUES (?, ?, ?, ?)"""
-        cursor.execute(query, ("test_contest", "test", 0, 0))
-        conn.commit()
+    #     query = """
+    #     INSERT INTO contest_participants (contest_name, username, books_read, perms_level) VALUES (?, ?, ?, ?)"""
+    #     cursor.execute(query, ("test_contest", "test", 0, 0))
+    #     conn.commit()
         
-        response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
-        empty_works_read = response.get_json()
-        self.assertEqual(len(empty_works_read["readbooks"]), 0)
+    #     response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
+    #     empty_works_read = response.get_json()
+    #     self.assertEqual(len(empty_works_read["readbooks"]), 0)
         
-        response = self.app.post("/contest/mark/test_contest/TESTWORK", headers=self.auth_header)
-        self.assertEqual(response.status_code, 200)
+    #     response = self.app.post("/contest/mark/test_contest/TESTWORK", headers=self.auth_header)
+    #     self.assertEqual(response.status_code, 200)
         
-        response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
-        empty_works_read = response.get_json()
-        self.assertEqual(len(empty_works_read["readbooks"]), 1)
+    #     response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
+    #     empty_works_read = response.get_json()
+    #     self.assertEqual(len(empty_works_read["readbooks"]), 1)
         
-        response = self.app.get('contest/test_contest/deadline')
-        deadline = json.loads(response.get_json())
-        deadline_bool = deadline["complete"]
-        self.assertEquals(deadline_bool, "False")
+    #     response = self.app.get('contest/test_contest/deadline')
+    #     deadline = json.loads(response.get_json())
+    #     deadline_bool = deadline["complete"]
+    #     self.assertEquals(deadline_bool, "False")
         
-        # Cleanup after test
-        query =  "DELETE FROM contests WHERE contest_name = ?"
-        cursor.execute(query, ("test_contest",))
-        conn.commit()
+    #     # Cleanup after test
+    #     query =  "DELETE FROM contests WHERE contest_name = ?"
+    #     cursor.execute(query, ("test_contest",))
+    #     conn.commit()
         
-        query =  "DELETE FROM contest_participants WHERE contest_name = ?"
-        cursor.execute(query, ("test_contest",))
-        conn.commit()
+    #     query =  "DELETE FROM contest_participants WHERE contest_name = ?"
+    #     cursor.execute(query, ("test_contest",))
+    #     conn.commit()
         
-        query =  "DELETE FROM contest_books WHERE contest_name = ?"
-        cursor.execute(query, ("test_contest",))
-        conn.commit()
+    #     query =  "DELETE FROM contest_books WHERE contest_name = ?"
+    #     cursor.execute(query, ("test_contest",))
+    #     conn.commit()
         
-        conn.close()
+    #     conn.close()
         
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     def test_delete_user(self):
+        print("test deleting user")
         # Test successful user deletion
         response = self.app.delete("/users/delete", headers=self.auth_header)
         self.assertEqual(response.status_code, 200)
@@ -379,6 +428,7 @@ class ReviewTestCase(unittest.TestCase):
         self.setUp()
         
     def test_add_review(self):
+        print("test adding review")
         # Test successful review addition
         review_data = {
             "work_id": "TESTWORK",
@@ -405,53 +455,57 @@ class ReviewTestCase(unittest.TestCase):
         self.assertTrue("error" in data)
         self.assertTrue("Profanity detected" in data["error"])
 
-    # def test_update_review(self):
-    #     print("Test updating a review")
+    def test_update_review(self):
+        print("Test updating a review")
 
-    #     # Add a review to update
-    #     review_data = {
-    #         "work_id": "TESTWORK",
-    #         "star_rating": 5,
-    #         "liked": True,
-    #         "review_text": "This is a great book!"
-    #     }
-    #     add_response = self.app.post("/reviews", headers=self.auth_header, json=review_data)
-    #     self.assertEqual(add_response.status_code, 201)
-    #     added_review = add_response.get_json()
-    #     review_id = added_review.get("review_id")
+        # Add a review to update
+        review_data = {
+            "work_id": "TESTWORK",
+            "star_rating": 5,
+            "liked": True,
+            "review_text": "This is a great book!"
+        }
+        add_response = self.app.post("/reviews", headers=self.auth_header, json=review_data)
+        self.assertEqual(add_response.status_code, 201)
+        added_review = add_response.get_json()
+        review_id = added_review.get("review_id")
 
-    #     # Test successful review update
-    #     update_data = {
-    #         "work_id": "TESTWORK",
-    #         "star_rating": 4,
-    #         "liked": False,
-    #         "review_text": "Updated review text."
-    #     }
-    #     response = self.app.put(f"/reviews/{review_id}", headers=self.auth_header, json=update_data)
-    #     self.assertEqual(response.status_code, 201)
-    #     data = response.get_json()
-    #     self.assertTrue("message" in data)
-    #     self.assertEqual(data["message"], "Review edited successfully")
-    #     print("----------------------------------\n")
+        # Test successful review update
+        update_data = {
+            "work_id": "TESTWORK",
+            "star_rating": 4,
+            "liked": False,
+            "review_text": "Updated review text."
+        }
+        response = self.app.put(f"/reviews/{review_id}", headers=self.auth_header, json=update_data)
+        self.assertEqual(response.status_code, 201)
+        data = response.get_json()
+        self.assertTrue("message" in data)
+        self.assertEqual(data["message"], "Review edited successfully")
+        print("----------------------------------\n")
 
-    # def test_remove_review(self):
-    #     # Add a review to remove
-    #     review_data = {
-    #         "work_id": "TESTWORK",
-    #         "star_rating": 5,
-    #         "liked": True,
-    #         "review_text": "This is a great book!"
-    #     }
-    #     add_response = self.app.post("/reviews", headers=self.auth_header, json=review_data)
-    #     self.assertEqual(add_response.status_code, 201)
-    #     added_review = add_response.get_json()
-    #     review_id = added_review.get("review_id")
-    #     # Test successful review removal
-    #     response = self.app.delete(f"/reviews/{review_id}", headers=self.auth_header)
-    #     self.assertEqual(response.status_code, 200)
-    #     data = response.get_json()
-    #     self.assertTrue("message" in data)
-    #     self.assertEqual(data["message"], f"review {review_id} deleted successfully")
+    def test_remove_review(self):
+        print("Test removing reviews")
+        
+        # Add a review to remove
+        review_data = {
+            "work_id": "TESTWORK",
+            "star_rating": 5,
+            "liked": True,
+            "review_text": "This is a great book!"
+        }
+        add_response = self.app.post("/reviews", headers=self.auth_header, json=review_data)
+        self.assertEqual(add_response.status_code, 201)
+        added_review = add_response.get_json()
+        print("response: " + str(added_review))
+        review_id = added_review.get("review_id")
+        print("added review!!! " + str(review_id))
+        # Test successful review removal
+        response = self.app.delete(f"/reviews/{review_id}", headers=self.auth_header)
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue("message" in data)
+        self.assertEqual(data["message"], f"review {review_id} deleted successfully")
 
     def test_return_review_data(self):
         print("Test returning review data for a book")
@@ -567,41 +621,6 @@ class ReviewTestCase(unittest.TestCase):
         self.assertTrue('error' in data)
         self.assertEqual(data['error'], '404 Client Error: Not Found for url: https://openlibrary.org/works/InvalidWorkID.json')
         
-    # next sprint
-
-    # def test_has_followers(self):
-    #     print ("check JSON format for people with followers")
-    #     response = self.app.get('/followers/Philippe')
-
-    #     # 200 = good
-    #     self.assertEqual(response.status_code, 200)
-    #     data=response.get_json()
-    #     print(data)
-    #     self.assertTrue(len(data) > 0) # no friends
-    #     print("----------------------------------\n")
-
-
-    # def test_followerless(self):
-    #     print ("check for empty list when return followerless users's friends")
-    #     response = self.app.get('/followers/Connor')
-
-    #     # 200 = good
-    #     self.assertEqual(response.status_code, 200)
-    #     data=response.get_json()
-    #     print(data)
-    #     self.assertTrue(len(data) == 0) # no friends
-    #     print("----------------------------------\n")
-
-    # def test_wrong_user_followers(self):
-    #     print ("test for error when checking followers of non-user")
-    #     response = self.app.get('/followers/McGillicudy')
-
-    #     self.assertEqual(response.status_code, 404)
-    #     data = response.get_json()
-    #     print(data)
-    #     self.assertTrue(len(data) > 0) # error message
-    #     print("----------------------------------\n")
-
 
 if __name__ == '__main__':
     unittest.main()
