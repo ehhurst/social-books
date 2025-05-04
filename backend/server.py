@@ -1117,55 +1117,6 @@ def get_user_shelves(username):
 
     return jsonify(zipped_shelves)
 
-# added by emily, needed get for shelves not dependent on JWT
-# same as above, removed JWT. Don't really need above. 
-@app.route("/shelves/<string:username>", methods=['GET'])
-def get_shelves(username):
-    conn = db_connect()
-    cursor = conn.cursor()
-
-    query = "SELECT shelf_name FROM user_shelves WHERE username = ?"
-    cursor.execute(query, (username,))
-    shelves = cursor.fetchall()
-    columns = [description[0] for description in cursor.description]
-    zipped_shelves = [dict(zip(columns, shelf)) for shelf in shelves]
-    print(zipped_shelves)
-
-    conn.close()
-    return jsonify(zipped_shelves)
-
-
-# # NOTE: test this
-# Get all books in current user's specific shelf, not dependent on jwt
-@app.route("/<string:username>/shelf/<string:shelf_name>/books", methods=['GET'])
-def get_books_in_shelf(username, shelf_name):
-    conn = db_connect()
-    cursor = conn.cursor()
-
-    find_shelf = "SELECT shelf_name FROM user_shelves WHERE username = ? AND shelf_name = ?"
-    shelf = cursor.execute(find_shelf, (username, shelf_name,)).fetchone()
-
-    if not shelf:
-        conn.close()
-        return jsonify({"error":f"shelf with name {shelf_name} not found. no action taken."}), 400 #BAD REQUEST 
-
-    query = "SELECT work_id FROM shelved_books WHERE username = ? AND shelf_name = ?"
-    cursor.execute(query, (username, shelf_name,))
-    books = cursor.fetchall()
-    columns = [description[0] for description in cursor.description]
-    zipped_books = [dict(zip(columns, book)) for book in books]
-
-    # NOTE : circular logic. you're using the input
-    final = [{"shelf_name" : shelf_name}]
-    final += [{"books" : zipped_books}]
-
-    conn.close()
-    print("final" , final)
-    ## ERROR - saying final is not JSON serializable. Also not returning book items, only returns 
-    #work id's in a list, also missing constraint for adding multiple books to the same list
-
-    if final:
-        return jsonify(final)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True, port=5000)
