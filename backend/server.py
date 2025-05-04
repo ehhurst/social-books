@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from book_api import fetch_books_from_api, parse_books, get_book
 import sqlite3
-import datetime
+from datetime import datetime
 from flask_jwt_extended import JWTManager
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from auth import auth, bcrypt
@@ -639,6 +639,8 @@ def unfollow_user(username):
     return jsonify({"message": f"Unfollowed {username} successfully"}), 200
 
 
+# ------- CONTESTS ------- #
+
 @app.route("/contest/create", methods=["POST"])
 @jwt_required()
 def create_contest():
@@ -682,6 +684,7 @@ def create_contest():
         cursor.execute(query, (contest_name, num_works, end_date))
         conn.commit()
     except sqlite3.Error as e:
+        conn.close()
         return jsonify({"error": f"contest_failure {e}"}), 500 #INTERNAL SERVER ERROR
     
     #ADD WORKS AND CREATOR HERE
@@ -712,15 +715,17 @@ def contest_deadline(contest_name):
     conn = db_connect()
     cursor = conn.cursor()
 
-    current_time = str(datetime.datetime.now()).split(" ")[0] # Takes only YYYY-MM-DD from YYYY-MM-DD HH:MM:SS.MS string
+    current_time = str(datetime.now()).split(" ")[0] # Takes only YYYY-MM-DD from YYYY-MM-DD HH:MM:SS.MS string
     query = """
     SELECT end_date FROM contests WHERE contest_name = ?
     """
     cursor.execute(query, (contest_name,))
     deadline_time = cursor.fetchone()
 
-    dt_curr = datetime.striptime(current_time, "%Y-%m-%d")
-    dt_dead = datetime.striptime(deadline_time, "%Y-%m-%d")
+    dt_curr = datetime.strptime(current_time, "%Y-%m-%d")
+    dt_dead = datetime.strptime(deadline_time[0], "%Y-%m-%d")
+    
+    print("datecomp", dt_curr, dt_dead, dt_curr < dt_dead)
 
     conn.close()
 
@@ -748,11 +753,12 @@ def contest_checklist(contest_name):
         conn.close()
         return jsonify({"error":f"user {current_user} not found, not fetching checklist"}), 400 #BAD REQUEST
     
-
     query = "SELECT work_id FROM contest_books_read WHERE username = ? AND contest_name = ?"
     cursor.execute(query, (competitor, contest_name))
     readbooks = [work_id[0] for work_id in cursor.fetchall()] # Should return just the string out of each tuple in the result...
     # [("workname"), ("workname1"), ...] <-- double check if needed. Should work out the box
+    
+    print("readbooks", readbooks)
 
     conn.close()
     return jsonify({"readbooks":readbooks}), 200 # OK
@@ -770,11 +776,11 @@ def contest_markdone(contest_name, work_id):
     cursor = conn.cursor()
 
     find_user_query = "SELECT username FROM users WHERE username = ?" # replaced profile_id with uesrname
-    competitor = cursor.execute(find_user_query, (current_user,)).fetchone()["username"]
-
-    if not competitor:
+    result = cursor.execute(find_user_query, (current_user,)).fetchone()
+    if not result:
         conn.close()
-        return jsonify({"error":f"user {current_user} not found, not updating contest books read"}), 400 #BAD REQUEST
+        return jsonify({"error": f"user {current_user} not found, not updating contest books read"}), 400
+    competitor = result[0]
 
     if not contest_name:
         conn.close()
@@ -791,9 +797,10 @@ def contest_markdone(contest_name, work_id):
         conn.close()
         return jsonify({"error":"Book already read, this should not occur"}), 500 #INTERNAL SERVER ERROR
     
-    query = "INSERT INTO contest_books_read (username, contest_name, work_id) VALUES (?, ?)"
+    query = "INSERT INTO contest_books_read (username, contest_name, work_id) VALUES (?, ?, ?)"
     try:
         cursor.execute(query, (competitor, contest_name, work_id))
+        conn.commit()
     except sqlite3.Error as e:
         print("PROBLEM: " + str(e))
         return jsonify({"error":f"{e}"}), 500 #INTERNAL SERVER ERROR
@@ -835,7 +842,7 @@ def get_contests():
 
         contest_list.append(contest_json)
     conn.close()
-    return jsonify(contest_list), 200 # OK
+    return jsonify({"contest_list":contest_list}), 200 # OK
 
 #@CONTESTS GET CONTEST BOOKS
 @app.route("/contest/<string:contest_name>/books", methods=["GET"])
@@ -858,7 +865,41 @@ def get_books(contest_name):
         book_list.append(book)
         
     conn.close()
-    return jsonify(book_list), 200 # OK
+    return jsonify({"book_list":book_list}), 200 # OK
+
+#@CONTEST ADD PARTICIPANT
+@app.route("/contest/<string:contest_name>/add_participant", methods=["POST"])
+@jwt_required()
+def add_participant(contest_name):
+    current_user = get_jwt_identity()  # Get the current user's identity from the JWT
+    token = request.headers.get("Authorization")
+        
+    if not token:
+        return jsonify({"error": "Missing authorization token"}), 401
+    
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    find_user_query = "SELECT username FROM users WHERE username = ?" # replaced profile_id with uesrname
+    competitor = cursor.execute(find_user_query, (current_user,)).fetchone()
+
+    if not competitor:
+        conn.close()
+        return jsonify({"error":f"user {current_user} not found, not adding to contest"}), 400 #BAD REQUEST
+    
+    if not contest_name:
+        return jsonify({"error":"Missing contest_name"}), 400 #INVALID REQUEST
+
+    try:
+        query = "INSERT INTO contest_participants (contest_name, username, books_read, perm_lvl) VALUES (?, ?, ?, ?)"
+        cursor.execute(query, (contest_name, competitor[0], 0, 0))
+        conn.commit()
+    except sqlite3.Error as e:
+        conn.close()
+        return jsonify({"error":f"contestowner_failure {e}"}), 500 #INTERNAL SERVER ERROR
+    
+    conn.close()
+    return jsonify({"message":"participant"}), 201 # CREATED
 
 #@CONTEST GET PARTICIPANTS
 @app.route("/contest/<string:contest_name>/participants", methods=["GET"])
@@ -895,7 +936,9 @@ def get_participants(contest_name):
         participant_list.append(participant)
     
     conn.close()
-    return jsonify(participant_list), 200 # OK
+    return jsonify({"participant_list":participant_list}), 200 # OK
+
+# -------------------------------- #
 
 def fetch_users(searchTerm):
     conn = db_connect()
