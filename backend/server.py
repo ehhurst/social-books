@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from book_api import fetch_books_from_api, parse_books, get_book
 import sqlite3
-import datetime
+from datetime import datetime
 from flask_jwt_extended import JWTManager
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from auth import auth, bcrypt
@@ -253,62 +253,69 @@ def get_goals(username):
     goal = cursor.fetchone()
     print(username, goal[0])
     
+    conn.close()
     return jsonify(goal[0]), 200
 
-
+# NOTE: ChatGPT used to refactor this method. We asked it to safely handle closing the database.
 @app.route("/reviews", methods=["POST"])
 @jwt_required()
 def add_review():
-    """ Adds a review. Content of the review needs to be in the POST query.
-     So far this only updates the reviews table. Maybe update other tables? Probably not. """
-    current_user = get_jwt_identity()  # Get the current user's identity from the JWT
+    current_user = get_jwt_identity()
     token = request.headers.get("Authorization")
-        
+    
     if not token:
         return jsonify({"error": "Missing authorization token"}), 401
     
     conn = db_connect()
     cursor = conn.cursor()
 
-    find_user_query = "SELECT username FROM users WHERE username = ?" # replaced profile_id with uesrname
-    reviewer = cursor.execute(find_user_query, (current_user,)).fetchone()
-
-    if not reviewer:
-        conn.close()
-        return jsonify({"error":f"user {current_user} not found, not updating reviews"}), 400 #BAD REQUEST
-    
-    r_metadata = request.json
-    work_ID = r_metadata.get("work_id")
-    rating = r_metadata.get("star_rating")
-    liked = r_metadata.get("liked")
-    text = r_metadata.get("review_text")
-    
-    from profanity_filter import is_profane
-        
-    profanity_list = is_profane(text)
-    
-    if profanity_list:
-        conn.close()
-        return jsonify({"error": f"Profanity detected in review: {profanity_list}"}), 412
-    
-
-    if not work_ID or not rating or not text:
-        conn.close()
-        return jsonify({"error": "work_ID, rating, or text is bad"}), 400 #BAD REQUEST
-    
-    if not (1 <= rating <= 5):
-        conn.close()
-        return jsonify({"error": "rating is out of 1-5 range"}), 412 #PRECONDITION FAILED
-    
     try:
-        query = "INSERT INTO reviews (username, work_ID, star_rating, liked, review_text) VALUES (?, ?, ?, ?, ?)"
-        cursor.execute(query, (current_user, work_ID, rating, liked, text))
+        reviewer = cursor.execute(
+            "SELECT username FROM users WHERE username = ?", (current_user,)
+        ).fetchone()
+        if not reviewer:
+            return jsonify({"error": f"user {current_user} not found"}), 400
+
+        r_metadata = request.json
+        work_ID = r_metadata.get("work_id")
+        rating = r_metadata.get("star_rating")
+        liked = r_metadata.get("liked")
+        text = r_metadata.get("review_text")
+
+        from profanity_filter import is_profane
+        
+        if is_profane(text):
+            return jsonify({"error": "Profanity detected in review."}), 412
+
+        if not work_ID or not rating or not text:
+            return jsonify({"error": "Missing required review fields"}), 400
+
+        if not (1 <= rating <= 5):
+            return jsonify({"error": "Rating must be between 1 and 5"}), 412
+
+        cursor.execute(
+            "INSERT INTO reviews (username, work_ID, star_rating, liked, review_text) VALUES (?, ?, ?, ?, ?)",
+            (current_user, work_ID, rating, liked, text)
+        )
         conn.commit()
+
+        cursor.execute(
+            "SELECT review_id FROM reviews WHERE username = ? AND work_ID = ? AND star_rating = ? AND liked = ? AND review_text = ?",
+            (current_user, work_ID, rating, liked, text)
+        )
+        review_ID = cursor.fetchone()
+
+        return jsonify({
+            "message": "Review added successfully",
+            "user_id": current_user,
+            "work_ID": work_ID,
+            "review_id": review_ID[0] if review_ID else None
+        }), 201
+
     except sqlite3.Error as error:
-        return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
-    
-    conn.close()
-    return jsonify({"message": "Review added successfully", "user_id" : current_user, "work_ID" : work_ID}), 201 #CREATED
+        return jsonify({"error": f"SQLITE3 ERROR: {str(error)}"}), 500
+    finally:
+        conn.close()
 
 
 @app.route("/reviews/<string:review_id>", methods=["PUT"])
@@ -326,7 +333,7 @@ def update_review(review_id):
     cursor = conn.cursor()
 
     find_user_query = "SELECT username FROM users WHERE username = ?"
-    reviewer = cursor.execute(find_user_query, (current_user,))
+    reviewer = cursor.execute(find_user_query, (current_user,)).fetchone() #NOTE: ?????
 
     if not reviewer:
         conn.close()
@@ -373,6 +380,7 @@ def update_review(review_id):
         cursor.execute(query, (rating, liked, text, review_id))
         conn.commit()
     except sqlite3.Error as error:
+        conn.close()
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
     
     conn.close()
@@ -388,6 +396,8 @@ def remove_review(review_id):
     find_review_query = "SELECT review_id FROM reviews WHERE review_id = ?"
     cursor.execute(find_review_query, (review_id,))
     review = cursor.fetchone()
+
+    print("REVIEW! " + str(review))
 
     if not review:
         conn.close()
@@ -599,6 +609,45 @@ def get_following(username):
 
     return jsonify(result)
 
+
+@app.route("/unfollow/<string:username>", methods=["DELETE"])
+@jwt_required()
+def unfollow_user(username):
+    """Removes a following relationship between the current user and the target user."""
+    current_user = get_jwt_identity()
+    token = request.headers.get("Authorization")
+
+    if not token:
+        return jsonify({"error": "Missing authorization token"}), 401
+
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    existing = cursor.execute(
+        "SELECT 1 FROM followers WHERE follower_username = ? AND follows_username = ?",
+        (current_user, username)
+    ).fetchone()
+
+    if not existing:
+        conn.close()
+        return jsonify({"error": f"You are not following {username}"}), 400
+
+    try:
+        cursor.execute(
+            "DELETE FROM followers WHERE follower_username = ? AND follows_username = ?",
+            (current_user, username)
+        )
+        conn.commit()
+    except sqlite3.Error as error:
+        conn.close()
+        return jsonify({"error": str(error)}), 500
+
+    conn.close()
+    return jsonify({"message": f"Unfollowed {username} successfully"}), 200
+
+
+# ------- CONTESTS ------- #
+
 @app.route("/contest/create", methods=["POST"])
 @jwt_required()
 def create_contest():
@@ -642,6 +691,7 @@ def create_contest():
         cursor.execute(query, (contest_name, num_works, end_date))
         conn.commit()
     except sqlite3.Error as e:
+        conn.close()
         return jsonify({"error": f"contest_failure {e}"}), 500 #INTERNAL SERVER ERROR
     
     #ADD WORKS AND CREATOR HERE
@@ -672,15 +722,17 @@ def contest_deadline(contest_name):
     conn = db_connect()
     cursor = conn.cursor()
 
-    current_time = str(datetime.datetime.now()).split(" ")[0] # Takes only YYYY-MM-DD from YYYY-MM-DD HH:MM:SS.MS string
+    current_time = str(datetime.now()).split(" ")[0] # Takes only YYYY-MM-DD from YYYY-MM-DD HH:MM:SS.MS string
     query = """
     SELECT end_date FROM contests WHERE contest_name = ?
     """
     cursor.execute(query, (contest_name,))
     deadline_time = cursor.fetchone()
 
-    dt_curr = datetime.striptime(current_time, "%Y-%m-%d")
-    dt_dead = datetime.striptime(deadline_time, "%Y-%m-%d")
+    dt_curr = datetime.strptime(current_time, "%Y-%m-%d")
+    dt_dead = datetime.strptime(deadline_time[0], "%Y-%m-%d")
+    
+    print("datecomp", dt_curr, dt_dead, dt_curr < dt_dead)
 
     conn.close()
 
@@ -712,6 +764,8 @@ def contest_checklist(contest_name):
     cursor.execute(query, (competitor, contest_name))
     readbooks = [work_id[0] for work_id in cursor.fetchall()] # Should return just the string out of each tuple in the result...
     # [("workname"), ("workname1"), ...] <-- double check if needed. Should work out the box
+    
+    print("readbooks", readbooks)
 
     conn.close()
 
@@ -730,11 +784,11 @@ def contest_markdone(contest_name, work_id):
     cursor = conn.cursor()
 
     find_user_query = "SELECT username FROM users WHERE username = ?" # replaced profile_id with uesrname
-    competitor = cursor.execute(find_user_query, (current_user,)).fetchone()
-
-    if not competitor:
+    result = cursor.execute(find_user_query, (current_user,)).fetchone()
+    if not result:
         conn.close()
-        return jsonify({"error":f"user {current_user} not found, not updating contest books"}), 400 #BAD REQUEST
+        return jsonify({"error": f"user {current_user} not found, not updating contest books read"}), 400
+    competitor = result[0]
 
     if not contest_name:
         conn.close()
@@ -751,9 +805,10 @@ def contest_markdone(contest_name, work_id):
         conn.close()
         return jsonify({"error":"Book already read, this should not occur"}), 500 #INTERNAL SERVER ERROR
     
-    query = "INSERT INTO contest_books (username, work_id, contest_name) VALUES (?, ?, ?)"
+    query = "INSERT INTO contest_books_read (username, contest_name, work_id) VALUES (?, ?, ?)"
     try:
-        cursor.execute(query, (competitor, work_id, contest_name))
+        cursor.execute(query, (competitor, contest_name, work_id))
+        conn.commit()
     except sqlite3.Error as e:
         return jsonify({"error":f"{e}"}), 500 #INTERNAL SERVER ERROR
     
@@ -793,8 +848,8 @@ def get_contests():
         }
 
         contest_list.append(contest_json)
-    
-    return jsonify(contest_list), 200 # OK
+    conn.close()
+    return jsonify({"contest_list":contest_list}), 200 # OK
 
 #@CONTESTS GET CONTEST BOOKS
 @app.route("/contest/<string:contest_name>/books", methods=["GET"])
@@ -816,7 +871,42 @@ def get_books(contest_name):
         book = get_book(work[0])
         book_list.append(book)
         
-    return jsonify(book_list), 200 # OK
+    conn.close()
+    return jsonify({"book_list":book_list}), 200 # OK
+
+#@CONTEST ADD PARTICIPANT
+@app.route("/contest/<string:contest_name>/add_participant", methods=["POST"])
+@jwt_required()
+def add_participant(contest_name):
+    current_user = get_jwt_identity()  # Get the current user's identity from the JWT
+    token = request.headers.get("Authorization")
+        
+    if not token:
+        return jsonify({"error": "Missing authorization token"}), 401
+    
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    find_user_query = "SELECT username FROM users WHERE username = ?" # replaced profile_id with uesrname
+    competitor = cursor.execute(find_user_query, (current_user,)).fetchone()
+
+    if not competitor:
+        conn.close()
+        return jsonify({"error":f"user {current_user} not found, not adding to contest"}), 400 #BAD REQUEST
+    
+    if not contest_name:
+        return jsonify({"error":"Missing contest_name"}), 400 #INVALID REQUEST
+
+    try:
+        query = "INSERT INTO contest_participants (contest_name, username, books_read, perm_lvl) VALUES (?, ?, ?, ?)"
+        cursor.execute(query, (contest_name, competitor[0], 0, 0))
+        conn.commit()
+    except sqlite3.Error as e:
+        conn.close()
+        return jsonify({"error":f"contestowner_failure {e}"}), 500 #INTERNAL SERVER ERROR
+    
+    conn.close()
+    return jsonify({"message":"participant"}), 201 # CREATED
 
 #@CONTEST GET PARTICIPANTS
 @app.route("/contest/<string:contest_name>/participants", methods=["GET"])
@@ -851,8 +941,11 @@ def get_participants(contest_name):
             "completed_books" : work_list
         }
         participant_list.append(participant)
-        
-    return jsonify(participant_list), 200 # OK
+    
+    conn.close()
+    return jsonify({"participant_list":participant_list}), 200 # OK
+
+# -------------------------------- #
 
 def fetch_users(searchTerm):
     conn = db_connect()
