@@ -251,6 +251,14 @@ class ReviewTestCase(unittest.TestCase):
         self.setUp()
         
     def test_add_review(self):
+        
+        # FORCED CLEANUP
+        conn = db_connect()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM reviews WHERE work_id == 'TESTWORK'")
+        conn.commit()
+        conn.close()
+        
         print("test adding review")
         # Test successful review addition
         review_data = {
@@ -277,7 +285,7 @@ class ReviewTestCase(unittest.TestCase):
         data = response.get_json()
         self.assertTrue("error" in data)
         self.assertTrue("Profanity detected" in data["error"])
-
+        
     def test_update_review(self):
         print("Test updating a review")
 
@@ -306,30 +314,7 @@ class ReviewTestCase(unittest.TestCase):
         self.assertTrue("message" in data)
         self.assertEqual(data["message"], "Review edited successfully")
         print("----------------------------------\n")
-
-    def test_remove_review(self):
-        print("Test removing reviews")
         
-        # Add a review to remove
-        review_data = {
-            "work_id": "TESTWORK",
-            "star_rating": 5,
-            "liked": True,
-            "review_text": "This is a great book!"
-        }
-        add_response = self.app.post("/reviews", headers=self.auth_header, json=review_data)
-        self.assertEqual(add_response.status_code, 201)
-        added_review = add_response.get_json()
-        print("response: " + str(added_review))
-        review_id = added_review.get("review_id")
-        print("added review!!! " + str(review_id))
-        # Test successful review removal
-        response = self.app.delete(f"/reviews/{review_id}", headers=self.auth_header)
-        self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        self.assertTrue("message" in data)
-        self.assertEqual(data["message"], f"review {review_id} deleted successfully")
-
     def test_return_review_data(self):
         print("Test returning review data for a book")
 
@@ -367,6 +352,36 @@ class ReviewTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
         self.assertTrue(len(data) > 0)
+
+    def test_remove_review(self):
+        print("Test removing reviews")
+        
+        # Add a review to remove
+        review_data = {
+            "work_id": "TESTWORK",
+            "star_rating": 5,
+            "liked": True,
+            "review_text": "This is a great book!"
+        }
+        add_response = self.app.post("/reviews", headers=self.auth_header, json=review_data)
+        self.assertEqual(add_response.status_code, 201)
+        added_review = add_response.get_json()
+        print("response: " + str(added_review))
+        review_id = added_review.get("review_id")
+        print("added review!!! " + str(review_id))
+        # Test successful review removal
+        response = self.app.delete(f"/reviews/{review_id}", headers=self.auth_header)
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue("message" in data)
+        self.assertEqual(data["message"], f"review {review_id} deleted successfully")
+        
+        # FORCED CLEANUP
+        conn = db_connect()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM reviews WHERE work_id == 'TESTWORK'")
+        conn.commit()
+        conn.close()
 
 # Contest testing
     def test_contests(self):
