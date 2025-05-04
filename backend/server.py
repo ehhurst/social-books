@@ -255,62 +255,69 @@ def get_goals(username):
     goal = cursor.fetchone()
     print(username, goal[0])
     
+    conn.close()
     return jsonify(goal[0]), 200
 
-
+# NOTE: ChatGPT used to refactor this method. We asked it to safely handle closing the database.
 @app.route("/reviews", methods=["POST"])
 @jwt_required()
 def add_review():
-    """ Adds a review. Content of the review needs to be in the POST query.
-     So far this only updates the reviews table. Maybe update other tables? Probably not. """
-    current_user = get_jwt_identity()  # Get the current user's identity from the JWT
+    current_user = get_jwt_identity()
     token = request.headers.get("Authorization")
-        
+    
     if not token:
         return jsonify({"error": "Missing authorization token"}), 401
     
     conn = db_connect()
     cursor = conn.cursor()
 
-    find_user_query = "SELECT username FROM users WHERE username = ?" # replaced profile_id with uesrname
-    reviewer = cursor.execute(find_user_query, (current_user,)).fetchone()
-
-    if not reviewer:
-        conn.close()
-        return jsonify({"error":f"user {current_user} not found, not updating reviews"}), 400 #BAD REQUEST
-    
-    r_metadata = request.json
-    work_ID = r_metadata.get("work_id")
-    rating = r_metadata.get("star_rating")
-    liked = r_metadata.get("liked")
-    text = r_metadata.get("review_text")
-    
-    from profanity_filter import is_profane
-        
-    profanity_list = is_profane(text)
-    
-    if profanity_list:
-        conn.close()
-        return jsonify({"error": f"Profanity detected in review: {profanity_list}"}), 412
-    
-
-    if not work_ID or not rating or not text:
-        conn.close()
-        return jsonify({"error": "work_ID, rating, or text is bad"}), 400 #BAD REQUEST
-    
-    if not (1 <= rating <= 5):
-        conn.close()
-        return jsonify({"error": "rating is out of 1-5 range"}), 412 #PRECONDITION FAILED
-    
     try:
-        query = "INSERT INTO reviews (username, work_ID, star_rating, liked, review_text) VALUES (?, ?, ?, ?, ?)"
-        cursor.execute(query, (current_user, work_ID, rating, liked, text))
+        reviewer = cursor.execute(
+            "SELECT username FROM users WHERE username = ?", (current_user,)
+        ).fetchone()
+        if not reviewer:
+            return jsonify({"error": f"user {current_user} not found"}), 400
+
+        r_metadata = request.json
+        work_ID = r_metadata.get("work_id")
+        rating = r_metadata.get("star_rating")
+        liked = r_metadata.get("liked")
+        text = r_metadata.get("review_text")
+
+        from profanity_filter import is_profane
+        
+        if is_profane(text):
+            return jsonify({"error": "Profanity detected in review."}), 412
+
+        if not work_ID or not rating or not text:
+            return jsonify({"error": "Missing required review fields"}), 400
+
+        if not (1 <= rating <= 5):
+            return jsonify({"error": "Rating must be between 1 and 5"}), 412
+
+        cursor.execute(
+            "INSERT INTO reviews (username, work_ID, star_rating, liked, review_text) VALUES (?, ?, ?, ?, ?)",
+            (current_user, work_ID, rating, liked, text)
+        )
         conn.commit()
+
+        cursor.execute(
+            "SELECT review_id FROM reviews WHERE username = ? AND work_ID = ? AND star_rating = ? AND liked = ? AND review_text = ?",
+            (current_user, work_ID, rating, liked, text)
+        )
+        review_ID = cursor.fetchone()
+
+        return jsonify({
+            "message": "Review added successfully",
+            "user_id": current_user,
+            "work_ID": work_ID,
+            "review_id": review_ID[0] if review_ID else None
+        }), 201
+
     except sqlite3.Error as error:
-        return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
-    
-    conn.close()
-    return jsonify({"message": "Review added successfully", "user_id" : current_user, "work_ID" : work_ID}), 201 #CREATED
+        return jsonify({"error": f"SQLITE3 ERROR: {str(error)}"}), 500
+    finally:
+        conn.close()
 
 
 @app.route("/reviews/<string:review_id>", methods=["PUT"])
@@ -328,7 +335,7 @@ def update_review(review_id):
     cursor = conn.cursor()
 
     find_user_query = "SELECT username FROM users WHERE username = ?"
-    reviewer = cursor.execute(find_user_query, (current_user,))
+    reviewer = cursor.execute(find_user_query, (current_user,)).fetchone() #NOTE: ?????
 
     if not reviewer:
         conn.close()
@@ -375,6 +382,7 @@ def update_review(review_id):
         cursor.execute(query, (rating, liked, text, review_id))
         conn.commit()
     except sqlite3.Error as error:
+        conn.close()
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
     
     conn.close()
@@ -390,6 +398,8 @@ def remove_review(review_id):
     find_review_query = "SELECT review_id FROM reviews WHERE review_id = ?"
     cursor.execute(find_review_query, (review_id,))
     review = cursor.fetchone()
+
+    print("REVIEW! " + str(review))
 
     if not review:
         conn.close()

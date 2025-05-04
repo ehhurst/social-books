@@ -51,99 +51,82 @@ class ReviewTestCase(unittest.TestCase):
         self.auth_header = {
             "Authorization": f"Bearer {self.token}"
         }
+
         # print(f"T O K E N : {self.token}")
 
-
-
-
-# CONTINUED BELOW
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    #### Test USERS ####
+    def test_return_user_data(self):
+        #### Test Successful User Data Retrieval ####
+        # Simulate a GET request with the auth header
+        print("Test for Successful getting user data")
+        response = self.app.get("/user", headers=self.auth_header)
+        # assert successful response
+        self.assertEqual(response.status_code, 200)
+        # Parse the JSON response
+        data = response.get_json()
+        # Assert returned data contains expected fields
+        self.assertTrue("username" in data)
+        self.assertTrue("first_name" in data)
+        self.assertTrue("last_name" in data)
+        self.assertTrue("goal" in data)
+        # Assert that the fields matches the test user
+        self.assertEqual(data["username"], self.test_user["username"])
+        self.assertEqual(data["first_name"], self.test_user["firstName"])
+        self.assertEqual(data["last_name"], self.test_user["lastName"])
+        self.assertEqual(data["goal"], -1)
+        #### Test Unsuccessful User Data Retrieval ####
+        # Simulate a GET request without the auth header
+        response = self.app.get("/user")
+        # Assert that the response is unauthorized (HTTP 401)
+        self.assertEqual(response.status_code, 401)
+        # Optionally, check if the returned JSON is correct
+        data = response.get_json()
+        self.assertTrue("msg" in data)
+        self.assertEqual(data["msg"], "Missing Authorization Header")
+
+    def test_add_user(self):
+        pass
+
+    def test_set_and_get_goal(self):
+        # Test successful set goal
+        new_goal = 10
+        response = self.app.put("/goals", headers=self.auth_header, json=new_goal)
+        self.assertEqual(response.status_code, 201)
+        data = response.get_json()
+        self.assertTrue("message" in data)
+        self.assertEqual(data["message"], "Successfully updated reading goal")
+        self.assertEqual(data["goal"], new_goal)
+        # Test get goal
+        username = self.test_user["username"]
+        response = self.app.get(f"/{username}/goals", headers=self.auth_header)
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertEqual(data, new_goal)
+        # Test missing authorization header for set goal
+        response = self.app.put("/goals", headers={}, json=new_goal)
+        self.assertEqual(response.status_code, 401)
+        data = response.get_json()
+        self.assertTrue("msg" in data)
+        self.assertEqual(data["msg"], "Missing Authorization Header")
+        # Test invalid goal
+        invalid_goal = -5
+        response = self.app.put("/goals", headers=self.auth_header, json=invalid_goal)
+        self.assertEqual(response.status_code, 412)
+        data = response.get_json()
+        self.assertTrue("error" in data)
+        self.assertEqual(data["error"], "Reading goal must be >= 0")
+        # Reset user conditions by re-running setup
+        self.setUp()
+
+        
+    def test_get_token(self):
+        print("Testing user authentication")
+        response = self.app.post("/auth/login", json=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertIsNotNone(data)
+        print(f"Returned token {data}")
+        print("----------------------------------\n")
         
 
     # COMPREHENSIVE SHELVES TEST
@@ -243,105 +226,207 @@ class ReviewTestCase(unittest.TestCase):
         print("PASS SHELVES")
         print("----------------------------------\n")
 
-    # Contest testing
-    def test_contests(self):
-        conn = db_connect()
-        cursor = conn.cursor()
+
+    def test_delete_user(self):
+        print("test deleting user")
+        # Test successful user deletion
+        response = self.app.delete("/users/delete", headers=self.auth_header)
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue("message" in data)
+        self.assertEqual(data["message"], f"user {self.test_user['username']} deleted successfully from users table")
+        # Test deletion with missing authorization header
+        response = self.app.delete("/users/delete", headers={})
+        self.assertEqual(response.status_code, 401)
+        data = response.get_json()
+        self.assertTrue("msg" in data)
+        self.assertEqual(data["msg"], "Missing Authorization Header")
+        # Test deletion of a non-existent user
+        response = self.app.delete("/users/delete", headers=self.auth_header)
+        self.assertEqual(response.status_code, 404)
+        data = response.get_json()
+        self.assertTrue("error" in data)
+        self.assertEqual(data["error"], "user not found for deletion from user table")
+        # Reset user conditions by re-running setup
+        self.setUp()
         
-        try:
-            # Cleanup *before* inserting, in case of prior leftover data
-            cursor.execute("DELETE FROM contest_participants WHERE contest_name = ?", ("test_contest",))
-            cursor.execute("DELETE FROM contest_books WHERE contest_name = ?", ("test_contest",))
-            cursor.execute("DELETE FROM contests WHERE contest_name = ?", ("test_contest",))
-            conn.commit()
-            
-            # Testing contest creation
-            payload = {
-            "contest_name": "test_contest",
-            "work_ids": ["OL731737W", "OL262384W", "OL45804W"],  # Example work IDs
-            "end_date": "2050-01-01"
-            }
-            
-            response = self.app.post("/contest/create", json=payload, headers=self.auth_header)
+    def test_add_review(self):
+        print("test adding review")
+        # Test successful review addition
+        review_data = {
+            "work_id": "TESTWORK",
+            "star_rating": 5,
+            "liked": True,
+            "review_text": "This is a great book!"
+        }
+        response = self.app.post("/reviews", headers=self.auth_header, json=review_data)
+        self.assertEqual(response.status_code, 201)
+        data = response.get_json()
+        self.assertTrue("message" in data)
+        self.assertEqual(data["message"], "Review added successfully")
+        self.assertEqual(data["work_ID"], review_data["work_id"])
+        # Test profanity in review text
+        profane_review_data = {
+            "work_id": "TESTWORK",
+            "star_rating": 4,
+            "liked": False,
+            "review_text": "fuck this book"
+        }
+        response = self.app.post("/reviews", headers=self.auth_header, json=profane_review_data)
+        self.assertEqual(response.status_code, 412)
+        data = response.get_json()
+        self.assertTrue("error" in data)
+        self.assertTrue("Profanity detected" in data["error"])
 
-            # # Insert a test contest
-            # cursor.execute("""
-            #     INSERT INTO contests (contest_name, book_count, end_date)
-            #     VALUES (?, ?, ?)
-            # """, ("test_contest", 1, "2050-01-01"))
+    def test_update_review(self):
+        print("Test updating a review")
 
-            # # Add contest books
-            # cursor.execute("""
-            #     INSERT INTO contest_books (contest_name, work_id)
-            #     VALUES (?, ?)
-            # """, ("test_contest", "1"))
-            # cursor.execute("""
-            #     INSERT INTO contest_books (contest_name, work_id)
-            #     VALUES (?, ?)
-            # """, ("test_contest", "2"))
+        # Add a review to update
+        review_data = {
+            "work_id": "TESTWORK",
+            "star_rating": 5,
+            "liked": True,
+            "review_text": "This is a great book!"
+        }
+        add_response = self.app.post("/reviews", headers=self.auth_header, json=review_data)
+        self.assertEqual(add_response.status_code, 201)
+        added_review = add_response.get_json()
+        review_id = added_review.get("review_id")
 
-            # # Add participant
-            # cursor.execute("""
-            #     INSERT INTO contest_participants (contest_name, username, books_read, perm_lvl)
-            #     VALUES (?, ?, ?, ?)
-            # """, ("test_contest", "test", 0, 0))
-            # conn.commit()
+        # Test successful review update
+        update_data = {
+            "work_id": "TESTWORK",
+            "star_rating": 4,
+            "liked": False,
+            "review_text": "Updated review text."
+        }
+        response = self.app.put(f"/reviews/{review_id}", headers=self.auth_header, json=update_data)
+        self.assertEqual(response.status_code, 201)
+        data = response.get_json()
+        self.assertTrue("message" in data)
+        self.assertEqual(data["message"], "Review edited successfully")
+        print("----------------------------------\n")
 
-            # API tests
-            response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
-            empty_works_read = response.get_json()
-            print("Test")
-            self.assertEqual(len(empty_works_read["readbooks"]), 0)
+    def test_remove_review(self):
+        print("Test removing reviews")
+        
+        # Add a review to remove
+        review_data = {
+            "work_id": "TESTWORK",
+            "star_rating": 5,
+            "liked": True,
+            "review_text": "This is a great book!"
+        }
+        add_response = self.app.post("/reviews", headers=self.auth_header, json=review_data)
+        self.assertEqual(add_response.status_code, 201)
+        added_review = add_response.get_json()
+        print("response: " + str(added_review))
+        review_id = added_review.get("review_id")
+        print("added review!!! " + str(review_id))
+        # Test successful review removal
+        response = self.app.delete(f"/reviews/{review_id}", headers=self.auth_header)
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue("message" in data)
+        self.assertEqual(data["message"], f"review {review_id} deleted successfully")
 
-            response = self.app.post("/contest/mark/test_contest/OL731737W", headers=self.auth_header)
-            self.assertEqual(response.status_code, 200)
+    def test_return_review_data(self):
+        print("Test returning review data for a book")
 
-            # Get read books for current user
-            response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
-            works_read = response.get_json()
-            self.assertEqual(len(works_read["readbooks"]), 1)
-            
-            # Get deadline for contest
-            response = self.app.get('/contest/test_contest/deadline')
-            deadline = response.get_json()
-            self.assertEqual(deadline["complete"], "True")
-            
-            # Get contest information
-            response = self.app.get("/contest/info")
-            book_list = response.get_json()['contest_list']
-            
-            test_contest = book_list[0]
-            book_count = test_contest['book_count']
-            end_date = test_contest['end_date']
-            organizer = test_contest['organizer']
-            
-            self.assertEqual(book_count, 3)
-            self.assertEqual(end_date, '2050-01-01')
-            self.assertEqual(organizer, "test")
-            
-            # Add participant / get participant
-            cursor.execute("DELETE FROM contest_participants WHERE contest_name = ?", ("test_contest",))
-            conn.commit()
-            
-            response = self.app.post('/contest/test_contest/add_participant', headers=self.auth_header)
-            self.assertEqual(response.status_code, 201)
-                        
-            json_obj = self.app.get("/contest/test_contest/participants").get_json()
-            participant_list = json_obj['participant_list']
-            self.assertTrue(len(participant_list) == 1)
-            
-            json_obj = self.app.get("/contest/test_contest/books").get_json()
-            book_list = json_obj['book_list']
-            self.assertTrue(len(book_list) == 3)
+        # Add a review to fetch
+        review_data = {
+            "work_id": "TESTWORK",
+            "star_rating": 5,
+            "liked": True,
+            "review_text": "This is a great book!"
+        }
+        self.app.post("/reviews", headers=self.auth_header, json=review_data)
 
-        finally:
-            # Cleanup after test
-            cursor.execute("DELETE FROM contest_participants WHERE contest_name = ?", ("test_contest",))
-            cursor.execute("DELETE FROM contest_books WHERE contest_name = ?", ("test_contest",))
-            cursor.execute("DELETE FROM contests WHERE contest_name = ?", ("test_contest",))
-            cursor.execute("DELETE FROM contest_books_read WHERE contest_name = ?", ("test_contest",))
-            conn.commit()
-            conn.close()
+        # Test fetching review data for the book
+        response = self.app.get("/books/TESTWORK/reviews", headers=self.auth_header)
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue("reviews_list" in data)
+        self.assertTrue(len(data["reviews_list"]) > 0)
+        print("----------------------------------\n")
+
+    def test_get_user_reviews(self):
+        print("Test getting user reviews")
+
+        # Add a review to fetch
+        review_data = {
+            "work_id": "TESTWORK",
+            "star_rating": 5,
+            "liked": True,
+            "review_text": "This is a great book!"
+        }
+        self.app.post("/reviews", headers=self.auth_header, json=review_data)
+
+        # Test fetching user reviews
+        response = self.app.get("/user/reviews", headers=self.auth_header)
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue(len(data) > 0)
+
+    # def test_contests(self):
+    #     conn = db_connect()
+    #     cursor = conn.cursor()
+
+    #     try:
+    #         # Cleanup *before* inserting, in case of prior leftover data
+    #         cursor.execute("DELETE FROM contest_participants WHERE contest_name = ?", ("test_contest",))
+    #         cursor.execute("DELETE FROM contest_books WHERE contest_name = ?", ("test_contest",))
+    #         cursor.execute("DELETE FROM contests WHERE contest_name = ?", ("test_contest",))
+    #         conn.commit()
+
+    #         # Insert a test contest
+    #         cursor.execute("""
+    #             INSERT INTO contests (contest_name, book_count, end_date)
+    #             VALUES (?, ?, ?)
+    #         """, ("test_contest", 1, "2050-01-01"))
+
+    #         # Add contest books
+    #         cursor.execute("""
+    #             INSERT INTO contest_books (contest_name, work_id)
+    #             VALUES (?, ?)
+    #         """, ("test_contest", "1"))
+    #         cursor.execute("""
+    #             INSERT INTO contest_books (contest_name, work_id)
+    #             VALUES (?, ?)
+    #         """, ("test_contest", "2"))
+
+    #         # Add participant
+    #         cursor.execute("""
+    #             INSERT INTO contest_participants (contest_name, username, books_read, perm_lvl)
+    #             VALUES (?, ?, ?, ?)
+    #         """, ("test_contest", "test", 0, 0))
+    #         conn.commit()
+
+    #         # API tests
+    #         response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
+    #         empty_works_read = response.get_json()
+    #         self.assertEqual(len(empty_works_read["readbooks"]), 0)
+
+    #         response = self.app.post("/contest/mark/test_contest/1", headers=self.auth_header)
+    #         self.assertEqual(response.status_code, 200)
+
+    #         response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
+    #         works_read = response.get_json()
+    #         print("problem")
+    #         print(works_read)
+    #         self.assertEqual(len(works_read["readbooks"]), 1)
+
+    #         response = self.app.get('/contest/test_contest/deadline')
+    #         deadline = json.loads(response.get_json())
+    #         self.assertEqual(deadline["complete"], "False")
+
+    #     finally:
+    #         # Cleanup after test
+    #         cursor.execute("DELETE FROM contest_participants WHERE contest_name = ?", ("test_contest",))
+    #         cursor.execute("DELETE FROM contest_books WHERE contest_name = ?", ("test_contest",))
+    #         cursor.execute("DELETE FROM contests WHERE contest_name = ?", ("test_contest",))
+    #         conn.commit()
+    #         conn.close()
 
     # ChatGPT used to generate this test. Validated and edited by Connor.abs
     # "Generate a test for followers in the style of our shelves test"
@@ -412,10 +497,13 @@ class ReviewTestCase(unittest.TestCase):
         # Check user1's following list
         response = self.app.get('/test/following')
         self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue(isinstance(data, list))
+        self.assertTrue(len(data) <= 5)
+        
         following = response.get_json()
         print("Updated following list for test:", following)
         self.assertTrue(any(f['username'] == "testuser2" for f in following))
-
 
         # Attempt to unfollow testuser2 from test user (just in case it already exists)
         self.app.delete('/unfollow/testuser2', headers=self.auth_header)
@@ -431,85 +519,81 @@ class ReviewTestCase(unittest.TestCase):
         print("----------------------------------\n")
 
 
-
-
-
-
-    # def test_book_search(self):
-    #     # Test with general query parameter
-    #     response = self.app.get('/search?q=harry+potter&limit=5')
-    #     self.assertEqual(response.status_code, 200)
-    #     data = response.get_json()
-    #     self.assertTrue(isinstance(data, list))
-    #     self.assertTrue(len(data) > 0)
+    def test_book_search(self):
+        # Test with general query parameter
+        response = self.app.get('/search?q=harry+potter&limit=5')
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue(isinstance(data, list))
+        self.assertTrue(len(data) > 0)
         
-    #     # Validate fields in first result
-    #     first_book = data[0]
-    #     self.assertTrue('title' in first_book)
-    #     self.assertTrue('author' in first_book)
-    #     self.assertTrue('work_id' in first_book)
-    #     self.assertTrue('description' in first_book)
-    #     self.assertTrue('img_S' in first_book)
-    #     self.assertTrue('img_M' in first_book)
-    #     self.assertTrue('img_L' in first_book)
+        # Validate fields in first result
+        first_book = data[0]
+        self.assertTrue('title' in first_book)
+        self.assertTrue('author' in first_book)
+        self.assertTrue('work_id' in first_book)
+        self.assertTrue('description' in first_book)
+        self.assertTrue('img_S' in first_book)
+        self.assertTrue('img_M' in first_book)
+        self.assertTrue('img_L' in first_book)
         
-    #     # Test with title parameter
-    #     response = self.app.get('/search?title=Lord+of+the+Rings&limit=5')
-    #     self.assertEqual(response.status_code, 200)
-    #     data = response.get_json()
-    #     self.assertTrue(isinstance(data, list))
-    #     self.assertTrue(len(data) > 0)
+        # Test with title parameter
+        response = self.app.get('/search?title=Lord+of+the+Rings&limit=5')
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue(isinstance(data, list))
+        self.assertTrue(len(data) > 0)
         
-    #     # Test with author parameter
-    #     response = self.app.get('/search?author=J.K.+Rowling&limit=5')
-    #     self.assertEqual(response.status_code, 200)
-    #     data = response.get_json()
-    #     self.assertTrue(isinstance(data, list))
+        # Test with author parameter
+        response = self.app.get('/search?author=J.K.+Rowling&limit=5')
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue(isinstance(data, list))
         
-    #     # Test with limit parameter
-    #     response = self.app.get('/search?q=fantasy&limit=5')
-    #     self.assertEqual(response.status_code, 200)
-    #     data = response.get_json()
-    #     self.assertTrue(isinstance(data, list))
-    #     self.assertTrue(len(data) <= 5)
+        # Test with limit parameter
+        response = self.app.get('/search?q=fantasy&limit=5')
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue(isinstance(data, list))
+        self.assertTrue(len(data) <= 5)
         
-    #     # Test invalid/missing parameters
-    #     response = self.app.get('/search')
-    #     self.assertEqual(response.status_code, 400)
-    #     data = response.get_json()
-    #     self.assertTrue('error' in data)
-    #     self.assertEqual(data['error'], 'Missing search parameter')
+        # Test invalid/missing parameters
+        response = self.app.get('/search')
+        self.assertEqual(response.status_code, 400)
+        data = response.get_json()
+        self.assertTrue('error' in data)
+        self.assertEqual(data['error'], 'Missing search parameter')
         
-    # def test_book(self):        
-    #     # Test with valid work ID
-    #     work_id = "OL45804W"  # A known work ID
-    #     response = self.app.get(f'/book/{work_id}')
-    #     self.assertEqual(response.status_code, 200)
-    #     data = response.get_json()
-    #     # check for accurate title field
-    #     self.assertTrue('title' in data)
-    #     self.assertEqual(data['title'], 'Fantastic Mr Fox')  # Example title
-    #     # Check of accurate author field
-    #     self.assertTrue('author' in data)
-    #     self.assertEqual(data['author'], 'Roald Dahl')  # Example title
-    #     # Check of work_id field
-    #     self.assertTrue('work_id' in data)
-    #     self.assertEqual(data['work_id'], work_id)
-    #     # Check of description field
-    #     self.assertTrue('description' in data)
-    #     self.assertTrue(len(data['description']) > 0)
-    #     # Check for image url fields
-    #     self.assertTrue('img_L' in data)
-    #     self.assertTrue('img_S' in data)
-    #     self.assertTrue('img_M' in data)
+    def test_book(self):        
+        # Test with valid work ID
+        work_id = "OL45804W"  # A known work ID
+        response = self.app.get(f'/book/{work_id}')
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        # check for accurate title field
+        self.assertTrue('title' in data)
+        self.assertEqual(data['title'], 'Fantastic Mr Fox')  # Example title
+        # Check of accurate author field
+        self.assertTrue('author' in data)
+        self.assertEqual(data['author'], 'Roald Dahl')  # Example title
+        # Check of work_id field
+        self.assertTrue('work_id' in data)
+        self.assertEqual(data['work_id'], work_id)
+        # Check of description field
+        self.assertTrue('description' in data)
+        self.assertTrue(len(data['description']) > 0)
+        # Check for image url fields
+        self.assertTrue('img_L' in data)
+        self.assertTrue('img_S' in data)
+        self.assertTrue('img_M' in data)
         
-    #     # Test with invalid work ID - API still returns 200 with available fields
-    #     bad_id = "InvalidWorkID"
-    #     response = self.app.get(f'/book/{bad_id}')
-    #     self.assertEqual(response.status_code, 200)
-    #     data = response.get_json()
-    #     self.assertTrue('error' in data)
-    #     self.assertEqual(data['error'], '404 Client Error: Not Found for url: https://openlibrary.org/works/InvalidWorkID.json')
+        # Test with invalid work ID - API still returns 200 with available fields
+        bad_id = "InvalidWorkID"
+        response = self.app.get(f'/book/{bad_id}')
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue('error' in data)
+        self.assertEqual(data['error'], '404 Client Error: Not Found for url: https://openlibrary.org/works/InvalidWorkID.json')
         
 
 
