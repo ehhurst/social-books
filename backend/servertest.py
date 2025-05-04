@@ -27,15 +27,6 @@ if "auth" not in app.blueprints:
 # NOTE: You can run this with python3 -m unittest servertest.py
 # Ask Connor for any clarification
 class ReviewTestCase(unittest.TestCase):
-    # def setUp(self):
-    #     self.app = app.test_client()  # Create a test client for the app
-    #     self.test_user = {
-    #         "username" : "test",
-    #         "password" : "12345"
-    #     }
-        
-    #     self.app.post("/auth/register", json=self.test_user)
-
     def setUp(self):
         self.app = app.test_client()
         self.test_user = {
@@ -153,33 +144,32 @@ class ReviewTestCase(unittest.TestCase):
     def test_shelves(self):
         print("Test shelf functionality")
 
-        # clean up: 
-        # response = self.app.delete('/shelf/TEST_SHELF', headers=self.auth_header)
-        # self.assertEqual(response.status_code, 200) # deleted - supposedly
-        # response = self.app.delete('/shelf/TEST_SHELF_2', headers=self.auth_header)
-        # self.assertEqual(response.status_code, 200) # deleted - supposedly
+        # PRE TEST CLEANUP: 
+        self.app.delete('/shelf/TEST_SHELF', headers=self.auth_header)
+        self.app.delete('/shelf/TEST_SHELF_2', headers=self.auth_header)
 
         # get nothing
-        response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
+        response = self.app.get('/shelf/test/TEST_SHELF', headers=self.auth_header)
         print(response.get_json())
         self.assertEqual(response.status_code, 400)
 
         # add shelves
-        response = self.app.post('/shelf/TEST_SHELF', headers=self.auth_header)
+        response = self.app.post('/shelf/', headers=self.auth_header, json={"shelf_name": "TEST_SHELF"})
         self.assertEqual(response.status_code, 201)
-        response = self.app.post('/shelf/TEST_SHELF_2', headers=self.auth_header)
+        response = self.app.post('/shelf/', headers=self.auth_header, json={"shelf_name": "TEST_SHELF_2"})
         self.assertEqual(response.status_code, 201)
-        response = self.app.post('/shelf/TEST_SHELF_2', headers=self.auth_header)
+        response = self.app.post('/shelf/', headers=self.auth_header, json={"shelf_name": "TEST_SHELF_2"})
         self.assertEqual(response.status_code, 400)
 
+
         # get empty
-        response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
+        response = self.app.get('/shelf/test/TEST_SHELF', headers=self.auth_header)
         data_shelf = response.get_json()
         print("get empty: " + str(data_shelf))
         self.assertTrue(len(data_shelf) == 2)
 
         # get user's shelves
-        response = self.app.get('/shelf', headers=self.auth_header)
+        response = self.app.get('/shelf/test', headers=self.auth_header)
         data_shelves = response.get_json()
         print(len(data_shelves)) # eyeball it
         self.assertTrue(len(data_shelves) == 2) # 2 shelves
@@ -191,21 +181,28 @@ class ReviewTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 201)
 
         # test get shelf
-        response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
+        response = self.app.get('/shelf/test/TEST_SHELF', headers=self.auth_header)
         full_shelf = response.get_json()
         print("full shelf: " + str(full_shelf))
         self.assertTrue(str(full_shelf) == "[{'shelf_name': 'TEST_SHELF'}, {'books': [{'work_id': '777'}, {'work_id': '999'}]}]")
 
-        # unshelve book 777 and 999
+        # unshelve book 777
         response = self.app.delete('/shelf/TEST_SHELF/777', headers=self.auth_header)
         self.assertEqual(response.status_code, 200) # deleted - supposedly
+
+        response = self.app.get('/shelf/test/TEST_SHELF', headers=self.auth_header)
+        modified_shelf = response.get_json()
+        print("modified shelf: " + str(modified_shelf))
+        self.assertTrue(str(modified_shelf) == "[{'shelf_name': 'TEST_SHELF'}, {'books': [{'work_id': '999'}]}]")
+
+        # unshelve 999
         response = self.app.delete('/shelf/TEST_SHELF/999', headers=self.auth_header)
         self.assertEqual(response.status_code, 200) # deleted - supposedly
 
         # get empty shelf
-        response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
+        response = self.app.get('/shelf/test/TEST_SHELF', headers=self.auth_header)
         data_shelf = response.get_json()
-        print(data_shelf)
+        print("empty shelf: " + str(data_shelf))
         self.assertTrue(len(data_shelf) == 2) # empty length is 2
 
         # delete both shelves
@@ -215,17 +212,17 @@ class ReviewTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200) # deleted - supposedly
 
         # get empty shelves
-        response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
+        response = self.app.get('/shelf/test/TEST_SHELF', headers=self.auth_header)
         self.assertEqual(response.status_code, 400)
-        response = self.app.get('/shelf/TEST_SHELF_2', headers=self.auth_header)
+        response = self.app.get('/shelf/test/TEST_SHELF_2', headers=self.auth_header)
         self.assertEqual(response.status_code, 400)
 
         # get user's shelves
-        response = self.app.get('/shelf', headers=self.auth_header)
+        response = self.app.get('/shelf/test', headers=self.auth_header)
         data_shelves = response.get_json()
-        print(len(data_shelves)) # eyeball it
-        self.assertTrue(len(data_shelves) == 0) # 2 shelves
 
+        print("all user shelves deleted. length: " + str(len(data_shelves))) # eyeball it
+        self.assertTrue(len(data_shelves) == 0) # all shelves deleted
         print("PASS SHELVES")
         print("----------------------------------\n")
 
@@ -371,9 +368,9 @@ class ReviewTestCase(unittest.TestCase):
         data = response.get_json()
         self.assertTrue(len(data) > 0)
 
-    # Contest testing
+# Contest testing
     def test_contests(self):
-        conn = db_connect(DATABASE)
+        conn = db_connect()
         cursor = conn.cursor()
         
         try:
@@ -391,29 +388,6 @@ class ReviewTestCase(unittest.TestCase):
             }
             
             response = self.app.post("/contest/create", json=payload, headers=self.auth_header)
-
-            # # Insert a test contest
-            # cursor.execute("""
-            #     INSERT INTO contests (contest_name, book_count, end_date)
-            #     VALUES (?, ?, ?)
-            # """, ("test_contest", 1, "2050-01-01"))
-
-            # # Add contest books
-            # cursor.execute("""
-            #     INSERT INTO contest_books (contest_name, work_id)
-            #     VALUES (?, ?)
-            # """, ("test_contest", "1"))
-            # cursor.execute("""
-            #     INSERT INTO contest_books (contest_name, work_id)
-            #     VALUES (?, ?)
-            # """, ("test_contest", "2"))
-
-            # # Add participant
-            # cursor.execute("""
-            #     INSERT INTO contest_participants (contest_name, username, books_read, perm_lvl)
-            #     VALUES (?, ?, ?, ?)
-            # """, ("test_contest", "test", 0, 0))
-            # conn.commit()
 
             # API tests
             response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
@@ -470,7 +444,7 @@ class ReviewTestCase(unittest.TestCase):
             cursor.execute("DELETE FROM contest_books_read WHERE contest_name = ?", ("test_contest",))
             conn.commit()
             conn.close()
-
+            
     # ChatGPT used to generate this test. Validated and edited by Connor.abs
     # "Generate a test for followers in the style of our shelves test"
     def test_followers(self):
@@ -510,35 +484,35 @@ class ReviewTestCase(unittest.TestCase):
         # Ensure user2 is initially not followed by user1
         response = self.app.get('/testuser2/followers')
         self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        self.assertTrue(isinstance(data, list))
-        self.assertTrue(len(data) > 0)
-        
-        # Validate fields in first result
-        first_book = data[0]
-        self.assertTrue('title' in first_book)
-        self.assertTrue('author' in first_book)
-        self.assertTrue('work_id' in first_book)
-        self.assertTrue('description' in first_book)
-        self.assertTrue('img_S' in first_book)
-        self.assertTrue('img_M' in first_book)
-        self.assertTrue('img_L' in first_book)
-        
-        # Test with title parameter
-        response = self.app.get('/search?title=Lord+of+the+Rings&limit=5')
+        followers = response.get_json()
+        print("Initial followers of testuser2:", followers)
+        self.assertFalse(any(f['username'] == self.test_user["username"] for f in followers))
+
+        # Ensure user1 is not following anyone
+        response = self.app.get('/test/following')
         self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        self.assertTrue(isinstance(data, list))
-        self.assertTrue(len(data) > 0)
-        
-        # Test with author parameter
-        response = self.app.get('/search?author=J.K.+Rowling&limit=5')
+        following = response.get_json()
+        print("Initial following list for test:", following)
+        self.assertFalse(any(f['username'] == "testuser2" for f in following))
+
+        # User1 follows user2
+        response = self.app.post('/follow', headers=self.auth_header, json={"username": "testuser2"})
+        self.assertEqual(response.status_code, 201)
+        print("Follow response:", response.get_json())
+
+        # User1 tries to follow again (should fail)
+        response = self.app.post('/follow', headers=self.auth_header, json={"username": "testuser2"})
+        self.assertEqual(response.status_code, 500) # 500 because it violates primary key
+
+        # Check user2's followers again (should include "test")
+        response = self.app.get('/testuser2/followers')
         self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        self.assertTrue(isinstance(data, list))
-        
-        # Test with limit parameter
-        response = self.app.get('/search?q=fantasy&limit=5')
+        followers = response.get_json()
+        print("Updated followers of testuser2:", followers)
+        self.assertTrue(any(f['username'] == "test" for f in followers))
+
+        # Check user1's following list
+        response = self.app.get('/test/following')
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
         self.assertTrue(isinstance(data, list))
