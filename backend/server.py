@@ -58,31 +58,30 @@ def search_books():
     title = request.args.get('title')
     author = request.args.get('author')
     subject = request.args.get('subject')
-    users = request.args.get('accounts')
-    contests = request.args.get('contests')
-    reviews = request.args.get('reviews')
+    # users = request.args.get('accounts')
+    # contests = request.args.get('contests')
+    # reviews = request.args.get('reviews')
     limit = request.args.get('limit')
-    print(users)
 
-    if not (query or title or author or subject or users or contests or reviews):
+    if not (query or title or author or subject):
         return jsonify({'error': 'Missing search parameter'}), 400
 
     # Use the fetch_books_from_api function to get the search results
     if (query or title or author or subject):
         books = fetch_books_from_api(query=query, title=title, author=author, subject=subject, limit=limit)
         return jsonify(books)
-    if (users):
-        print('here')
-        result = fetch_users(users)
-        print(result)
-        return jsonify(result)
-    if (contests):
-        result = fetch_contests(contests)
-        return jsonify(result)
-    if (reviews):
-        result = fetch_reviews(reviews)
-        print("reviews: ", result)
-        return jsonify(result)
+    # if (users):
+    #     print('here')
+    #     result = fetch_users(users)
+    #     print(result)
+    #     return jsonify(result)
+    # if (contests):
+    #     result = fetch_contests(contests)
+    #     return jsonify(result)
+    # if (reviews):
+    #     result = fetch_reviews(reviews)
+    #     print("reviews: ", result)
+    #     return jsonify(result)
 
 
     
@@ -103,7 +102,7 @@ def db_connect():
 
 
 
-# gets all user data for the reader profile page (only currently returning the username)
+# gets all user data for the reader profile page 
 @app.route("/user", methods=["GET"])
 @jwt_required()
 def return_user_data():
@@ -142,32 +141,32 @@ def return_user_data():
 # ?
 # ?
 # ?
-@app.route("/users/add/<string:username>", methods=["POST"])
-def add_user(username):
-    """ Adds a user to the database """
+# @app.route("/users/add/<string:username>", methods=["POST"])
+# def add_user(username):
+#     """ Adds a user to the database """
 
-    if not username:
-        return jsonify({"error": "no username given"}), 400 #BAD REQUEST
+#     if not username:
+#         return jsonify({"error": "no username given"}), 400 #BAD REQUEST
     
-    conn = db_connect()
-    cursor = conn.cursor()
+#     conn = db_connect()
+#     cursor = conn.cursor()
 
-    # Tries to insert, if a user_id already exists sqlite3 should throw an integrity error
-    # Later on we want to change this from an error to some sort of front-end behavior
-    # That's for further on this week
-    try:
-        query = "INSERT INTO users (username) VALUES (?)"
-        cursor.execute(query, (username,))
-        conn.commit()
-    except sqlite3.IntegrityError:
-        conn.close()
-        return jsonify({"error": f"user {username} already exists"}), 409 #CONFLICT
+#     # Tries to insert, if a user_id already exists sqlite3 should throw an integrity error
+#     # Later on we want to change this from an error to some sort of front-end behavior
+#     # That's for further on this week
+#     try:
+#         query = "INSERT INTO users (username) VALUES (?)"
+#         cursor.execute(query, (username,))
+#         conn.commit()
+#     except sqlite3.IntegrityError:
+#         conn.close()
+#         return jsonify({"error": f"user {username} already exists"}), 409 #CONFLICT
     
-    conn.close()
+#     conn.close()
 
-    return jsonify({"message": f"user {username} added successfully"}), 201 #CREATED
+#     return jsonify({"message": f"user {username} added successfully"}), 201 #CREATED
 
-#  ChatGPT generated: generate a function for unfollowing
+
 @app.route("/users/delete", methods=["DELETE"])
 @jwt_required()
 def delete_user():
@@ -201,7 +200,6 @@ def delete_user():
 
 
 
-# NOTE: deleted the duplicate delete user method which was left over from the "reader_profiles" version
 
 @app.route("/goals", methods=["PUT"])
 @jwt_required()
@@ -512,7 +510,7 @@ def add_follower():
         conn.close()
         return jsonify({"error":f"user {user} not found, not updating followers"}), 400 #BAD REQUEST
     
-    user_to_follow = request.json["username"]
+    user_to_follow = request.json
 
     if not user_to_follow:
         conn.close()
@@ -523,7 +521,6 @@ def add_follower():
         cursor.execute(query, (current_user, user_to_follow,))
         conn.commit()
     except sqlite3.Error as error:
-        conn.close()
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
     
     conn.close()
@@ -757,7 +754,7 @@ def contest_checklist(contest_name):
     cursor = conn.cursor()
 
     find_user_query = "SELECT username FROM users WHERE username = ?" # replaced profile_id with uesrname
-    competitor = cursor.execute(find_user_query, (current_user,)).fetchone()["username"]
+    competitor = cursor.execute(find_user_query, (current_user,)).fetchone()
 
     if not competitor:
         conn.close()
@@ -771,6 +768,7 @@ def contest_checklist(contest_name):
     print("readbooks", readbooks)
 
     conn.close()
+
     return jsonify({"readbooks":readbooks}), 200 # OK
 
 @app.route("/contest/mark/<string:contest_name>/<string:work_id>", methods=["POST"])
@@ -812,10 +810,9 @@ def contest_markdone(contest_name, work_id):
         cursor.execute(query, (competitor, contest_name, work_id))
         conn.commit()
     except sqlite3.Error as e:
-        print("PROBLEM: " + str(e))
         return jsonify({"error":f"{e}"}), 500 #INTERNAL SERVER ERROR
     
-    conn.close()
+    conn.close
     return jsonify({"message":f"Work {work_id} marked as done"}), 200 #OK
 
 #@CONTESTS GET CONTESTS LIST
@@ -1012,16 +1009,15 @@ def fetch_contests(searchTerm):
 
 
 
-
 # Creates an empty shelf from a new name
 # Returns an error if a shelf with that name already exists
-@app.route("/shelf/", methods=['POST'])
+@app.route("/shelf", methods=['POST'])
 @jwt_required()
 def create_shelf():
     current_user = get_jwt_identity()
     token = request.headers.get("Authorization")
 
-    shelf_name = request.json.get("shelf_name")
+    shelf_name = request.json.get("shelfName")
     print(request.json)
 
     if not token:
@@ -1036,7 +1032,7 @@ def create_shelf():
 
     if not user:
         conn.close()
-        return jsonify({"error":f"user {current_user} not found, no shelf update"}), 400 #BAD REQUEST
+        return jsonify({"error":f"user {current_user} not found, no shelf update"}), 404 #BAD REQUEST
 
     find_shelf_query = "SELECT shelf_name FROM user_shelves WHERE username = ? AND shelf_name = ?"
     shelf = cursor.execute(find_shelf_query, (current_user, shelf_name)).fetchone()
@@ -1059,11 +1055,14 @@ def create_shelf():
 
 
 # add a book to a user's shelf
-@app.route("/shelf/<string:shelf_name>/<string:work_id>", methods=['POST'])
+## CHANGED - post methods require data sent in the request itself
+@app.route("/shelf/<string:shelf_name>", methods=['POST'])
 @jwt_required()
-def shelve_book(shelf_name, work_id):
+def shelve_book(shelf_name):
     current_user = get_jwt_identity()
     token = request.headers.get("Authorization")
+    work_id = request.json.get("work_id")
+
 
     if not token:
         return jsonify({"error": "Missing authorization token"}), 401
@@ -1098,6 +1097,8 @@ def unshelve_book(shelf_name, work_id):
 
     if not token:
         return jsonify({"error": "Missing authorization token"}), 401
+    
+    print(request)
 
     conn = db_connect()
     cursor = conn.cursor()
@@ -1154,14 +1155,11 @@ def delete_shelf(shelf_name):
     return jsonify({"message": "Shelf deleted successfully", "user_id" : current_user, "shelf name" : shelf_name}), 200 #OK
 
 
+# NOTE: test this
 # Get all books in current user's specific shelf
 @app.route("/shelf/<string:username>/<string:shelf_name>", methods=['GET'])
 def get_shelf(username, shelf_name):
     current_user = username
-    token = request.headers.get("Authorization")
-
-    if not token:
-        return jsonify({"error": "Missing authorization token"}), 401
 
     conn = db_connect()
     cursor = conn.cursor()
@@ -1180,12 +1178,13 @@ def get_shelf(username, shelf_name):
     zipped_books = [dict(zip(columns, book)) for book in books]
 
     # NOTE : circular logic. you're using the input
-    final = [{"shelf_name" : shelf_name}]
+    final = []
     final += [{"books" : zipped_books}]
 
     conn.close()
-    print("finsl" , final)
-
+    print("final" , final)
+    ## ERROR - saying final is not JSON serializable. Also not returning book items, only returns 
+    #work id's in a list
     if final:
         return jsonify(final)
 
@@ -1193,10 +1192,6 @@ def get_shelf(username, shelf_name):
 @app.route("/shelf/<string:username>", methods=['GET'])
 def get_user_shelves(username):
     current_user = username
-    token = request.headers.get("Authorization")
-
-    if not token:
-        return jsonify({"error": "Missing authorization token"}), 401
 
     conn = db_connect()
     cursor = conn.cursor()
@@ -1211,19 +1206,6 @@ def get_user_shelves(username):
     print(zipped_shelves)
 
     return jsonify(zipped_shelves)
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 if __name__ == '__main__':

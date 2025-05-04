@@ -3,6 +3,7 @@ import { BookItem, Review, Reviews, User } from "../types";
 import axios from "../../axiosConfig"
 import { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
+import { useCompetitions } from "../Contexts/CompetitionContext";
 
 export function getBook(uri:string) {
     const [data, setData] = useState<BookItem>();
@@ -67,7 +68,6 @@ export function getReviewsForUser(uri:string) {
               },
         })
         .then((response) => {
-            console.log(response.data)
             setReviewData(response.data)})
         .catch((error) => {
             (error.response.status == 401) ? nav('/login') : 
@@ -94,7 +94,6 @@ export function getReviewsForBook(uri:string) {
             headers: { "Content-Type": "application/json" }
         })
         .then((response) => {
-            console.log(response.data)
             setReviewData(response.data)})
         .catch((error) => {
             console.error(error);
@@ -157,3 +156,42 @@ export function getGoal(uri:string) {
 
     return {goal, loading, error}
 }
+
+interface Participant {
+    username: string;
+    completed_books: BookItem[];
+}
+interface Competition {
+    contest_name: string;
+    book_count: number;
+    end_date: string;
+    participants: Participant[];
+    book_list: BookItem[];
+}
+
+interface FoundParticipant {
+    participant: Participant;
+    competition: Competition;
+}
+
+
+export const usefetchParticipant = (targetUsername:string):FoundParticipant | undefined => {
+    const {competitions} = useCompetitions();
+    for (const competition of competitions) {
+        const participant = competition.participants.find((competition) => competition.username === targetUsername)
+   
+    if (participant){
+        return {participant, competition};
+    }
+    return undefined;
+     };
+};
+
+export const useCompetitionsForParticipant = (targetUser:string ):FoundParticipant[] => {
+    const {competitions} = useCompetitions();
+
+    return competitions.flatMap((competition) => {
+        const participant = competition.participants.find((person) => person.username === targetUser);
+        return participant ? [{ participant, competition}] : [];
+    });
+};
