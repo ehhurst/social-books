@@ -167,7 +167,7 @@ def add_user(username):
 
     return jsonify({"message": f"user {username} added successfully"}), 201 #CREATED
 
-#  ChatGPT generated: generate a function for unfollowing
+
 @app.route("/users/delete", methods=["DELETE"])
 @jwt_required()
 def delete_user():
@@ -502,7 +502,7 @@ def add_follower():
         conn.close()
         return jsonify({"error":f"user {user} not found, not updating followers"}), 400 #BAD REQUEST
     
-    user_to_follow = request.json["username"]
+    user_to_follow = request.json
 
     if not user_to_follow:
         conn.close()
@@ -513,7 +513,6 @@ def add_follower():
         cursor.execute(query, (current_user, user_to_follow,))
         conn.commit()
     except sqlite3.Error as error:
-        conn.close()
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
     
     conn.close()
@@ -601,43 +600,6 @@ def get_following(username):
     conn.close()
 
     return jsonify(result)
-
-
-@app.route("/unfollow/<string:username>", methods=["DELETE"])
-@jwt_required()
-def unfollow_user(username):
-    """Removes a following relationship between the current user and the target user."""
-    current_user = get_jwt_identity()
-    token = request.headers.get("Authorization")
-
-    if not token:
-        return jsonify({"error": "Missing authorization token"}), 401
-
-    conn = db_connect()
-    cursor = conn.cursor()
-
-    existing = cursor.execute(
-        "SELECT 1 FROM followers WHERE follower_username = ? AND follows_username = ?",
-        (current_user, username)
-    ).fetchone()
-
-    if not existing:
-        conn.close()
-        return jsonify({"error": f"You are not following {username}"}), 400
-
-    try:
-        cursor.execute(
-            "DELETE FROM followers WHERE follower_username = ? AND follows_username = ?",
-            (current_user, username)
-        )
-        conn.commit()
-    except sqlite3.Error as error:
-        conn.close()
-        return jsonify({"error": str(error)}), 500
-
-    conn.close()
-    return jsonify({"message": f"Unfollowed {username} successfully"}), 200
-
 
 @app.route("/contest/create", methods=["POST"])
 @jwt_required()
@@ -742,19 +704,19 @@ def contest_checklist(contest_name):
     cursor = conn.cursor()
 
     find_user_query = "SELECT username FROM users WHERE username = ?" # replaced profile_id with uesrname
-    competitor = cursor.execute(find_user_query, (current_user,)).fetchone()["username"]
+    competitor = cursor.execute(find_user_query, (current_user,)).fetchone()
 
     if not competitor:
         conn.close()
         return jsonify({"error":f"user {current_user} not found, not fetching checklist"}), 400 #BAD REQUEST
     
-
     query = "SELECT work_id FROM contest_books_read WHERE username = ? AND contest_name = ?"
     cursor.execute(query, (competitor, contest_name))
     readbooks = [work_id[0] for work_id in cursor.fetchall()] # Should return just the string out of each tuple in the result...
     # [("workname"), ("workname1"), ...] <-- double check if needed. Should work out the box
 
     conn.close()
+
     return jsonify({"readbooks":readbooks}), 200 # OK
 
 @app.route("/contest/mark/<string:contest_name>/<string:work_id>", methods=["POST"])
@@ -770,11 +732,11 @@ def contest_markdone(contest_name, work_id):
     cursor = conn.cursor()
 
     find_user_query = "SELECT username FROM users WHERE username = ?" # replaced profile_id with uesrname
-    competitor = cursor.execute(find_user_query, (current_user,)).fetchone()["username"]
+    competitor = cursor.execute(find_user_query, (current_user,)).fetchone()
 
     if not competitor:
         conn.close()
-        return jsonify({"error":f"user {current_user} not found, not updating contest books read"}), 400 #BAD REQUEST
+        return jsonify({"error":f"user {current_user} not found, not updating contest books"}), 400 #BAD REQUEST
 
     if not contest_name:
         conn.close()
@@ -791,14 +753,13 @@ def contest_markdone(contest_name, work_id):
         conn.close()
         return jsonify({"error":"Book already read, this should not occur"}), 500 #INTERNAL SERVER ERROR
     
-    query = "INSERT INTO contest_books_read (username, contest_name, work_id) VALUES (?, ?)"
+    query = "INSERT INTO contest_books (username, work_id, contest_name) VALUES (?, ?, ?)"
     try:
-        cursor.execute(query, (competitor, contest_name, work_id))
+        cursor.execute(query, (competitor, work_id, contest_name))
     except sqlite3.Error as e:
-        print("PROBLEM: " + str(e))
         return jsonify({"error":f"{e}"}), 500 #INTERNAL SERVER ERROR
     
-    conn.close()
+    conn.close
     return jsonify({"message":f"Work {work_id} marked as done"}), 200 #OK
 
 #@CONTESTS GET CONTESTS LIST
@@ -834,7 +795,7 @@ def get_contests():
         }
 
         contest_list.append(contest_json)
-    conn.close()
+    
     return jsonify(contest_list), 200 # OK
 
 #@CONTESTS GET CONTEST BOOKS
@@ -857,7 +818,6 @@ def get_books(contest_name):
         book = get_book(work[0])
         book_list.append(book)
         
-    conn.close()
     return jsonify(book_list), 200 # OK
 
 #@CONTEST GET PARTICIPANTS
@@ -893,8 +853,7 @@ def get_participants(contest_name):
             "completed_books" : work_list
         }
         participant_list.append(participant)
-    
-    conn.close()
+        
     return jsonify(participant_list), 200 # OK
 
 def fetch_users(searchTerm):
@@ -959,10 +918,9 @@ def fetch_contests(searchTerm):
 
 
 
-
 # Creates an empty shelf from a new name
 # Returns an error if a shelf with that name already exists
-@app.route("/shelf/", methods=['POST'])
+@app.route("/shelf", methods=['POST'])
 @jwt_required()
 def create_shelf():
     current_user = get_jwt_identity()
@@ -1101,10 +1059,12 @@ def delete_shelf(shelf_name):
     return jsonify({"message": "Shelf deleted successfully", "user_id" : current_user, "shelf name" : shelf_name}), 200 #OK
 
 
+# NOTE: test this
 # Get all books in current user's specific shelf
-@app.route("/shelf/<string:username>/<string:shelf_name>", methods=['GET'])
-def get_shelf(username, shelf_name):
-    current_user = username
+@app.route("/shelf/<string:shelf_name>", methods=['GET'])
+@jwt_required()
+def get_shelf(shelf_name):
+    current_user = get_jwt_identity()
     token = request.headers.get("Authorization")
 
     if not token:
@@ -1137,9 +1097,10 @@ def get_shelf(username, shelf_name):
         return jsonify(final)
 
 
-@app.route("/shelf/<string:username>", methods=['GET'])
-def get_user_shelves(username):
-    current_user = username
+@app.route("/shelf", methods=['GET'])
+@jwt_required()
+def get_user_shelves():
+    current_user = get_jwt_identity()
     token = request.headers.get("Authorization")
 
     if not token:
@@ -1158,19 +1119,6 @@ def get_user_shelves(username):
     print(zipped_shelves)
 
     return jsonify(zipped_shelves)
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 if __name__ == '__main__':
