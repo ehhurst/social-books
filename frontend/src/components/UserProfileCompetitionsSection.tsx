@@ -1,16 +1,19 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useCompetitions } from "../Contexts/CompetitionContext";
 
 
 function CompetitionsSection() {
     const {user} = useParams();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        // get comps this user is participating in
-        // get competitions by this user
-    });
+    const {competitions, loading, error, fetchCompetitions} = useCompetitions();
 
+    // const participant = fetchParticipant();
+
+    useEffect(() => {
+      fetchCompetitions();
+    }, [fetchCompetitions]);
 
 
     return(

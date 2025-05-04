@@ -8,7 +8,6 @@ import { faArrowLeft, faArrowLeftLong, faArrowRight, faArrowRightLong, faLessTha
 import { ListTypes } from "../Reducers/CompetitionBookListReducer";
 import '../assets/css/CompetitionForm.css'
 import axios from "../../axiosConfig";
-import { AuthStore } from "../Contexts/AuthContext";
 import { Bounce, toast } from "react-toastify";
 
 function CompetitionForm() {

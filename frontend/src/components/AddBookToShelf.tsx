@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { ShelfName, User } from "../types";
 import axios from "../../axiosConfig";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import '../assets/css/AddBookToShelf.css'

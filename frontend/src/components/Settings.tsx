@@ -30,8 +30,7 @@ function Settings() {
         }
       }
     
-    
-
+  
     return(
         <div id='settings-container'>
             <h2>Settings</h2>

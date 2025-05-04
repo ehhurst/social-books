@@ -55,7 +55,7 @@ function BookDetailCard(props: {book:BookItem, avgRating:String}) {
 
         const data = props.book.work_id
 
-        axios.post(`/shelf/read-books`, { work_id: data} , {
+        axios.post(`/shelf/Books I've Read`, { work_id: data} , {
             headers: { "Content-Type": "application/json" ,  "Authorization": `Bearer ${token}`}
         })
         .then((response) => {

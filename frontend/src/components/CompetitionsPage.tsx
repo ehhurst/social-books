@@ -12,18 +12,43 @@ function CompetitionsPage() {
   const token = sessionStorage.getItem("access_token");
 
   useEffect(() => {
-    setLoading(true);
-    setError('')
-    
-    axios.get(`/contest/info`).then((response) => {
-      console.log(response.data);
-      setCompetitions(response.data);
-    }).catch((error) => {
-      console.error(error);
-      setError('Error loading book contests. Please try again later.')
+
+    const getCompetitions = async () => {
+      setLoading(true);
+      setError('');
+
+      try {
+        const response = await axios.get('/contest/info');
+        console.log(response.data);
+        setCompetitions(response.data);
+      } catch (error) {
+        console.log("Error loading contests")
+        setError('Error loading book competitions. Please try again later.')
+      } finally {
+        setLoading(false);
+      }
     }
-    ).finally(() => setLoading(false));
+
+    getCompetitions();
   }, []);
+
+  async function joinCompetition(competitionName:string) {
+      setLoading(true);
+      setError('');
+
+      try {
+        const response = await axios.post(`/contest/${competitionName}/add_participant`, {},
+          {headers: { "Authorization": `Bearer ${token}`}}
+        );
+        console.log(response.data);
+        setCompetitions(response.data);
+      } catch (error) {
+        console.log("Error loading contests")
+        setError('Error loading book competitions. Please try again later.')
+      } finally {
+        setLoading(false);
+      }
+  }
 
 
   return(
@@ -46,9 +71,9 @@ function CompetitionsPage() {
               <h3>{competition.contest_name}</h3>
               <p>Organized by {competition.organizer}</p>
             </div>
-            <p>Ends on: {competition.end_date.toString()}</p>
+            <p>Ends: {new Date(competition.end_date).toLocaleDateString()}</p>
             <p>Number of books: {competition.book_count}</p>
-            {token ? ( <button className='secondary'>Join</button>) : (<></>)}
+            {token ? ( <button className='secondary' onClick={() => joinCompetition(competition.contest_name)}>Join</button>) : (<></>)}
           </div>
           </Link>
             
