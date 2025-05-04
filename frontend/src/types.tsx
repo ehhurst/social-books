@@ -120,3 +120,7 @@ export interface ContestParticipant {
     username: string, 
     completed_books: BookItem[]
 }
+
+export type work_ids= {
+    work_id: string
+  }
