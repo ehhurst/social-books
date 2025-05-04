@@ -4,13 +4,13 @@ import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User } from "../types";
 import axios from "../../axiosConfig";
+import '../assets/css/ShelfFormAdd.css';
 
 
 function ShelfFormAdd() {
     const navigate = useNavigate();
     const [shelfName, setShelfName] = useState('');
     const token = sessionStorage.getItem('access_token');
-    const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}")
     const [errorMessage, setErrorMessage] = useState("");
 
     async function handleSubmit(event:FormEvent) {
@@ -41,6 +41,7 @@ function ShelfFormAdd() {
             <form id="create-shelf"
                 method="post"
                 onSubmit={handleSubmit}>
+                    <h2>Create Shelf</h2>
                     <label>Shelf Name: 
                       <input type="text" name="shelf-name" value={shelfName} onChange={(event) => setShelfName(event.target.value)}></input>  
                     </label>
