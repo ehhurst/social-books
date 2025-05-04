@@ -368,65 +368,82 @@ class ReviewTestCase(unittest.TestCase):
         data = response.get_json()
         self.assertTrue(len(data) > 0)
 
-    # def test_contests(self):
-    #     conn = db_connect()
-    #     cursor = conn.cursor()
+    # Contest testing
+    def test_contests(self):
+        conn = db_connect()
+        cursor = conn.cursor()
+        
+        try:
+            # Cleanup *before* inserting, in case of prior leftover data
+            cursor.execute("DELETE FROM contest_participants WHERE contest_name = ?", ("test_contest",))
+            cursor.execute("DELETE FROM contest_books WHERE contest_name = ?", ("test_contest",))
+            cursor.execute("DELETE FROM contests WHERE contest_name = ?", ("test_contest",))
+            conn.commit()
+            
+            # Testing contest creation
+            payload = {
+            "contest_name": "test_contest",
+            "work_ids": ["OL731737W", "OL262384W", "OL45804W"],  # Example work IDs
+            "end_date": "2050-01-01"
+            }
+            
+            response = self.app.post("/contest/create", json=payload, headers=self.auth_header)
 
-    #     try:
-    #         # Cleanup *before* inserting, in case of prior leftover data
-    #         cursor.execute("DELETE FROM contest_participants WHERE contest_name = ?", ("test_contest",))
-    #         cursor.execute("DELETE FROM contest_books WHERE contest_name = ?", ("test_contest",))
-    #         cursor.execute("DELETE FROM contests WHERE contest_name = ?", ("test_contest",))
-    #         conn.commit()
+            # API tests
+            response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
+            empty_works_read = response.get_json()
+            print("Test")
+            self.assertEqual(len(empty_works_read["readbooks"]), 0)
 
-    #         # Insert a test contest
-    #         cursor.execute("""
-    #             INSERT INTO contests (contest_name, book_count, end_date)
-    #             VALUES (?, ?, ?)
-    #         """, ("test_contest", 1, "2050-01-01"))
+            response = self.app.post("/contest/mark/test_contest/OL731737W", headers=self.auth_header)
+            self.assertEqual(response.status_code, 200)
 
-    #         # Add contest books
-    #         cursor.execute("""
-    #             INSERT INTO contest_books (contest_name, work_id)
-    #             VALUES (?, ?)
-    #         """, ("test_contest", "1"))
-    #         cursor.execute("""
-    #             INSERT INTO contest_books (contest_name, work_id)
-    #             VALUES (?, ?)
-    #         """, ("test_contest", "2"))
+            # Get read books for current user
+            response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
+            works_read = response.get_json()
+            self.assertEqual(len(works_read["readbooks"]), 1)
+            
+            # Get deadline for contest
+            response = self.app.get('/contest/test_contest/deadline')
+            deadline = response.get_json()
+            self.assertEqual(deadline["complete"], "True")
+            
+            # Get contest information
+            response = self.app.get("/contest/info")
+            book_list = response.get_json()['contest_list']
+            
+            test_contest = book_list[0]
+            book_count = test_contest['book_count']
+            end_date = test_contest['end_date']
+            organizer = test_contest['organizer']
+            
+            self.assertEqual(book_count, 3)
+            self.assertEqual(end_date, '2050-01-01')
+            self.assertEqual(organizer, "test")
+            
+            # Add participant / get participant
+            cursor.execute("DELETE FROM contest_participants WHERE contest_name = ?", ("test_contest",))
+            conn.commit()
+            
+            response = self.app.post('/contest/test_contest/add_participant', headers=self.auth_header)
+            self.assertEqual(response.status_code, 201)
+                        
+            json_obj = self.app.get("/contest/test_contest/participants").get_json()
+            participant_list = json_obj['participant_list']
+            self.assertTrue(len(participant_list) == 1)
+            
+            json_obj = self.app.get("/contest/test_contest/books").get_json()
+            book_list = json_obj['book_list']
+            self.assertTrue(len(book_list) == 3)
 
-    #         # Add participant
-    #         cursor.execute("""
-    #             INSERT INTO contest_participants (contest_name, username, books_read, perm_lvl)
-    #             VALUES (?, ?, ?, ?)
-    #         """, ("test_contest", "test", 0, 0))
-    #         conn.commit()
-
-    #         # API tests
-    #         response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
-    #         empty_works_read = response.get_json()
-    #         self.assertEqual(len(empty_works_read["readbooks"]), 0)
-
-    #         response = self.app.post("/contest/mark/test_contest/1", headers=self.auth_header)
-    #         self.assertEqual(response.status_code, 200)
-
-    #         response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
-    #         works_read = response.get_json()
-    #         print("problem")
-    #         print(works_read)
-    #         self.assertEqual(len(works_read["readbooks"]), 1)
-
-    #         response = self.app.get('/contest/test_contest/deadline')
-    #         deadline = json.loads(response.get_json())
-    #         self.assertEqual(deadline["complete"], "False")
-
-    #     finally:
-    #         # Cleanup after test
-    #         cursor.execute("DELETE FROM contest_participants WHERE contest_name = ?", ("test_contest",))
-    #         cursor.execute("DELETE FROM contest_books WHERE contest_name = ?", ("test_contest",))
-    #         cursor.execute("DELETE FROM contests WHERE contest_name = ?", ("test_contest",))
-    #         conn.commit()
-    #         conn.close()
+        finally:
+            # Cleanup after test
+            cursor.execute("DELETE FROM contest_participants WHERE contest_name = ?", ("test_contest",))
+            cursor.execute("DELETE FROM contest_books WHERE contest_name = ?", ("test_contest",))
+            cursor.execute("DELETE FROM contests WHERE contest_name = ?", ("test_contest",))
+            cursor.execute("DELETE FROM contest_books_read WHERE contest_name = ?", ("test_contest",))
+            conn.commit()
+            conn.close()
 
     # ChatGPT used to generate this test. Validated and edited by Connor.abs
     # "Generate a test for followers in the style of our shelves test"
