@@ -141,30 +141,30 @@ def return_user_data():
 # ?
 # ?
 # ?
-@app.route("/users/add/<string:username>", methods=["POST"])
-def add_user(username):
-    """ Adds a user to the database """
+# @app.route("/users/add/<string:username>", methods=["POST"])
+# def add_user(username):
+#     """ Adds a user to the database """
 
-    if not username:
-        return jsonify({"error": "no username given"}), 400 #BAD REQUEST
+#     if not username:
+#         return jsonify({"error": "no username given"}), 400 #BAD REQUEST
     
-    conn = db_connect()
-    cursor = conn.cursor()
+#     conn = db_connect()
+#     cursor = conn.cursor()
 
-    # Tries to insert, if a user_id already exists sqlite3 should throw an integrity error
-    # Later on we want to change this from an error to some sort of front-end behavior
-    # That's for further on this week
-    try:
-        query = "INSERT INTO users (username) VALUES (?)"
-        cursor.execute(query, (username,))
-        conn.commit()
-    except sqlite3.IntegrityError:
-        conn.close()
-        return jsonify({"error": f"user {username} already exists"}), 409 #CONFLICT
+#     # Tries to insert, if a user_id already exists sqlite3 should throw an integrity error
+#     # Later on we want to change this from an error to some sort of front-end behavior
+#     # That's for further on this week
+#     try:
+#         query = "INSERT INTO users (username) VALUES (?)"
+#         cursor.execute(query, (username,))
+#         conn.commit()
+#     except sqlite3.IntegrityError:
+#         conn.close()
+#         return jsonify({"error": f"user {username} already exists"}), 409 #CONFLICT
     
-    conn.close()
+#     conn.close()
 
-    return jsonify({"message": f"user {username} added successfully"}), 201 #CREATED
+#     return jsonify({"message": f"user {username} added successfully"}), 201 #CREATED
 
 
 @app.route("/users/delete", methods=["DELETE"])
@@ -922,7 +922,7 @@ def fetch_contests(searchTerm):
 
 # Creates an empty shelf from a new name
 # Returns an error if a shelf with that name already exists
-@app.route("/shelf/", methods=['POST'])
+@app.route("/shelf", methods=['POST'])
 @jwt_required()
 def create_shelf():
     current_user = get_jwt_identity()
@@ -970,11 +970,10 @@ def create_shelf():
 @app.route("/shelf/<string:shelf_name>", methods=['POST'])
 @jwt_required()
 def shelve_book(shelf_name):
-    print("here")
     current_user = get_jwt_identity()
     token = request.headers.get("Authorization")
     work_id = request.json.get("work_id")
-    print(work_id)
+
 
     if not token:
         return jsonify({"error": "Missing authorization token"}), 401
@@ -1009,6 +1008,8 @@ def unshelve_book(shelf_name, work_id):
 
     if not token:
         return jsonify({"error": "Missing authorization token"}), 401
+    
+    print(request)
 
     conn = db_connect()
     cursor = conn.cursor()
@@ -1069,10 +1070,6 @@ def delete_shelf(shelf_name):
 @app.route("/shelf/<string:username>/<string:shelf_name>", methods=['GET'])
 def get_shelf(username, shelf_name):
     current_user = username
-    token = request.headers.get("Authorization")
-
-    if not token:
-        return jsonify({"error": "Missing authorization token"}), 401
 
     conn = db_connect()
     cursor = conn.cursor()
@@ -1105,10 +1102,6 @@ def get_shelf(username, shelf_name):
 @app.route("/shelf/<string:username>", methods=['GET'])
 def get_user_shelves(username):
     current_user = username
-    token = request.headers.get("Authorization")
-
-    if not token:
-        return jsonify({"error": "Missing authorization token"}), 401
 
     conn = db_connect()
     cursor = conn.cursor()

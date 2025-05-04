@@ -1,10 +1,10 @@
 import { FormEvent, useContext, useEffect, useState } from "react";
 import '../assets/css/UserProfile.css'
 import axios, { AxiosError } from "axios";
-import {BookItem, ShelfItem, User } from "../types";
-import { useNavigate } from "react-router-dom";
+import {BookItem, ShelfItem, ShelfName, User } from "../types";
+import { useNavigate, useParams } from "react-router-dom";
 import YearlyProgressChart from "./YearlyProgressChart";
-import LibraryShelfList from "./ShelfBookList";
+
 
 
 function UserProfile({library}: {library: ShelfItem[]}) {
@@ -14,6 +14,31 @@ function UserProfile({library}: {library: ShelfItem[]}) {
     const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}");
     console.log(library)
     console.log(library.length)
+
+    var {user} = useParams(); // get which user's profile is loaded
+    const [shelves, setShelves] = useState<String[]>([]);
+    const [loading, setLoading] = useState(true); // add loading state
+    const [error, setError] = useState(''); // handle errors gracefully
+
+    // get list of this users' bookshelves to display
+    useEffect(() => {
+        setLoading(true);
+        setError('');
+        console.log("param" , user);
+
+        axios.get(`/shelves/${user}`)
+        .then((response) => {
+            var list:ShelfName[] = response.data
+            const newlist = list.flatMap((item:ShelfName) => item.shelf_name);
+            setShelves(newlist);
+        }
+        ).catch((error) => {
+            console.error("❌ Shelves fetch error:", error);
+            setError("Error loading shelf data. Please try again later.");
+        }).finally(() => {setLoading(false)
+  
+        })
+    }, []);
 
     const initialState:ShelfItem = {shelf_name: '', book_list: []}
     

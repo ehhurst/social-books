@@ -16,16 +16,77 @@ import '../assets/css/Settings.css'
 import UserProfile from "./UserProfile";
 import YearlyProgressChart from "./YearlyProgressChart";
 import UserLibrary from "./UserProfileLibrary";
-import LibraryShelfList from "./ShelfBookList";
 import UserProfileLibrary from "./UserProfileLibrary";
 import { Bounce, toast } from "react-toastify";
 
 type ShelfName= {
   shelf_name:string
 }
-
+type work_ids= {
+  work_id: string
+}
 
 function ReaderProfilePage() {
+
+  var {user} = useParams(); // get which user's profile is loaded
+  const [shelves, setShelves] = useState<String[]>([]);
+  // const [loading, setLoading] = useState(true); // add loading state
+  // const [error, setError] = useState(''); // handle errors gracefully  
+// const findItem = ((array:BookItem[], work_id:string)=> array.find((item) => item.work_id == work_id));
+//   // get list of this users' bookshelves to display
+//   useEffect(() => {
+//       setLoading(true);
+//       setError('');
+//       console.log("param" , user);
+
+//       axios.get(`/shelves/${user}`)
+//       .then((response) => {
+//           var list:ShelfName[] = response.data
+//           const newlist = list.flatMap((item:ShelfName) => item.shelf_name);
+//           setShelves(newlist);
+
+//           newlist.forEach((shelfnm)=> {
+//               axios.get(`/shelf/${user}/${shelfnm}`, {
+//                             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }
+//                         })
+//                         .then((response) => {
+//                             const list:work_ids[]= response.data[0].books
+//                             console.log(list.length)
+//                             bookid_list = (list.flatMap((item:work_ids)=> item.work_id))
+//                             console.log(bookid_list)
+//                             console.log(bookid_list.length)
+
+//                             // get book items in this shelf
+//                             bookid_list.forEach((item) => {
+//                                 axios.get(`/book/${item}`)
+//                                 .then((response) => {
+//                                     // don't display duplicates
+//                                     if(!findItem(bookList, response.data.work_id)) {
+//                                         bookList.push(response.data)
+//                                     }
+//                                 })
+//                                 .catch((error) => {
+//                                     console.log(error);
+//                                     setError('Failed to load liked books. Please try again later.');
+//                                 }).finally(() => {
+//                                     if (bookList.length == bookid_list.length) {
+//                                         setBooks(bookList);
+                                        
+//                                     }
+//                                     setLoading(false);
+//                             })
+//                             });
+//                         });
+//                 })})            
+//         .catch((error) => {
+//             console.error("❌ Book Fetch Error:", error);
+//             setError("Error loading book data. Please try again later.");
+//         }).finally(() => {
+//           localStorage.setItem("shelfNamesList", shelves);
+//     console.log("BOOK LIST: ", books);}
+//     );}, [])
+
+
   const nav = useNavigate();
   const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}")
   const token = sessionStorage.getItem("access_token");
@@ -39,15 +100,23 @@ function ReaderProfilePage() {
   const closeModal = () => setOpen(false);
 
   if(!token || !currentUser.username) {
-    nav('/login')
+    nav('/login');
   }
 
   const message:string = useLocation().state; 
 
 
+  const [books, setBooks] = useState<BookItem[]>([]);
+
+  const [shelfItems, setShelfItems] = useState<BookItem[]>([]);
+  const [hasError, setHasError] = useState(false);
+
+  var bookid_list:string[] = [];
+  var bookList:BookItem[] = [];
+
   let iscurrentUsersProfile = true;
   
-
+    
   //looking at this users profile page vs anothers
   var {user} = useParams();
   let title = 'My';
@@ -69,18 +138,19 @@ const target = iscurrentUsersProfile ? (currentUser.username) : (user)
   var shelvesList:ShelfItem[] = [];
   const [library, setLibrary] = useState<ShelfItem[]>([]) 
   const [readBooks, setReadBooksList] = useState<BookItem[]>([]);
-
-  const yell = () => toast.success('Wow so easy!', {
+  const followSuccessMessage = (name:string) => toast(`Success! You are now following ${name}.`, {
     position: "top-left",
     autoClose: 5000,
     hideProgressBar: false,
-    closeOnClick: true,
+    closeOnClick: false,
     pauseOnHover: true,
     draggable: true,
     progress: undefined,
     theme: "dark",
     transition: Bounce,
     });
+
+
   useEffect(() => {
     
     // list of this users' followers
@@ -100,7 +170,7 @@ const target = iscurrentUsersProfile ? (currentUser.username) : (user)
       axios.get(`${currentUser.username}/goals`
       ).then((response) => {
           response.data === -1 ? setGoal(0) : setGoal(response.data);
-  }).catch((error) => console.log(error)).finally(yell);
+  }).catch((error) => console.log(error));
 
   // list of this user's read books
   axios.get(`/${user}/shelf/read-books/books`, {
@@ -111,44 +181,6 @@ const target = iscurrentUsersProfile ? (currentUser.username) : (user)
       console.error("❌ Book Fetch Error:", error);
       // setError("Error loading book data. Please try again later.");
   });
-
-
-//       axios.get('/shelf', {
-//           headers: { "Authorization": `Bearer ${token}`
-//         }}).then((response) => { console.log(response.data)
-
-//           const shelf_names:string[] = response.data.map((item:ShelfItem) => (item.shelf_name));
-
-         
-//               // get books in the shelves
-//                 if (shelf_names) {
-                  
-//                   for (var i=0; i < shelf_names.length; i++) {
-//                     console.log(`${i} shelf processed`);
-//                       axios.get(`/shelf/${shelf_names[i]}`, {
-//                           headers: { "Authorization": `Bearer ${token}`
-//                         }}).then((response) => {
-//                           console.log(response.data)
-//                           const shelfItem:ShelfListItem= {
-//                             shelf_name: response.data[0].shelf_name,
-//                             book_list: response.data[1].books,
-//                           }
-//                           console.log(shelfItem)
-//                           console.log("SHELF NAME " , shelfItem.shelf_name, "BOOK ITEMS: ", shelfItem.book_list);
-//                           // add shelf to the list of shelves
-//                           shelvesList.push({shelf_name: response.data[0].shelf_name, book_list:response.data[1].books})
-//                         }).catch((error) => console.log(error));
-//                   }
-//                 }
-//         }).catch((error) => console.log(error)).finally(() => {
-//           setLibrary(shelvesList);
-//           console.log("LIBRARY " ,library);
-          
-//         })
-// console.log("SHELVES LIST" , shelvesList);
-    
-
-//                   console.log(shelvesList.length)
         
   }, []);
 
@@ -157,14 +189,14 @@ const target = iscurrentUsersProfile ? (currentUser.username) : (user)
   }
 const topFive = shelvesList.find((item) => item.shelf_name === 'top-5')
   console.log("TOP 5", topFive)
-    
+
   function handleFollow() {
     axios.post(`/follow`, user,  
       {headers: {
         "Authorization": `Bearer ${token}`, 
         "Content-Type": "application/json",
       }},)
-    .then(yell)
+    .then(() => followSuccessMessage(user? user: ''))
     .catch((error) => console.log(error)).finally(() => nav(0))
   }
     
@@ -191,7 +223,10 @@ const topFive = shelvesList.find((item) => item.shelf_name === 'top-5')
           </div>
           {!iscurrentUsersProfile ? <button className='primary' onClick={handleFollow}>Follow</button> :<></>} {/*Only display follow button on other user's profiles */}
         </div>
-        {currentUser.username == user ? (<YearlyProgressChart progress={1} goal={currentUser.goal}  />) : (<YearlyProgressChart progress={0} goal={goal}  />)}
+        <div className="reader-goals">
+          {currentUser.username == user ? (<YearlyProgressChart progress={1} goal={currentUser.goal}  />) : (<YearlyProgressChart progress={0} goal={goal}  />)}
+        </div>
+        
         
         <div id='header-stats'>
           

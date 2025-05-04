@@ -14,7 +14,7 @@ function Login() {
     const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
 
-    const yell = () => toast('🦄 Wow so easy!', {
+    const successMessage = (name:string) => toast(`Log in successful. Welcome to your account, ${name}!`, {
         position: "top-left",
         autoClose: 5000,
         hideProgressBar: false,
@@ -22,7 +22,7 @@ function Login() {
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: "light",
+        theme: "dark",
         transition: Bounce,
         });
 
@@ -51,6 +51,7 @@ function Login() {
                     const resp = response.data
                     console.log(resp.username)
                     sessionStorage.setItem('User', JSON.stringify({username: resp.username, first_name: resp.first_name, last_name: resp.last_name, goal: resp.goal}))
+                    successMessage(resp.first_name);
                 }).catch((error) => {
                     console.log(error)
                 });
