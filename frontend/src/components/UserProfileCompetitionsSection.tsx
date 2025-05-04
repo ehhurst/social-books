@@ -17,7 +17,7 @@ function CompetitionsSection() {
         <div id='profile-competitions'>
             <div>
             {/* competitions the user is participating in go here, if no competitions, browse comp page */}
-             
+            
             </div>
             <div>
                 <p>My Competitions: </p>

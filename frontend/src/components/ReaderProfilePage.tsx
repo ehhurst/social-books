@@ -173,7 +173,7 @@ const target = iscurrentUsersProfile ? (currentUser.username) : (user)
   }).catch((error) => console.log(error));
 
   // list of this user's read books
-  axios.get(`/${user}/shelf/read-books/books`, {
+  axios.get(`/shelf/${user}/read-books`, {
       headers: { "Content-Type": "application/json" }
   })
   .then((response) => setReadBooksList(response.data))

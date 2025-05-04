@@ -156,10 +156,11 @@ const findItem = ((array:BookItem[], work_id:string)=> array.find((item) => item
         try {
             console.log(token)
             const response = await axios.delete(`/shelf/${shelfname}/${book.work_id}`, {headers: {"Authorization": `Bearer ${token}`}}
-            );
-            console.log(response.data);
+            ).then((response) => {
+                console.log(response.data);
             removeBookSuccessMessage();
-            nav(0);
+            } )
+
         }
         catch (error) {
             RemoveBookError(book.title);
@@ -177,7 +178,7 @@ const findItem = ((array:BookItem[], work_id:string)=> array.find((item) => item
                     {shelfname !== "Favorites" &&  shelfname !== "read-books" ? (
                         <button className="delete" onClick={handleDelete}>Delete Shelf</button> 
                     ) : (<></>)}
-                    <button id="edit" onClick={() => setEdit(true)}><FontAwesomeIcon icon={faPen}/> Edit Shelf</button>
+                   
                    
                 </span>
                 ) : <></>}

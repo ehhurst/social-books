@@ -38,7 +38,7 @@ function AddBookToShelf() {
         setError('');
         console.log("param" , user);
 
-        axios.get(`/shelves/${user.username}`)
+        axios.get(`/shelf/${user.username}`)
         .then((response) => {
             var list:ShelfName[] = response.data
             const newlist = list.flatMap((item:ShelfName) => item.shelf_name);
