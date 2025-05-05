@@ -174,7 +174,7 @@ if(!token || !currentUser.username) {
           });
 
   function handleUnfollow() {
-    axios.post(`/unfollow/${user}`,
+    axios.delete(`/unfollow/${user}`,
       {headers: {
         "Authorization": `Bearer ${token}`
       }},)
