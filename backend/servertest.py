@@ -154,11 +154,11 @@ class ReviewTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
 
         # add shelves
-        response = self.app.post('/shelf/', headers=self.auth_header, json={"shelf_name": "TEST_SHELF"})
+        response = self.app.post('/shelf', headers=self.auth_header, json={"shelfName": "TEST_SHELF"})
         self.assertEqual(response.status_code, 201)
-        response = self.app.post('/shelf/', headers=self.auth_header, json={"shelf_name": "TEST_SHELF_2"})
+        response = self.app.post('/shelf', headers=self.auth_header, json={"shelfName": "TEST_SHELF_2"})
         self.assertEqual(response.status_code, 201)
-        response = self.app.post('/shelf/', headers=self.auth_header, json={"shelf_name": "TEST_SHELF_2"})
+        response = self.app.post('/shelf', headers=self.auth_header, json={"shelfName": "TEST_SHELF_2"})
         self.assertEqual(response.status_code, 400)
 
 
@@ -166,25 +166,25 @@ class ReviewTestCase(unittest.TestCase):
         response = self.app.get('/shelf/test/TEST_SHELF', headers=self.auth_header)
         data_shelf = response.get_json()
         print("get empty: " + str(data_shelf))
-        self.assertTrue(len(data_shelf) == 2)
+        self.assertTrue(len(data_shelf) == 1)
 
         # get user's shelves
         response = self.app.get('/shelf/test', headers=self.auth_header)
         data_shelves = response.get_json()
-        print(len(data_shelves)) # eyeball it
+        print("2 shelves: " + str(len(data_shelves)) + str(data_shelves)) # eyeball it
         self.assertTrue(len(data_shelves) == 2) # 2 shelves
 
         # test shelve books
-        response = self.app.post('/shelf/TEST_SHELF/777', headers=self.auth_header) # test work id is 777
+        response = self.app.post('/shelf/TEST_SHELF', headers=self.auth_header, json={"work_id": "777"}) # test work id is 777
         self.assertEqual(response.status_code, 201)
-        response = self.app.post('/shelf/TEST_SHELF/999', headers=self.auth_header) # test work id is 777
+        response = self.app.post('/shelf/TEST_SHELF', headers=self.auth_header, json={"work_id": "999"}) # test work id is 777
         self.assertEqual(response.status_code, 201)
 
         # test get shelf
         response = self.app.get('/shelf/test/TEST_SHELF', headers=self.auth_header)
         full_shelf = response.get_json()
         print("full shelf: " + str(full_shelf))
-        self.assertTrue(str(full_shelf) == "[{'shelf_name': 'TEST_SHELF'}, {'books': [{'work_id': '777'}, {'work_id': '999'}]}]")
+        self.assertTrue(str(full_shelf) == "[{'books': [{'work_id': '777'}, {'work_id': '999'}]}]")
 
         # unshelve book 777
         response = self.app.delete('/shelf/TEST_SHELF/777', headers=self.auth_header)
@@ -193,7 +193,7 @@ class ReviewTestCase(unittest.TestCase):
         response = self.app.get('/shelf/test/TEST_SHELF', headers=self.auth_header)
         modified_shelf = response.get_json()
         print("modified shelf: " + str(modified_shelf))
-        self.assertTrue(str(modified_shelf) == "[{'shelf_name': 'TEST_SHELF'}, {'books': [{'work_id': '999'}]}]")
+        self.assertTrue(str(modified_shelf) == "[{'books': [{'work_id': '999'}]}]")
 
         # unshelve 999
         response = self.app.delete('/shelf/TEST_SHELF/999', headers=self.auth_header)
@@ -202,8 +202,8 @@ class ReviewTestCase(unittest.TestCase):
         # get empty shelf
         response = self.app.get('/shelf/test/TEST_SHELF', headers=self.auth_header)
         data_shelf = response.get_json()
-        print("empty shelf: " + str(data_shelf))
-        self.assertTrue(len(data_shelf) == 2) # empty length is 2
+        print("empty shelf: " + str(data_shelf) + str(len(data_shelf)))
+        self.assertTrue(len(data_shelf) == 1) # empty length is 1
 
         # delete both shelves
         response = self.app.delete('/shelf/TEST_SHELF', headers=self.auth_header)
@@ -444,12 +444,16 @@ class ReviewTestCase(unittest.TestCase):
             self.assertEqual(response.status_code, 201)
                         
             json_obj = self.app.get("/contest/test_contest/participants").get_json()
-            participant_list = json_obj['participant_list']
+            print("json_ob participants: " + str(type(json_obj)) + "------" + str(json_obj))
+            participant_list = json_obj
             self.assertTrue(len(participant_list) == 1)
             
             json_obj = self.app.get("/contest/test_contest/books").get_json()
-            book_list = json_obj['book_list']
+            print("json_ob books: " + str(json_obj))
+            book_list = json_obj
             self.assertTrue(len(book_list) == 3)
+
+            print("-----PASS CONTESTS-----")
 
         finally:
             # Cleanup after test
