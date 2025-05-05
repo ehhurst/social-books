@@ -875,7 +875,7 @@ def get_books(contest_name):
         book_list.append(book)
         
     conn.close()
-    return jsonify({"book_list":book_list}), 200 # OK
+    return jsonify(book_list), 200
 
 #@CONTEST ADD PARTICIPANT
 @app.route("/contest/<string:contest_name>/add_participant", methods=["POST"])
@@ -1021,7 +1021,7 @@ def create_shelf():
     current_user = get_jwt_identity()
     token = request.headers.get("Authorization")
 
-    shelf_name = request.json.get("shelf_name")
+    shelf_name = request.json.get("shelfName")
     print(request.json)
 
     if not token:
@@ -1059,11 +1059,12 @@ def create_shelf():
 
 
 # add a book to a user's shelf
-@app.route("/shelf/<string:shelf_name>/<string:work_id>", methods=['POST'])
+@app.route("/shelf/<string:shelf_name>", methods=['POST'])
 @jwt_required()
-def shelve_book(shelf_name, work_id):
+def shelve_book(shelf_name):
     current_user = get_jwt_identity()
     token = request.headers.get("Authorization")
+    work_id = request.json.get("work_id")
 
     if not token:
         return jsonify({"error": "Missing authorization token"}), 401
@@ -1158,10 +1159,6 @@ def delete_shelf(shelf_name):
 @app.route("/shelf/<string:username>/<string:shelf_name>", methods=['GET'])
 def get_shelf(username, shelf_name):
     current_user = username
-    token = request.headers.get("Authorization")
-
-    if not token:
-        return jsonify({"error": "Missing authorization token"}), 401
 
     conn = db_connect()
     cursor = conn.cursor()
@@ -1180,11 +1177,10 @@ def get_shelf(username, shelf_name):
     zipped_books = [dict(zip(columns, book)) for book in books]
 
     # NOTE : circular logic. you're using the input
-    final = [{"shelf_name" : shelf_name}]
-    final += [{"books" : zipped_books}]
+    final = [{"books" : zipped_books}]
 
     conn.close()
-    print("finsl" , final)
+    # print("final" , final)
 
     if final:
         return jsonify(final)
@@ -1193,10 +1189,6 @@ def get_shelf(username, shelf_name):
 @app.route("/shelf/<string:username>", methods=['GET'])
 def get_user_shelves(username):
     current_user = username
-    token = request.headers.get("Authorization")
-
-    if not token:
-        return jsonify({"error": "Missing authorization token"}), 401
 
     conn = db_connect()
     cursor = conn.cursor()
