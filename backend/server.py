@@ -1063,6 +1063,7 @@ def shelve_book(shelf_name):
         cursor.execute(query, (current_user, work_id, shelf_name))
         conn.commit()
     except sqlite3.Error as error:
+        conn.close()
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
 
     conn.close()

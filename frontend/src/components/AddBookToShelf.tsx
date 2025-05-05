@@ -19,7 +19,7 @@ function AddBookToShelf({ closeModal } : { closeModal: () => void }) {
     const [shelves, setShelves] = useState<string[]>([]);
     const [error, setError] = useState<string>(''); // handle errors gracefully 
     
-    const [selectedOption, setSelectedOption] = useState<string>('Favorite Books'); // selection option on form dropdown
+    const [selectedOption, setSelectedOption] = useState<string>("Books I've Read"); // selection option on form dropdown
 
     // user notification handling
     const toastConfig = {
