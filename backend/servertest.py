@@ -182,48 +182,55 @@ class ReviewTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
 
         # add shelves
-        response = self.app.post('/shelf/TEST_SHELF', headers=self.auth_header)
+        response = self.app.post('/shelf', headers=self.auth_header, json={"shelfName": "TEST_SHELF"})
         self.assertEqual(response.status_code, 201)
-        response = self.app.post('/shelf/TEST_SHELF_2', headers=self.auth_header)
+        response = self.app.post('/shelf', headers=self.auth_header, json={"shelfName": "TEST_SHELF_2"})
         self.assertEqual(response.status_code, 201)
-        response = self.app.post('/shelf/TEST_SHELF_2', headers=self.auth_header)
+        response = self.app.post('/shelf', headers=self.auth_header, json={"shelfName": "TEST_SHELF_2"})
         self.assertEqual(response.status_code, 400)
 
         # get empty
         response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
         data_shelf = response.get_json()
         print("get empty: " + str(data_shelf))
-        self.assertTrue(len(data_shelf) == 2)
+        self.assertTrue(len(data_shelf) == 1)
 
         # get user's shelves
         response = self.app.get('/shelf', headers=self.auth_header)
         data_shelves = response.get_json()
-        print(len(data_shelves)) # eyeball it
+        print("2 shelves: " + str(len(data_shelves)) + str(data_shelves)) # eyeball it
         self.assertTrue(len(data_shelves) == 2) # 2 shelves
 
         # test shelve books
-        response = self.app.post('/shelf/TEST_SHELF/777', headers=self.auth_header) # test work id is 777
+        response = self.app.post('/shelf/TEST_SHELF', headers=self.auth_header, json={"work_id": "777"}) # test work id is 777
         self.assertEqual(response.status_code, 201)
-        response = self.app.post('/shelf/TEST_SHELF/999', headers=self.auth_header) # test work id is 777
+        response = self.app.post('/shelf/TEST_SHELF', headers=self.auth_header, json={"work_id": "999"}) # test work id is 777
         self.assertEqual(response.status_code, 201)
 
         # test get shelf
         response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
         full_shelf = response.get_json()
         print("full shelf: " + str(full_shelf))
-        self.assertTrue(str(full_shelf) == "[{'shelf_name': 'TEST_SHELF'}, {'books': [{'work_id': '777'}, {'work_id': '999'}]}]")
+        self.assertTrue(str(full_shelf) == "[{'books': [{'work_id': '777'}, {'work_id': '999'}]}]")
 
         # unshelve book 777 and 999
         response = self.app.delete('/shelf/TEST_SHELF/777', headers=self.auth_header)
         self.assertEqual(response.status_code, 200) # deleted - supposedly
+
+        response = self.app.get('/shelf/test/TEST_SHELF', headers=self.auth_header)
+        modified_shelf = response.get_json()
+        print("modified shelf: " + str(modified_shelf))
+        self.assertTrue(str(modified_shelf) == "[{'books': [{'work_id': '999'}]}]")
+
+        # unshelve 999
         response = self.app.delete('/shelf/TEST_SHELF/999', headers=self.auth_header)
         self.assertEqual(response.status_code, 200) # deleted - supposedly
 
         # get empty shelf
         response = self.app.get('/shelf/TEST_SHELF', headers=self.auth_header)
         data_shelf = response.get_json()
-        print(data_shelf)
-        self.assertTrue(len(data_shelf) == 2) # empty length is 2
+        print("empty shelf: " + str(data_shelf) + str(len(data_shelf)))
+        self.assertTrue(len(data_shelf) == 1) # empty length is 1
 
         # delete both shelves
         response = self.app.delete('/shelf/TEST_SHELF', headers=self.auth_header)
@@ -276,38 +283,180 @@ class ReviewTestCase(unittest.TestCase):
         INSERT INTO contest_participants (contest_name, username, books_read, perms_level) VALUES (?, ?, ?, ?)"""
         cursor.execute(query, ("test_contest", "test", 0, 0))
         conn.commit()
-        
-        response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
-        empty_works_read = response.get_json()
-        self.assertEqual(len(empty_works_read["readbooks"]), 0)
-        
-        response = self.app.post("/contest/mark/test_contest/TESTWORK", headers=self.auth_header)
-        self.assertEqual(response.status_code, 200)
-        
-        response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
-        empty_works_read = response.get_json()
-        self.assertEqual(len(empty_works_read["readbooks"]), 1)
-        
-        response = self.app.get('contest/test_contest/deadline')
-        deadline = json.loads(response.get_json())
-        deadline_bool = deadline["complete"]
-        self.assertEquals(deadline_bool, "False")
-        
-        # Cleanup after test
-        query =  "DELETE FROM contests WHERE contest_name = ?"
-        cursor.execute(query, ("test_contest",))
-        conn.commit()
-        
-        query =  "DELETE FROM contest_participants WHERE contest_name = ?"
-        cursor.execute(query, ("test_contest",))
-        conn.commit()
-        
-        query =  "DELETE FROM contest_books WHERE contest_name = ?"
-        cursor.execute(query, ("test_contest",))
-        conn.commit()
-        
         conn.close()
+
+# Contest testing
+    def test_contests(self):
+        conn = db_connect()
+        cursor = conn.cursor()
         
+        try:
+            # Cleanup *before* inserting, in case of prior leftover data
+            cursor.execute("DELETE FROM contest_participants WHERE contest_name = ?", ("test_contest",))
+            cursor.execute("DELETE FROM contest_books WHERE contest_name = ?", ("test_contest",))
+            cursor.execute("DELETE FROM contests WHERE contest_name = ?", ("test_contest",))
+            conn.commit()
+            
+            # Testing contest creation
+            payload = {
+            "contest_name": "test_contest",
+            "work_ids": ["OL731737W", "OL262384W", "OL45804W"],  # Example work IDs
+            "end_date": "2050-01-01"
+            }
+            
+            response = self.app.post("/contest/create", json=payload, headers=self.auth_header)
+
+            # API tests
+            response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
+            empty_works_read = response.get_json()
+            print("Test")
+            self.assertEqual(len(empty_works_read["readbooks"]), 0)
+
+            response = self.app.post("/contest/mark/test_contest/OL731737W", headers=self.auth_header)
+            self.assertEqual(response.status_code, 200)
+
+            # Get read books for current user
+            response = self.app.get('/contest/test_contest/fetch', headers=self.auth_header)
+            works_read = response.get_json()
+            self.assertEqual(len(works_read["readbooks"]), 1)
+            
+            # Get deadline for contest
+            response = self.app.get('/contest/test_contest/deadline')
+            deadline = response.get_json()
+            self.assertEqual(deadline["complete"], "True")
+            
+            # Get contest information
+            response = self.app.get("/contest/info")
+            book_list = response.get_json()['contest_list']
+            
+            test_contest = book_list[0]
+            book_count = test_contest['book_count']
+            end_date = test_contest['end_date']
+            organizer = test_contest['organizer']
+            
+            self.assertEqual(book_count, 3)
+            self.assertEqual(end_date, '2050-01-01')
+            self.assertEqual(organizer, "test")
+            
+            # Add participant / get participant
+            cursor.execute("DELETE FROM contest_participants WHERE contest_name = ?", ("test_contest",))
+            conn.commit()
+            
+            response = self.app.post('/contest/test_contest/add_participant', headers=self.auth_header)
+            self.assertEqual(response.status_code, 201)
+                        
+            json_obj = self.app.get("/contest/test_contest/participants").get_json()
+            print("json_ob participants: " + str(type(json_obj)) + "------" + str(json_obj))
+            participant_list = json_obj
+            self.assertTrue(len(participant_list) == 1)
+            
+            json_obj = self.app.get("/contest/test_contest/books").get_json()
+            print("json_ob books: " + str(json_obj))
+            book_list = json_obj
+            self.assertTrue(len(book_list) == 3)
+
+            print("-----PASS CONTESTS-----")
+
+        finally:
+            # Cleanup after test
+            cursor.execute("DELETE FROM contest_participants WHERE contest_name = ?", ("test_contest",))
+            cursor.execute("DELETE FROM contest_books WHERE contest_name = ?", ("test_contest",))
+            cursor.execute("DELETE FROM contests WHERE contest_name = ?", ("test_contest",))
+            cursor.execute("DELETE FROM contest_books_read WHERE contest_name = ?", ("test_contest",))
+            conn.commit()
+            conn.close()
+            
+    # ChatGPT used to generate this test. Validated and edited by Connor.abs
+    # "Generate a test for followers in the style of our shelves test"
+    def test_followers(self):
+        print("Test follower functionality")
+
+        # Set up a second test user to follow
+        test_user_2 = {
+            "username": "testuser2",
+            "password": "password",
+            "firstName": "Second",
+            "lastName": "User"
+        }
+
+
+        # Attempt to unfollow testuser2 from test user (just in case it already exists)
+        self.app.delete('/unfollow/testuser2', headers=self.auth_header)
+
+        # Try to delete testuser2 account (if a delete-user endpoint exists)
+        # You might wrap this in a try if it's not implemented yet
+        self.app.post("/auth/login", json={
+            "username": "testuser2",
+            "password": "password"
+        })
+
+
+
+
+        # Register and log in second user
+        self.app.post("/auth/register", json=test_user_2)
+        login_response = self.app.post("/auth/login", json=test_user_2)
+        self.assertEqual(login_response.status_code, 200)
+        user2_token = login_response.get_json()["access_token"]
+        user2_auth_header = {
+            "Authorization": f"Bearer {user2_token}"
+        }
+
+        # Ensure user2 is initially not followed by user1
+        response = self.app.get('/testuser2/followers')
+        self.assertEqual(response.status_code, 200)
+        followers = response.get_json()
+        print("Initial followers of testuser2:", followers)
+        self.assertFalse(any(f['username'] == self.test_user["username"] for f in followers))
+
+        # Ensure user1 is not following anyone
+        response = self.app.get('/test/following')
+        self.assertEqual(response.status_code, 200)
+        following = response.get_json()
+        print("Initial following list for test:", following)
+        self.assertFalse(any(f['username'] == "testuser2" for f in following))
+
+        # User1 follows user2
+        response = self.app.post('/follow', headers=self.auth_header, json={"username": "testuser2"})
+        self.assertEqual(response.status_code, 201)
+        print("Follow response:", response.get_json())
+
+        # User1 tries to follow again (should fail)
+        response = self.app.post('/follow', headers=self.auth_header, json={"username": "testuser2"})
+        self.assertEqual(response.status_code, 500) # 500 because it violates primary key
+
+        # Check user2's followers again (should include "test")
+        response = self.app.get('/testuser2/followers')
+        self.assertEqual(response.status_code, 200)
+        followers = response.get_json()
+        print("Updated followers of testuser2:", followers)
+        self.assertTrue(any(f['username'] == "test" for f in followers))
+
+        # Check user1's following list
+        response = self.app.get('/test/following')
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue(isinstance(data, list))
+        self.assertTrue(len(data) <= 5)
+        
+        following = response.get_json()
+        print("Updated following list for test:", following)
+        self.assertTrue(any(f['username'] == "testuser2" for f in following))
+
+        # Attempt to unfollow testuser2 from test user (just in case it already exists)
+        self.app.delete('/unfollow/testuser2', headers=self.auth_header)
+
+        # Try to delete testuser2 account (if a delete-user endpoint exists)
+        # You might wrap this in a try if it's not implemented yet
+        self.app.post("/auth/login", json={
+            "username": "testuser2",
+            "password": "password"
+        })
+
+        print("PASS FOLLOWERS")
+        print("----------------------------------\n")
+
+
     def test_book_search(self):
         # Test with general query parameter
         response = self.app.get('/search?q=harry+potter&limit=5')
@@ -384,41 +533,6 @@ class ReviewTestCase(unittest.TestCase):
         self.assertTrue('error' in data)
         self.assertEqual(data['error'], '404 Client Error: Not Found for url: https://openlibrary.org/works/InvalidWorkID.json')
         
-    # next sprint
-
-    # def test_has_followers(self):
-    #     print ("check JSON format for people with followers")
-    #     response = self.app.get('/followers/Philippe')
-
-    #     # 200 = good
-    #     self.assertEqual(response.status_code, 200)
-    #     data=response.get_json()
-    #     print(data)
-    #     self.assertTrue(len(data) > 0) # no friends
-    #     print("----------------------------------\n")
-
-
-    # def test_followerless(self):
-    #     print ("check for empty list when return followerless users's friends")
-    #     response = self.app.get('/followers/Connor')
-
-    #     # 200 = good
-    #     self.assertEqual(response.status_code, 200)
-    #     data=response.get_json()
-    #     print(data)
-    #     self.assertTrue(len(data) == 0) # no friends
-    #     print("----------------------------------\n")
-
-    # def test_wrong_user_followers(self):
-    #     print ("test for error when checking followers of non-user")
-    #     response = self.app.get('/followers/McGillicudy')
-
-    #     self.assertEqual(response.status_code, 404)
-    #     data = response.get_json()
-    #     print(data)
-    #     self.assertTrue(len(data) > 0) # error message
-    #     print("----------------------------------\n")
-
 
 if __name__ == '__main__':
     unittest.main()
