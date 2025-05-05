@@ -14,15 +14,16 @@ import UserLoginStatus from './UserLoginStatus';
 
 function AppHeader() {
     const nav = useNavigate();
-    const par = useParams();
+    // const par = useParams();
     const token = sessionStorage.getItem('access_token');
 
 
+
     useEffect(() => {
-        if (!token && !par) {
+        if (!token && sessionStorage.getItem('User')) {
             logOut();
         }
-    })
+    }, []);
     
     function logOut(){
         sessionStorage.removeItem('User');

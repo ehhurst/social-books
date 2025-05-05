@@ -1,13 +1,11 @@
 import { BookItem } from "../types";
-import { Link, RouterProviderProps } from "react-router-dom";
+import { Link } from "react-router-dom";
 import '../assets/css/BookListCard.css'
 import '../assets/css/global.css'
 import '../assets/css/CompStatus.css'
-import { useContext, useEffect, useState } from "react"; // used for testing
+import { useContext } from "react"; // used for testing
 import { ListStore } from "../Contexts/CompetitionBookListContext";
 import { ListTypes } from "../Reducers/CompetitionBookListReducer";
-import Popup from "reactjs-popup";
-import AddBookToShelf from "./AddBookToShelf";
 
 
 function BookListCard(props:BookItem) {
@@ -15,7 +13,6 @@ function BookListCard(props:BookItem) {
     const preview = props.description?.slice(0, 150) ?? "No summary available.";
     const { compList, dispatch } = useContext(ListStore);
     const compStatus = sessionStorage.getItem("creatingComp");
-
     const token = sessionStorage.getItem("access_token");
 
     const addToComp = () => {

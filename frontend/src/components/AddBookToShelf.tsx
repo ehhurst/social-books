@@ -1,12 +1,11 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
-import { ShelfName, User } from "../types";
-import axios from "../../axiosConfig";
+import { Bounce, toast } from "react-toastify";
 import { useNavigate, useParams } from "react-router-dom";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ShelfName, User } from "../types";
+import axios from "../../axiosConfig";
 import '../assets/css/AddBookToShelf.css'
-import { Bounce, toast } from "react-toastify";
-
 
 // Gen. AI used to refactor the JavaScript in this  componet. 
 // We asked it to help refactor the code to improve readability. 

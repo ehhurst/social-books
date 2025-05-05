@@ -7,6 +7,8 @@ import YearlyProgressChart from "./YearlyProgressChart";
 import useShelfBooks from "../hooks/useShelfBooks";
 import LibraryShelfList from "./LibraryShelfList";
 import axios from "../../axiosConfig";
+import { toast } from "react-toastify";
+import { toastConfig } from "../utils/toastConfig";
 
 
 
@@ -15,26 +17,27 @@ function UserProfile() {
     const [goal, setGoal] = useState(0);
     const token = sessionStorage.getItem("access_token");
     const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}");
-
     var {user} = useParams(); // get which user's profile is loaded
     let year = new Date().getFullYear();
+    const successMessage = () => toast.success(`Successfully updated your reading goals!`, toastConfig);
+    const errorMessage = () => toast.error(`Error: We're having trouble updating your goals right now. Please try again later.`, toastConfig);
     // get the user's list of favorite books 
-    const {shelfBooksList:readBooksList, loadingBookshelf, bookshelfError} = useShelfBooks(user!, "Books I've Read");
+    const {shelfBooksList:readBooksList } = useShelfBooks(user!, "Books I've Read");
 
     const isCurrentUserProfile = (user === currentUser.username);
-    console.log(isCurrentUserProfile)
     let title = 'My';
     if (!isCurrentUserProfile) {
       title= user + "'s"
     };
+
     // get the user's reading goal and update graph on page reload
     useEffect(() => {
         axios.get(`${user}/goals`
         ).then((response) => {
-            console.log("GOAL ", response.data);
             response.data === -1 ? setGoal(0) : setGoal(response.data);
-    }).catch((error) => console.log(error));
+            
 
+        }).catch((error) => console.log(error));
     }, [])
 
     
@@ -51,7 +54,6 @@ function UserProfile() {
                 },
               }
           ).then((response) => {
-                console.log(response.data.goal);
                 setGoal(response.data.goal);
                 
                 const updatedUser:User = {
@@ -60,14 +62,19 @@ function UserProfile() {
                     last_name: currentUser.last_name,
                     goal: response.data.goal
                 }
-                console.log(updatedUser)
-                sessionStorage.setItem('User', JSON.stringify(updatedUser))
-                setGoal(response.data.goal)
+                sessionStorage.setItem('User', JSON.stringify(updatedUser));
+                setGoal(response.data.goal);
+                successMessage();
             }
             ).catch((error) => {
+                errorMessage();
                 console.log(error);
-                console.log(error.response.status);
-            }).finally(() => nav(0)); // trigger page reload to update header
+            }).finally(() => {
+                // trigger page reload after success toast is displayed
+                setTimeout(() => {
+                    nav(0);
+                }, 2000);
+            })
         } catch {(error: any) => console.log(error)}
     }
     

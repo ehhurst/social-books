@@ -5,7 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { User } from "../types";
 import axios from "../../axiosConfig";
 import '../assets/css/ShelfFormAdd.css';
-import { Bounce, toast } from "react-toastify";
+import { toast } from "react-toastify";
+import { toastConfig } from "../utils/toastConfig";
 
 
 function ShelfFormAdd() {
@@ -15,29 +16,8 @@ function ShelfFormAdd() {
     const [errorMessage, setErrorMessage] = useState("");
     const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}");
 
-    const successMessage = () => toast(`Successfully added bookshelf "${shelfName}" to your library.`, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-        transition: Bounce,
-        });
-    const errorMessagePopup = () => 
-          toast.error(errorMessage, {
-              position: "top-right",
-              autoClose: 10000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "dark",
-              transition: Bounce,
-    });
+    const successMessage = () => toast(`Successfully added bookshelf "${shelfName}" to your library.`, toastConfig);
+    const errorMessagePopup = () => toast.error(errorMessage, toastConfig);
     
     async function handleSubmit(event:FormEvent) {
         event.preventDefault();
@@ -46,14 +26,13 @@ function ShelfFormAdd() {
             return;
         }
         try {
-            const response = await axios.post("/shelf", {
+            await axios.post("/shelf", {
                 shelfName
             }, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
-            }).then((resp) => {
-                console.log(resp.data)
+            }).then(() => {
                 successMessage();
 
             }).finally(() => navigate(`/${currentUser.username}/library/${shelfName}`));

@@ -2,8 +2,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { User } from "../types";
 import { faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
-import { useState } from "react";
-import Popup from "reactjs-popup";
 import { useNavigate } from "react-router-dom";
 import '../assets/css/Settings.css'
 
@@ -13,6 +11,7 @@ function Settings() {
     const token = sessionStorage.getItem("access_token")
     const nav = useNavigate();
 
+    //delete user account
     async function handleDelete() {
         try {
           await axios.delete('/users/delete', {
@@ -28,8 +27,8 @@ function Settings() {
         } catch (error) {
           console.error(error);
         }
-      }
-    
+    }
+
   
     return(
         <div id='settings-container'>

@@ -1,15 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "../../axiosConfig";
 import LibraryShelfList from "./LibraryShelfList";
-import { toast } from "react-toastify";
+import { ShelfName } from "../types";
 
 
-type ShelfName = {
-    shelf_name: string
-}
 function UserProfileLibrary() {
-
     var {user} = useParams(); // get which user's profile is loaded
     const [shelves, setShelves] = useState<string[]>([]);
     const [loading, setLoading] = useState(true); // add loading state
@@ -19,22 +15,17 @@ function UserProfileLibrary() {
     useEffect(() => {
         setLoading(true);
         setError('');
-        console.log("param" , user);
 
         axios.get(`/shelf/${user}`)
         .then((response) => {
-            console.log(response.data);
             var list:ShelfName[] = response.data
-            console.log(list)
             const newlist = list.flatMap((item) => item.shelf_name);
-            console.log(newlist)
             setShelves(newlist);
         }
         ).catch((error) => {
             console.error("❌ Shelves fetch error:", error);
             setError("Error loading shelf data. Please try again later.");
         }).finally(() => setLoading(false))
-        console.log(shelves)
     }, []);
 
 

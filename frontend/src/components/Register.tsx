@@ -5,7 +5,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import '../assets/css/global.css';
 import '../assets/css/Login.css';
-import { Bounce, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
+import { toastConfig } from '../utils/toastConfig';
 
 function Register() {
     const [firstName, setFirstName] = useState("");
@@ -15,18 +16,8 @@ function Register() {
     const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
 
-    const successMessage = (name:string) => toast(`Log in successful. Welcome to your account, ${name}!`, {
-        position: "top-left",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-        transition: Bounce,
-        });
-
+    const successMessage = () => toast(`Log in successful. Welcome to your account, ${firstName}!`, toastConfig);
+    
     async function handleSubmit(event: FormEvent) {
         event.preventDefault();
 
@@ -78,7 +69,7 @@ function Register() {
                 } 
             }).then((response) => {
                 console.log(response.data);
-                successMessage(username);
+                successMessage();
                 navigate(`/${username}/profile`)}
             ).catch((error) => console.error(error));
             } catch (error: any) {
@@ -144,7 +135,7 @@ function Register() {
 
                     <button className='primary'>Register</button>
                 </form>
-
+                
                 <div id='alt'>
                     <p>Already have an account?</p>
                     <Link to='/login'>Sign In</Link>

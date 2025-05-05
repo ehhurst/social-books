@@ -1,85 +1,34 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
-
-import { useEffect, useState } from "react";
 import axios from "../../axiosConfig";
 import { BookItem, User } from "../types";
-import { Bounce, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import MinBookBox from "./MinBookBox";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight, faLessThan, faPen } from "@fortawesome/free-solid-svg-icons";
 import '../assets/css/ShelfBookPage.css'
-import LibraryShelfList from "./LibraryShelfList";
 import useShelfBooks from "../hooks/useShelfBooks";
+import { toastConfig } from "../utils/toastConfig";
 
 
 function ShelfBookPage() {
-
-    const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}");
     const {user, shelfname} = useParams();
     const navigate = useNavigate();
+
+    const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}");
     const token = sessionStorage.getItem("access_token");
 
-    const deleteShelfError = () => 
-        toast.error("We're having trouble deleting your shelf. Please try again later", {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-            transition: Bounce,
-            });
+    const deleteShelfError = () => toast.error("We're having trouble deleting your shelf. Please try again later", toastConfig);
+    const RemoveBookError = (title:string) => toast.error(`We're having trouble removing ${title} from your shelf. Please try again later.`, toastConfig);
+    const successMessage = () => toast.success(`Successfully deleted bookshelf "${shelfname}" from your library.`, toastConfig);
+    const removeBookSuccessMessage = () => toast.success(`Book removed successfully`, toastConfig);
 
-            const RemoveBookError = (title:string) => 
-                toast.error(`We're having trouble removing ${title} from your shelf. Please try again later.`, {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "dark",
-                    transition: Bounce,
-                    });
-    
+    const {shelfBooksList, loadingBookshelf, bookshelfError} = useShelfBooks(user!, shelfname!);
+    if (bookshelfError !== '') { toast.error(`Failed to load shelf: ${shelfname}. Please try again later.`)};
 
-    const successMessage = () => 
-        toast.success(`Successfully deleted bookshelf "${shelfname}" from your library.`, {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-            transition: Bounce,
-            });
-
-            const removeBookSuccessMessage = () => 
-                toast.success(`Book removed successfully`, {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "dark",
-                    transition: Bounce,
-                    });
-
-const {shelfBooksList, loadingBookshelf, bookshelfError} = useShelfBooks(user!, shelfname!);
-
-
+    // deletes a book shelf
     async function handleDelete() {
-
         if (shelfname == "Favorites" || shelfname == "Books I've Read") {
             deleteShelfError();
-            console.log(shelfname)
             return;
         }
 
@@ -88,7 +37,6 @@ const {shelfBooksList, loadingBookshelf, bookshelfError} = useShelfBooks(user!, 
                 {
                 headers: {"Authorization": `Bearer ${token}`}
             });
-            console.log(response.data);
             successMessage();
             navigate(`/${user}/profile`);
         }
@@ -98,15 +46,15 @@ const {shelfBooksList, loadingBookshelf, bookshelfError} = useShelfBooks(user!, 
         }
     }
 
+
+    // remove a book from a shelf
     async function handleRemove(book:BookItem) {
         try {
             await axios.delete(`/shelf/${shelfname}/${book.work_id}`, {headers: {"Authorization": `Bearer ${token}`}}
             ).then((response) => {
-                console.log(response.data);
             removeBookSuccessMessage();
             navigate(0);
             })
-
         }
         catch (error) {
             RemoveBookError(book.title);

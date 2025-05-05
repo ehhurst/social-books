@@ -19,7 +19,6 @@ function CompetitionsPage() {
 
       try {
         const response = await axios.get('/contest/info');
-        console.log(response.data);
         setCompetitions(response.data);
       } catch (error) {
         console.log("Error loading contests")
@@ -40,7 +39,6 @@ function CompetitionsPage() {
         const response = await axios.post(`/contest/${competitionName}/add_participant`, {},
           {headers: { "Authorization": `Bearer ${token}`}}
         );
-        console.log(response.data);
         setCompetitions(response.data);
       } catch (error) {
         console.log("Error loading contests")

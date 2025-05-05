@@ -8,39 +8,17 @@ import { faArrowLeft, faArrowLeftLong, faArrowRight, faArrowRightLong, faLessTha
 import { ListTypes } from "../Reducers/CompetitionBookListReducer";
 import '../assets/css/CompetitionForm.css'
 import axios from "../../axiosConfig";
-import { Bounce, toast } from "react-toastify";
+import { toast } from "react-toastify";
+import { toastConfig } from "../utils/toastConfig";
 
 function CompetitionForm() {
     const navigate = useNavigate();
-
-    const successMessage = () => 
-        toast.success(`Competition created successfully!`, {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-            transition: Bounce,
-            });
-
-    const errorMessage = () => 
-        toast.error("Error! Unable to create competition. Please make sure you have entered a title and end date for your competition or try again later.", {
-            position: "top-right",
-            autoClose: 10000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-            transition: Bounce,
-            });
-
     const token = sessionStorage.getItem("access_token");
     const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}")
+
+    const successMessage = () => toast.success(`Competition created successfully!`, toastConfig);
+    const errorMessage = () => toast.error("Error! Unable to create competition. Please make sure you have entered a title and end date for your competition and try again.", toastConfig);
+
     useEffect(() => {
           if(!token || !currentUser.username) {
             navigate('/login');
@@ -62,17 +40,16 @@ function CompetitionForm() {
 
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
-
     
         if (!token || !currentUser.username ) {
           navigate('/login');
         }
+
         const work_ids = compList.map((item) => item.work_id);
-        console.log(work_ids)
         const compForm = {contest_name: compName, work_ids: work_ids, end_date: compDate, num_works: compList.length}
-        console.log(compForm)
+
         try {
-          const response = await axios.post(
+          await axios.post(
             "/contest/create", compForm, 
             {
               headers: {
@@ -84,6 +61,7 @@ function CompetitionForm() {
           successMessage();
           dispatch({type:ListTypes.CLEAR});
           sessionStorage.removeItem('creatingComp');
+          localStorage.setItem('CompBookList', '[]')
           navigate('/competitions'); // Redirect after success
         } catch (err) {
           console.error(err);

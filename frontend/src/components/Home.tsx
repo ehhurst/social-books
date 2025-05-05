@@ -1,17 +1,14 @@
 import { faBookOpen } from "@fortawesome/free-solid-svg-icons/faBookOpen";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStar, faStarHalf } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import '../assets/css/global.css'
 import '../assets/css/Home.css'
-import { faStar, faStarHalf } from "@fortawesome/free-solid-svg-icons";
-import { useContext } from "react";
-import { getBook } from "../hooks/fetch";
+
 
 function Home() {
   const nav = useNavigate();
   const token = sessionStorage.getItem('access_token');
-
-  const {data, loading, error} = getBook(`book/OL468431W`);
   
   return (
     <main>
@@ -26,7 +23,6 @@ function Home() {
             <p> a place for readers to log, review, and discover books and connect with others through discussions and competitions.</p>
           </div>
           <div id="example-review-container-background">
-            {(loading && !error) ? <div>Loading review data</div> : 
             <div id="example-review-container">
               <div id="book-image-container">
                 <img src="https://covers.openlibrary.org/b/isbn/9780743273565-M.jpg" alt="Book cover" height={'120px'}/>
@@ -50,7 +46,6 @@ function Home() {
                 </div>
               </div>
             </div>
-} {(error) ? <div>Error loading review</div>: <></>}
           </div>
             
         </div>

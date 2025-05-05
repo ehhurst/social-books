@@ -10,7 +10,6 @@ function NavBar() {
                 <li><Link to='/competitions'>Competitions</Link>  </li>
             </ul>
         </nav>     
- 
     );
 }
 

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "../../axiosConfig";
 import { BookItem, work_ids } from "../types";
-import { Bounce, toast } from "react-toastify";
 
 
 // helper method for getting the list of books in a user's bookshelf
@@ -11,7 +10,6 @@ export const useShelfBooks = (username:string, shelfName:string) => {
   const [bookshelfError, setBookshelfError] = useState(''); // handle errors gracefully
   const token = sessionStorage.getItem("access_token");
   var bookid_list:string[] = [];
-  var bookList:BookItem[] = [];
 
   useEffect(() => {
     const fetchShelfBooks = async () => {
@@ -29,8 +27,6 @@ export const useShelfBooks = (username:string, shelfName:string) => {
 
         const list:work_ids[]= shelfResponse.data[0].books;
         bookid_list = (list.flatMap((item:work_ids)=> item.work_id));
-
-        console.log(bookid_list)
 
         const bookList:BookItem[] = (
           await Promise.all(
@@ -50,8 +46,6 @@ export const useShelfBooks = (username:string, shelfName:string) => {
       } 
       catch (error) {
         console.log(`Error loading books from shelf ${shelfName}`);
-        // show error- oops were having trouble getting your read books list
-        toast.error(`Failed to load shelf: ${shelfName}. Please try again later.`)
         setBookshelfError('Failed to load shelf books.');
       } 
       finally {

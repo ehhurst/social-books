@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { User } from "../types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserCircle } from "@fortawesome/free-solid-svg-icons";
+import { useEffect } from "react";
 
 const UserLoginStatus = () => {
     const token = sessionStorage.getItem('access_token');
@@ -14,6 +15,13 @@ const UserLoginStatus = () => {
         localStorage.removeItem("createComp");
         nav('/login');
     }
+
+
+    useEffect(() => {
+        if (!token && sessionStorage.getItem('User')) {
+            logOut();
+        }
+    }, [])
     
     return (
         <div id='user-status'>
@@ -28,8 +36,6 @@ const UserLoginStatus = () => {
                     <Link to={'/login'} onClick={logOut}>Logout</Link>
                 </div>}
         </div>
-        
-
     );
   };
   

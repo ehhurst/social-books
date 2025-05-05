@@ -6,6 +6,7 @@ import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import '../assets/css/global.css'
 import '../assets/css/Login.css'
 import { Bounce, toast } from 'react-toastify';
+import { toastConfig } from '../utils/toastConfig';
 
 
 function Login() {
@@ -14,17 +15,7 @@ function Login() {
     const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
 
-    const successMessage = (name:string) => toast(`Log in successful. Welcome to your account, ${name}!`, {
-        position: "top-left",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-        transition: Bounce,
-        });
+    const successMessage = (name:string) => toast(`Log in successful. Welcome to your account, ${name}!`, toastConfig);
 
     async function handleSubmit(event:FormEvent) {
         event.preventDefault();
@@ -55,9 +46,7 @@ function Login() {
                     navigate(`/${username}/profile`);
                 }).catch((error) => {
                     console.log(error)
-                });
-       
-                
+                });  
             } catch (error) {
             console.error(error);
             setErrorMessage("Invalid username or password. Please try again.");

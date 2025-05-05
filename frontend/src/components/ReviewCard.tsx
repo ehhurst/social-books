@@ -1,30 +1,34 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { BookItem, Review, User } from "../types";
 import StarRating from "./StarRating";
-import '../assets/css/ReviewCard.css'
 import { faPen, faTrash, faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import axios from "../../axiosConfig";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getBook } from "../hooks/fetch";
 import Popup from "reactjs-popup";
 import ReviewFormEdit from "./ReviewFormEdit";
+import { toast } from "react-toastify";
+import { toastConfig } from "../utils/toastConfig";
+import '../assets/css/ReviewCard.css'
+
 
 // Displays posted reviews
 function ReviewCard(review:Review) {
-    const nav = useNavigate();
+    const navigate = useNavigate();
     const {user} = useParams();
     const token = sessionStorage.getItem('access_token');
     const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}")
-    const [message, setMessage] = useState('');
+
     const [bookData, setBookData] = useState<BookItem>();
     const [open, setOpen] = useState(false);
     const closeModal = () => setOpen(false);
 
+    const successMessage = (message:string) => toast.success(message, toastConfig);
+    const errorMessage = (message:string) => toast.error(message, toastConfig);
+
     useEffect(() => {
         axios.get(`/book/${review.work_id}`)
         .then((response) => {
-            console.log(response.data);
             setBookData(response.data);
         }
         ).then(() => console.log("book data", bookData))
@@ -32,33 +36,33 @@ function ReviewCard(review:Review) {
 
 
     function handleDelete() {
-        setMessage('');
         axios.delete(`/reviews/${review.review_id}`)
-        .then((response) => {
-            console.log(response.data)
-            setMessage(`Review number ${review.review_id} deleted successfully!`)
+        .then(() => {
+            successMessage(`Successfully deleted review # ${review.review_id}!`);
             
             }).catch((error) => {
                 console.error(error);
-                setMessage("Error deleting review. Please try again later");
+                errorMessage("Oops! Something went wrong and we were unable to delete your review. Please try again later.");
             }
-        ).finally(() => nav(0) // Reload the current page
         )
+        // trigger page reload after success toast is displayed
+        setTimeout(() => {
+            navigate(0);
+        }, 2000);
     }
 
-    return( // ADD LIKED TODO
+    return( 
     <div className='container review'>
         {user ? (        
             <div id="book-cover-background">
                     <Link id="image-link" to={`/books/${bookData?.work_id}`} state={bookData}>
                         <img id="cover" src={bookData?.img_M} height={'115px'} alt="Book cover image"/>
                     </Link>
-            {/* <img src={bookData?.img_S} alt='Book Cover Image' height={'100px'}/> */}
         </div>) : (<></>) }
         <div className='review-data'>
             <div id='review-content-top'>
             <Link to={`/${review.username}/profile`}>
-                <FontAwesomeIcon icon={faUserCircle} />
+                <FontAwesomeIcon className='user-icon' icon={faUserCircle} color={'var(--light-accent-color)'} />
                 <h5>{review.username}</h5>  
             </Link>
 
@@ -66,7 +70,7 @@ function ReviewCard(review:Review) {
             {(currentUser.username == review.username) ? 
             <div>
                 <FontAwesomeIcon className="delete-icon" icon={faTrash} onClick={handleDelete} color={'var(--main-color)'} />
-                <FontAwesomeIcon icon={faPen} onClick={() => setOpen(o => !o)} color={'var(--main-color)'}/>
+                <FontAwesomeIcon className="edit-icon" icon={faPen} onClick={() => setOpen(o => !o)} color={'var(--main-color)'}/>
                 <Popup open={open} closeOnDocumentClick onClose={closeModal} modal>
                     <div className="modal">
                     <span id='review-details'> <ReviewFormEdit review_id={review.review_id} work_id={review.work_id} username={review.username} star_rating={review.star_rating} review_text={review.review_text} liked={review.liked}/> 
@@ -77,7 +81,6 @@ function ReviewCard(review:Review) {
             </div>
             :<></>
             }
-
         </div>
         <div>
             <p id='review-text'>
@@ -85,8 +88,6 @@ function ReviewCard(review:Review) {
             </p>
         </div>
         </div>
-        
-        
     </div>
     );
 }

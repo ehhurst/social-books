@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { User } from "../types";
 import '../assets/css/UserNetwork.css'
 
-function UserNetwork({initialState, followers, following }:{initialState: string, followers:User[], following: User[]}) {
+function UserNetwork({ followers, following }:{initialState: string, followers:User[], following: User[]}) {
     const [selected, setSelected] = useState("Followers");
 
     return (
