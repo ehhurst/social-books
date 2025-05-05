@@ -105,7 +105,7 @@ function BookDetailCard(props: {book:BookItem, avgRating:String}) {
             {token? ( <button type="button" className="primary" onClick={() => setOpenLib(o => !o)}>+Add to Library</button>) : (<>/</>)}
             <Popup open={openLib} closeOnDocumentClick onClose={closeModalLib} modal>
                     <div className="modal">
-                    <span id='review-details'> <AddBookToShelf/></span>
+                    <span id='review-details'> <AddBookToShelf closeModal={() => setOpenLib(false) } /></span>
                     </div>
                 </Popup>
                 <button className='secondary' onClick={handleAddToList}>Mark as Read</button>
