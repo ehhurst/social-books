@@ -1,13 +1,22 @@
 import { faCircleUser, faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { User } from "../types";
 import '../assets/css/UserNetwork.css'
 
 function UserNetwork({ followers, following }:{initialState: string, followers:User[], following: User[]}) {
     const [selected, setSelected] = useState("Followers");
+    var {user} = useParams(); // get which user's profile is loaded
+    const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}");
 
+    const isCurrentUserProfile = (user === currentUser.username);
+    let title1 = 'You are';
+    let title2 = "You have"
+    if (!isCurrentUserProfile) {
+      title1= user + " is"
+      title2 = user + " has"
+    };
     return (
         <div>
             <ul id="network-nav">
@@ -28,7 +37,7 @@ function UserNetwork({ followers, following }:{initialState: string, followers:U
                     </li>
                 </Link>
                 ))
-                : <p>You are not following anyone.</p>
+                : <p>{title1} not following anyone.</p>
                 } 
             </ul> :
             
@@ -43,7 +52,7 @@ function UserNetwork({ followers, following }:{initialState: string, followers:U
                             </p>
                         </li></Link>
                     ))
-                    : <p>You have no followers.</p>
+                    : <p>{title2} no followers.</p>
                     } 
                 </ul>
                 : <></> }

@@ -32,7 +32,6 @@ function Login() {
                     "Content-Type": "application/json",
                 }
             });
-            console.log("login" , response.data.access_token)
             sessionStorage.setItem("access_token", response.data.access_token); 
             axios.get('/user', {
                 headers: {
@@ -40,7 +39,6 @@ function Login() {
                 }
                 }).then((response) => {
                     const resp = response.data
-                    console.log(resp.username)
                     sessionStorage.setItem('User', JSON.stringify({username: resp.username, first_name: resp.first_name, last_name: resp.last_name, goal: resp.goal}))
                     successMessage(resp.first_name);
                     navigate(`/${username}/profile`);

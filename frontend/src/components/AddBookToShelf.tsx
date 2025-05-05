@@ -7,7 +7,7 @@ import { ShelfName, User } from "../types";
 import axios from "../../axiosConfig";
 import '../assets/css/AddBookToShelf.css'
 
-// Gen. AI used to refactor the JavaScript in this  componet. 
+// Gen. AI used to refactor the JavaScript in this  component. 
 // We asked it to help refactor the code to improve readability. 
 function AddBookToShelf({ closeModal } : { closeModal: () => void }) {
     const user:User = JSON.parse(sessionStorage.getItem('User') || "{}");
@@ -89,10 +89,7 @@ function AddBookToShelf({ closeModal } : { closeModal: () => void }) {
             );
             console.log(response.data);
             successMessage();
-            // trigger page reload after success toast is displayed
-            setTimeout(() => {
-                closeModal();
-            }, 2000);
+            closeModal();
 
         } catch (err) {
             addBookErrorMessage();
