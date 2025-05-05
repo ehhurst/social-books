@@ -138,10 +138,6 @@ def return_user_data():
  
 # need to integrate to use those in auth.py, remove <string:username> from url
 # NOTE: does this need to insert other information also?
-# ?
-# ?
-# ?
-# ?
 @app.route("/users/add/<string:username>", methods=["POST"])
 def add_user(username):
     """ Adds a user to the database """
@@ -1011,11 +1007,11 @@ def fetch_contests(searchTerm):
 
 
 
-
+# --- SHELVES ---
 
 # Creates an empty shelf from a new name
 # Returns an error if a shelf with that name already exists
-@app.route("/shelf/", methods=['POST'])
+@app.route("/shelf", methods=['POST'])
 @jwt_required()
 def create_shelf():
     current_user = get_jwt_identity()
