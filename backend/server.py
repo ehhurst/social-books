@@ -58,9 +58,9 @@ def search_books():
     title = request.args.get('title')
     author = request.args.get('author')
     subject = request.args.get('subject')
-    # users = request.args.get('accounts')
-    # contests = request.args.get('contests')
-    # reviews = request.args.get('reviews')
+    users = request.args.get('accounts')
+    contests = request.args.get('contests')
+    reviews = request.args.get('reviews')
     limit = request.args.get('limit')
 
     if not (query or title or author or subject):
@@ -70,18 +70,18 @@ def search_books():
     if (query or title or author or subject):
         books = fetch_books_from_api(query=query, title=title, author=author, subject=subject, limit=limit)
         return jsonify(books)
-    # if (users):
-    #     print('here')
-    #     result = fetch_users(users)
-    #     print(result)
-    #     return jsonify(result)
-    # if (contests):
-    #     result = fetch_contests(contests)
-    #     return jsonify(result)
-    # if (reviews):
-    #     result = fetch_reviews(reviews)
-    #     print("reviews: ", result)
-    #     return jsonify(result)
+    if (users):
+        print('here')
+        result = fetch_users(users)
+        print(result)
+        return jsonify(result)
+    if (contests):
+        result = fetch_contests(contests)
+        return jsonify(result)
+    if (reviews):
+        result = fetch_reviews(reviews)
+        print("reviews: ", result)
+        return jsonify(result)
 
 
     
@@ -253,9 +253,11 @@ def get_goals(username):
     goal = cursor.fetchone()
     print(username, goal[0])
     
+    conn.close()
     return jsonify(goal[0]), 200
 
 
+#NEED TO ACCEPT YOON'S NEW METHOD W/ try/catch
 @app.route("/reviews", methods=["POST"])
 @jwt_required()
 def add_review():
@@ -373,6 +375,7 @@ def update_review(review_id):
         cursor.execute(query, (rating, liked, text, review_id))
         conn.commit()
     except sqlite3.Error as error:
+        conn.close()
         return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
     
     conn.close()
