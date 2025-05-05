@@ -700,6 +700,7 @@ def create_contest():
             cursor.execute(query, (contest_name, work))
             conn.commit()
         except sqlite3.Error as e:
+            conn.close()
             return jsonify({"error": f"workfailure_{work} {e}"}), 500 #INTERNAL SERVER ERROR
         
     try:
@@ -807,6 +808,7 @@ def contest_markdone(contest_name, work_id):
         conn.commit()
     except sqlite3.Error as e:
         print("PROBLEM: " + str(e))
+        conn.close()
         return jsonify({"error":f"{e}"}), 500 #INTERNAL SERVER ERROR
     
     conn.close()
@@ -831,6 +833,7 @@ def get_contests():
             organizer_row = cursor.fetchone()
             organizer = organizer_row[0] if organizer_row else ""
         except sqlite3.Error as e:
+            conn.close()
             return jsonify({"error":f"sqlite3err {e} QUERY {query}"}), 500 # INTERNAL SERVER ERROR
 
         # Ensure date is returned as ISO string (for JS Date parsing)
@@ -862,6 +865,7 @@ def get_books(contest_name):
         query = "SELECT work_id FROM contest_books WHERE contest_name = ?"
         works = cursor.execute(query, (contest_name,))
     except sqlite3.Error as e:
+        conn.close()
         return jsonify({"error":f"sqlite3err {e}"}), 500 # INTERNAL SERVER ERROR
     book_list = []
     for work in works:
@@ -892,6 +896,7 @@ def add_participant(contest_name):
         return jsonify({"error":f"user {current_user} not found, not adding to contest"}), 400 #BAD REQUEST
     
     if not contest_name:
+        conn.close()
         return jsonify({"error":"Missing contest_name"}), 400 #INVALID REQUEST
 
     try:
@@ -919,6 +924,7 @@ def get_participants(contest_name):
         query = "SELECT username FROM contest_participants WHERE contest_name = ?"
         all_participants = cursor.execute(query, (contest_name,))
     except sqlite3.Error as e:
+        conn.close()
         return jsonify({"error":f"sqlite3err {e}"}), 500 # INTERNAL SERVER ERROR
     
     participant_list = []
@@ -928,6 +934,7 @@ def get_participants(contest_name):
             query = "SELECT work_id FROM contest_books_read WHERE username = ? AND contest_name = ?"
             works = cursor.execute(query, (participant[0], contest_name,))
         except sqlite3.Error as e:
+            conn.close()
             return jsonify({"error":f"sqlite3err {e}"}), 500 # INTERNAL SERVER ERROR
         
         for work in works:
