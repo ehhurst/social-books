@@ -444,11 +444,13 @@ class ReviewTestCase(unittest.TestCase):
             self.assertEqual(response.status_code, 201)
                         
             json_obj = self.app.get("/contest/test_contest/participants").get_json()
+            print("json_ob participants: " + str(json_obj))
             participant_list = json_obj['participant_list']
             self.assertTrue(len(participant_list) == 1)
             
             json_obj = self.app.get("/contest/test_contest/books").get_json()
-            book_list = json_obj['book_list']
+            print("json_ob books: " + str(json_obj))
+            book_list = json_obj["book_list"]
             self.assertTrue(len(book_list) == 3)
 
         finally:
