@@ -500,7 +500,7 @@ def add_follower():
         conn.close()
         return jsonify({"error":f"user {user} not found, not updating followers"}), 400 #BAD REQUEST
     
-    user_to_follow = request.json
+    user_to_follow = request.json["username"]
 
     if not user_to_follow:
         conn.close()
