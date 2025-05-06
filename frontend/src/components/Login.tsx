@@ -6,6 +6,7 @@ import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import '../assets/css/global.css'
 import '../assets/css/Login.css'
 import { Bounce, toast } from 'react-toastify';
+import { toastConfig } from '../utils/toastConfig';
 
 
 function Login() {
@@ -14,17 +15,7 @@ function Login() {
     const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
 
-    const successMessage = (name:string) => toast(`Log in successful. Welcome to your account, ${name}!`, {
-        position: "top-left",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-        transition: Bounce,
-        });
+    const successMessage = (name:string) => toast(`Log in successful. Welcome to your account, ${name}!`, toastConfig);
 
     async function handleSubmit(event:FormEvent) {
         event.preventDefault();
@@ -41,7 +32,6 @@ function Login() {
                     "Content-Type": "application/json",
                 }
             });
-            console.log("login" , response.data.access_token)
             sessionStorage.setItem("access_token", response.data.access_token); 
             axios.get('/user', {
                 headers: {
@@ -49,14 +39,12 @@ function Login() {
                 }
                 }).then((response) => {
                     const resp = response.data
-                    console.log(resp.username)
                     sessionStorage.setItem('User', JSON.stringify({username: resp.username, first_name: resp.first_name, last_name: resp.last_name, goal: resp.goal}))
                     successMessage(resp.first_name);
+                    navigate(`/${username}/profile`);
                 }).catch((error) => {
                     console.log(error)
-                });
-       
-                navigate(`/${username}/profile`);
+                });  
             } catch (error) {
             console.error(error);
             setErrorMessage("Invalid username or password. Please try again.");

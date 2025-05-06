@@ -1,38 +1,32 @@
 import axios from "../../axiosConfig";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { FormEvent, useContext, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { faGear, faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {  getBooksInShelf, getGoal, getReviewsForUser } from "../hooks/fetch";
+import { getReviewsForUser } from "../hooks/fetch";
 import UserLikesList from "./UserLikesList";
 import '../assets/css/ReaderProfilePage.css'
-import {  BookItem, ShelfItem, ShelfListItem, User } from "../types";
+import { User } from "../types";
 import UserNetwork from "./UserNetwork";
 import Popup from "reactjs-popup";
 import Settings from "./Settings";
 import UserReviewsPage from "./UserReviewsPage";
-import UserProfileCompetitionsSection from "./UserProfileCompetitionsSection";
 import '../assets/css/Settings.css'
 import UserProfile from "./UserProfile";
-import YearlyProgressChart from "./YearlyProgressChart";
-import UserLibrary from "./UserProfileLibrary";
 import UserProfileLibrary from "./UserProfileLibrary";
-import { Bounce, toast } from "react-toastify";
-import { useCompetitions } from "../Contexts/CompetitionContext";
+import {  toast } from "react-toastify";
 import useShelfBooks from "../hooks/useShelfBooks";
+import { toastConfig } from "../utils/toastConfig";
 
-type ShelfName= {
-  shelf_name:string
-}
-type work_ids= {
-  work_id: string
-}
 
 function ReaderProfilePage() {
+  let year = new Date().getFullYear();
   const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}")
   const token = sessionStorage.getItem("access_token");
   let iscurrentUsersProfile = true;
-  
+  const [selected, setSelected] = useState('Profile');
+  const [followersOrFollowingSelected, setFollowersOrFollowingSelected] = useState('');
+
   // open/closed state of settings modal
   const [open, setOpen] = useState(false);
   const closeModal = () => setOpen(false);
@@ -44,67 +38,24 @@ function ReaderProfilePage() {
     iscurrentUsersProfile = false;
     title= user + "'s"};
 
-const target = iscurrentUsersProfile ? (currentUser.username) : (user)
+  const target = iscurrentUsersProfile ? (currentUser.username) : (user)
 
-
-
-const navigate = useNavigate();
-if(!token || !currentUser.username) {
-  navigate('/login');
-}
-  const [shelves, setShelves] = useState<String[]>([]);
-  // const [loading, setLoading] = useState(true); // add loading state
-  // const [error, setError] = useState(''); // handle errors gracefully  
-
-
-
-
-
-
-  const [selected, setSelected] = useState('Profile');
-
-
-
-
-
-
-
-  const message:string = useLocation().state; 
-
-
-  const [books, setBooks] = useState<BookItem[]>([]);
-
-  const [shelfItems, setShelfItems] = useState<BookItem[]>([]);
-  const [hasError, setHasError] = useState(false);
-
-  var bookid_list:string[] = [];
-  var bookList:BookItem[] = [];
-
-
-
+  const navigate = useNavigate();
+  if(!token || !currentUser.username) {
+    navigate('/login');
+  }
 
   const {reviewData, loading, error} = getReviewsForUser(`/user/reviews`);
-
   const likedBookIds = (reviewData.filter(review => review.liked)).flatMap(item => item.work_id)
-
-
- 
-  const [followersOrFollowingSelected, setFollowersOrFollowingSelected] = useState('');
-  var shelvesList:ShelfItem[] = [];
-  // const [library, setLibrary] = useState<ShelfItem[]>([]) 
-
   
-
-  const {shelfBooksList:currentUserReadBooksList, loadingBookshelf:currentUserLoadingReadBooks, bookshelfError:currentUserReadBooksError} = useShelfBooks(currentUser.username, "Books I've Read");
   const {shelfBooksList:otherUserReadBooksList, loadingBookshelf:otherUserLoadingReadBooks, bookshelfError:otherUserReadBooksError} = useShelfBooks(user!, "Books I've Read");
 
-  console.log("USER READING LIST LENGTH" , currentUserReadBooksList);
-  console.log("OTHER USER READING LIST LENGTH" , otherUserReadBooksList.length);
-const [readingGoal, setReadingGoal] = useState<number>(0);
-  
+
+
+  const [readingGoal, setReadingGoal] = useState<number>(0);
   const [followers, setFollowers] = useState<User[]>([]); // list of users that are following the user
   const [following, setFollowing] = useState<User[]>([]); // list of users that this user is following
-  // ChatGPT used to reformat this useEffect block
+  // ChatGPT was used for this useEffect block. We asked it to help refactor the code for improved readability.
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -127,96 +78,19 @@ const [readingGoal, setReadingGoal] = useState<number>(0);
 
     } catch (error) {
       console.error("Error fetching user profile data: ", error);
-      // send error response
     }
-  };
+    };
 
-  fetchUserData();
+    fetchUserData();
 
-  }, []);
-
-
-  // // helper method to get the user's list of read books 
-  // const fetchReadBooksList = async (username:string):Promise<BookItem[] | undefined> => {
-  //   try {
-  //     const response = await axios.get<BookItem[]>(`/shelf/${username}/read-books`);
-  //     return response.data;
-  //   }catch (error) {
-  //     console.log(`Error: Failed to fetch read books list for user ${username}`);
-  //     // show error- oops were having trouble getting your read books list
-
-
-  //   }
-  // }
-    
-//     // list of this users' followers
-//     axios.get(`/${user}/followers`)
-//     .then((response) => {
-//       setFollowers(response.data)}
-//     ).catch((error) => console.log(error))
-
-//     // list of people this user is following
-//     axios.get(`/${user}/following`)
-//     .then((response) => {
-//       setFollowing(response.data)}
-//     ).catch((error) => console.log(error));
-
-
-// // get the user's reading goal and update graph on page reload
-//       axios.get(`${currentUser.username}/goals`
-//       ).then((response) => {
-//           response.data === -1 ? setGoal(0) : setGoal(response.data);
-//   }).catch((error) => console.log(error));
-
-//   // list of this user's read books
-//   axios.get(`/shelf/${user}/read-books`, {
-//       headers: { "Content-Type": "application/json" }
-//   })
-//   .then((response) => setReadBooksList(response.data))
-//   .catch((error) => {
-//       console.error("❌ Book Fetch Error:", error);
-//       // setError("Error loading book data. Please try again later.");
-//   });
-        
-//   }, []);
-
-  for (var i=0; i < shelvesList.length; i++) {
-    console.log(shelvesList[i].shelf_name)
-  }
-const topFive = shelvesList.find((item) => item.shelf_name === 'top-5')
-  console.log("TOP 5", topFive)
-
+  }, [user]);
 
   const findItem = ((array:User[], username:string)=> array.find((item) => item.username == username));
-const followingUser = findItem(followers, currentUser.username)
+  const isFollowingUser = (findItem(followers, currentUser.username));
  
-  const [isFollowing, setIsFollowing] = useState(false);
-
   // Follow another user
-  const followSuccessMessage = () => toast(`Success! You are now following ${user}.`, {
-    position: "top-left",
-    autoClose: 5000,
-    hideProgressBar: false,
-    closeOnClick: false,
-    pauseOnHover: true,
-    draggable: true,
-    progress: undefined,
-    theme: "dark",
-    transition: Bounce,
-    });
-
-  const followErrorMessage = () => 
-    toast.error(`Error: unable to follow ${user}. Please try again later.`, {
-        position: "top-left",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-        transition: Bounce,
-        });
+  const followSuccessMessage = () => toast(`Success! You are now following ${user}.`, toastConfig);
+  const followErrorMessage = () => toast.error(`Error: unable to follow ${user}. Please try again later.`, toastConfig);
 
   function handleFollow() {
     axios.post(`/follow`,{username: user},  
@@ -226,7 +100,11 @@ const followingUser = findItem(followers, currentUser.username)
       }},)
     .then(() => {
       followSuccessMessage();
-      setIsFollowing(true);
+      // trigger page reload after success toast is displayed
+      setTimeout(() => {
+        navigate(0);
+      }, 1000);
+      
     })
     .catch((error) => {
       console.log(error);
@@ -235,52 +113,27 @@ const followingUser = findItem(followers, currentUser.username)
   };
 
   // unfollow another user
-  const unfollowSuccessMessage = () => toast(`Successfully unfollowed ${user}.`, {
-    position: "top-left",
-    autoClose: 5000,
-    hideProgressBar: false,
-    closeOnClick: false,
-    pauseOnHover: true,
-    draggable: true,
-    progress: undefined,
-    theme: "dark",
-    transition: Bounce,
-    });
-    const unfollowErrorMessage = () => 
-      toast.error(`Error: unable to unfollow ${user}. Please try again later.`, {
-          position: "top-left",
-          autoClose: 10000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "dark",
-          transition: Bounce,
-          });
+  const unfollowSuccessMessage = () => toast(`Successfully unfollowed ${user}.`, toastConfig);
+  const unfollowErrorMessage = () => toast.error(`Error: unable to unfollow ${user}. Please try again later.`, toastConfig);
 
   function handleUnfollow() {
-    axios.post(`/unfollow/${user}`,
+    axios.delete(`/unfollow/${user}`,
       {headers: {
         "Authorization": `Bearer ${token}`
       }},)
     .then(() => {
       unfollowSuccessMessage();
-      setIsFollowing(false);
+      // trigger page reload after success toast is displayed
+      setTimeout(() => {
+        navigate(0);
+      }, 1000);
     })
     .catch((error) => {
       console.log(error);
       unfollowErrorMessage();
   })
-
   };
     
-
-
-
-  let year = new Date().getFullYear();
-
-
 
   return(
     <div id="profile-page-container">
@@ -300,17 +153,12 @@ const followingUser = findItem(followers, currentUser.username)
             <h2>{user === currentUser.username ? (currentUser.username) : (user)}</h2> 
           </div>
           {/*Display follow/unfollow buttons on other user's profile pages. */}
-          {(!iscurrentUsersProfile && !isFollowing) ? <button className='primary' onClick={handleFollow}>Follow</button> : 
-          (!iscurrentUsersProfile && isFollowing) ?  (<button className='secondary' onClick={handleUnfollow}>Unfollow</button>) : <></>}  
+          {(!iscurrentUsersProfile && !isFollowingUser) ? <button className='primary' onClick={handleFollow}>Follow</button> : 
+          (!iscurrentUsersProfile && isFollowingUser) ?  (<button className='secondary' onClick={handleUnfollow}>Unfollow</button>) : <></>}  
         </div>
-        <div className="reader-goals">
-          {iscurrentUsersProfile ? (<YearlyProgressChart progress={currentUserReadBooksList.length} goal={currentUser.goal}  />) : (<YearlyProgressChart progress={otherUserReadBooksList.length} goal={readingGoal}  />)}
-        </div>
-        
         <div id='header-stats'>
-          
           <div className='stats' onClick={() => setSelected('Profile')}>
-            <h3>{currentUserReadBooksList.length}</h3>
+            <h3>{otherUserReadBooksList.length}</h3>
             <p>Books Read</p>
           </div>
           <div className='stats' onClick={() => setSelected('Profile')}>
@@ -344,7 +192,6 @@ const followingUser = findItem(followers, currentUser.username)
           <li id={(selected == 'Library')? "selected" : "unselected"} onClick={() => setSelected('Library')}>Library</li>
           <li id={(selected == 'Reviews')? "selected" : "unselected"} onClick={() => setSelected('Reviews')}>Reviews</li>
           <li id={(selected == 'Likes')? "selected" : "unselected"} onClick={() => setSelected('Likes')}>Likes</li>         
-          <li id={(selected == 'Competitions')? "selected" : "unselected"} onClick={() => setSelected('Competitions')}>Competitions</li>
           <li id={(selected == 'Network')? "selected" : "unselected"} onClick={() => setSelected('Network')}>Network</li>
         </ul>
       </div>
@@ -352,9 +199,11 @@ const followingUser = findItem(followers, currentUser.username)
         {title} {selected}:
         {(selected == 'Profile') ?
          <div>
-          {iscurrentUsersProfile ? (<div id="reader-goals">
-             <UserProfile library={shelvesList}/>
-         </div>) : (<></>)}
+          <div id="profile-container">
+            <div id="reader-goals">
+             <UserProfile/>
+            </div>
+          </div>
         </div>
         : (selected == 'Library') ?
         <div>
@@ -365,8 +214,6 @@ const followingUser = findItem(followers, currentUser.username)
         <UserReviewsPage reviewData={reviewData} loading={loading} error={error}/>
         : (selected == 'Likes') ?
         <UserLikesList likedBookIds={likedBookIds}/>
-        : (selected == 'Competitions') ?
-        <UserProfileCompetitionsSection/>
         : (selected == 'Network') ? 
         <UserNetwork initialState={followersOrFollowingSelected} followers={followers} following={following} />
         :

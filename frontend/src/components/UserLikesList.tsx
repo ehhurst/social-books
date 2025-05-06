@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { BookItem, Review, Reviews } from "../types";
+import { BookItem } from "../types";
 import axios from "../../axiosConfig";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import '../assets/css/UserLikesList.css'
 
 function UserLikesList({likedBookIds}:{likedBookIds:string[]}) {
@@ -35,7 +35,7 @@ function UserLikesList({likedBookIds}:{likedBookIds:string[]}) {
                 }
         })
         });
-    }, []); // run on initial page load
+    }, []); // run on component mount
 
 
     return(

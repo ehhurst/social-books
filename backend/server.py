@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from book_api import fetch_books_from_api, parse_books, get_book
 import sqlite3
-from datetime import datetime
+import datetime
 from flask_jwt_extended import JWTManager
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from auth import auth, bcrypt
@@ -60,9 +60,8 @@ def search_books():
     contests = request.args.get('contests')
     reviews = request.args.get('reviews')
     limit = request.args.get('limit')
-    print(users)
 
-    if not (query or title or author or subject or users or contests or reviews):
+    if not (query or title or author or subject):
         return jsonify({'error': 'Missing search parameter'}), 400
 
     # Use the fetch_books_from_api function to get the search results
@@ -101,7 +100,7 @@ def db_connect():
 
 
 
-# gets all user data for the reader profile page (only currently returning the username)
+# gets all user data for the reader profile page 
 @app.route("/user", methods=["GET"])
 @jwt_required()
 def return_user_data():
@@ -136,32 +135,36 @@ def return_user_data():
  
 # need to integrate to use those in auth.py, remove <string:username> from url
 # NOTE: does this need to insert other information also?
-@app.route("/users/add/<string:username>", methods=["POST"])
-def add_user(username):
-    """ Adds a user to the database """
+# ?
+# ?
+# ?
+# ?
+# @app.route("/users/add/<string:username>", methods=["POST"])
+# def add_user(username):
+#     """ Adds a user to the database """
 
-    if not username:
-        return jsonify({"error": "no username given"}), 400 #BAD REQUEST
+#     if not username:
+#         return jsonify({"error": "no username given"}), 400 #BAD REQUEST
     
-    conn = db_connect()
-    cursor = conn.cursor()
+#     conn = db_connect()
+#     cursor = conn.cursor()
 
-    # Tries to insert, if a user_id already exists sqlite3 should throw an integrity error
-    # Later on we want to change this from an error to some sort of front-end behavior
-    # That's for further on this week
-    try:
-        query = "INSERT INTO users (username) VALUES (?)"
-        cursor.execute(query, (username,))
-        conn.commit()
-    except sqlite3.IntegrityError:
-        conn.close()
-        return jsonify({"error": f"user {username} already exists"}), 409 #CONFLICT
+#     # Tries to insert, if a user_id already exists sqlite3 should throw an integrity error
+#     # Later on we want to change this from an error to some sort of front-end behavior
+#     # That's for further on this week
+#     try:
+#         query = "INSERT INTO users (username) VALUES (?)"
+#         cursor.execute(query, (username,))
+#         conn.commit()
+#     except sqlite3.IntegrityError:
+#         conn.close()
+#         return jsonify({"error": f"user {username} already exists"}), 409 #CONFLICT
     
-    conn.close()
+#     conn.close()
 
-    return jsonify({"message": f"user {username} added successfully"}), 201 #CREATED
+#     return jsonify({"message": f"user {username} added successfully"}), 201 #CREATED
 
-#  ChatGPT generated: generate a function for unfollowing
+
 @app.route("/users/delete", methods=["DELETE"])
 @jwt_required()
 def delete_user():
@@ -195,7 +198,6 @@ def delete_user():
 
 
 
-# NOTE: deleted the duplicate delete user method which was left over from the "reader_profiles" version
 
 @app.route("/goals", methods=["PUT"])
 @jwt_required()
@@ -252,66 +254,61 @@ def get_goals(username):
     conn.close()
     return jsonify(goal[0]), 200
 
-# NOTE: ChatGPT used to refactor this method. We asked it to safely handle closing the database.
+
+#NEED TO ACCEPT YOON'S NEW METHOD W/ try/catch
 @app.route("/reviews", methods=["POST"])
 @jwt_required()
 def add_review():
-    current_user = get_jwt_identity()
+    """ Adds a review. Content of the review needs to be in the POST query.
+     So far this only updates the reviews table. Maybe update other tables? Probably not. """
+    current_user = get_jwt_identity()  # Get the current user's identity from the JWT
     token = request.headers.get("Authorization")
-    
+        
     if not token:
         return jsonify({"error": "Missing authorization token"}), 401
     
     conn = db_connect()
     cursor = conn.cursor()
 
-    try:
-        reviewer = cursor.execute(
-            "SELECT username FROM users WHERE username = ?", (current_user,)
-        ).fetchone()
-        if not reviewer:
-            return jsonify({"error": f"user {current_user} not found"}), 400
+    find_user_query = "SELECT username FROM users WHERE username = ?" # replaced profile_id with uesrname
+    reviewer = cursor.execute(find_user_query, (current_user,)).fetchone()
 
-        r_metadata = request.json
-        work_ID = r_metadata.get("work_id")
-        rating = r_metadata.get("star_rating")
-        liked = r_metadata.get("liked")
-        text = r_metadata.get("review_text")
-
-        from profanity_filter import is_profane
-        
-        if is_profane(text):
-            return jsonify({"error": "Profanity detected in review."}), 412
-
-        if not work_ID or not rating or not text:
-            return jsonify({"error": "Missing required review fields"}), 400
-
-        if not (1 <= rating <= 5):
-            return jsonify({"error": "Rating must be between 1 and 5"}), 412
-
-        cursor.execute(
-            "INSERT INTO reviews (username, work_ID, star_rating, liked, review_text) VALUES (?, ?, ?, ?, ?)",
-            (current_user, work_ID, rating, liked, text)
-        )
-        conn.commit()
-
-        cursor.execute(
-            "SELECT review_id FROM reviews WHERE username = ? AND work_ID = ? AND star_rating = ? AND liked = ? AND review_text = ?",
-            (current_user, work_ID, rating, liked, text)
-        )
-        review_ID = cursor.fetchone()
-
-        return jsonify({
-            "message": "Review added successfully",
-            "user_id": current_user,
-            "work_ID": work_ID,
-            "review_id": review_ID[0] if review_ID else None
-        }), 201
-
-    except sqlite3.Error as error:
-        return jsonify({"error": f"SQLITE3 ERROR: {str(error)}"}), 500
-    finally:
+    if not reviewer:
         conn.close()
+        return jsonify({"error":f"user {current_user} not found, not updating reviews"}), 400 #BAD REQUEST
+    
+    r_metadata = request.json
+    work_ID = r_metadata.get("work_id")
+    rating = r_metadata.get("star_rating")
+    liked = r_metadata.get("liked")
+    text = r_metadata.get("review_text")
+    
+    from profanity_filter import is_profane
+        
+    profanity_list = is_profane(text)
+    
+    if profanity_list:
+        conn.close()
+        return jsonify({"error": f"Profanity detected in review: {profanity_list}"}), 412
+    
+
+    if not work_ID or not rating or not text:
+        conn.close()
+        return jsonify({"error": "work_ID, rating, or text is bad"}), 400 #BAD REQUEST
+    
+    if not (1 <= rating <= 5):
+        conn.close()
+        return jsonify({"error": "rating is out of 1-5 range"}), 412 #PRECONDITION FAILED
+    
+    try:
+        query = "INSERT INTO reviews (username, work_ID, star_rating, liked, review_text) VALUES (?, ?, ?, ?, ?)"
+        cursor.execute(query, (current_user, work_ID, rating, liked, text))
+        conn.commit()
+    except sqlite3.Error as error:
+        return jsonify({"error": "SQLITE3 ERROR!: " + str(error)}), 500 #INTERNAL SERVER ERROR
+    
+    conn.close()
+    return jsonify({"message": "Review added successfully", "user_id" : current_user, "work_ID" : work_ID}), 201 #CREATED
 
 
 @app.route("/reviews/<string:review_id>", methods=["PUT"])
@@ -329,7 +326,7 @@ def update_review(review_id):
     cursor = conn.cursor()
 
     find_user_query = "SELECT username FROM users WHERE username = ?"
-    reviewer = cursor.execute(find_user_query, (current_user,)).fetchone() #NOTE: ?????
+    reviewer = cursor.execute(find_user_query, (current_user,))
 
     if not reviewer:
         conn.close()
@@ -392,8 +389,6 @@ def remove_review(review_id):
     find_review_query = "SELECT review_id FROM reviews WHERE review_id = ?"
     cursor.execute(find_review_query, (review_id,))
     review = cursor.fetchone()
-
-    print("REVIEW! " + str(review))
 
     if not review:
         conn.close()
@@ -688,7 +683,6 @@ def create_contest():
         cursor.execute(query, (contest_name, num_works, end_date))
         conn.commit()
     except sqlite3.Error as e:
-        conn.close()
         return jsonify({"error": f"contest_failure {e}"}), 500 #INTERNAL SERVER ERROR
     
     #ADD WORKS AND CREATOR HERE
@@ -720,17 +714,15 @@ def contest_deadline(contest_name):
     conn = db_connect()
     cursor = conn.cursor()
 
-    current_time = str(datetime.now()).split(" ")[0] # Takes only YYYY-MM-DD from YYYY-MM-DD HH:MM:SS.MS string
+    current_time = str(datetime.datetime.now()).split(" ")[0] # Takes only YYYY-MM-DD from YYYY-MM-DD HH:MM:SS.MS string
     query = """
     SELECT end_date FROM contests WHERE contest_name = ?
     """
     cursor.execute(query, (contest_name,))
     deadline_time = cursor.fetchone()
 
-    dt_curr = datetime.strptime(current_time, "%Y-%m-%d")
-    dt_dead = datetime.strptime(deadline_time[0], "%Y-%m-%d")
-    
-    print("datecomp", dt_curr, dt_dead, dt_curr < dt_dead)
+    dt_curr = datetime.striptime(current_time, "%Y-%m-%d")
+    dt_dead = datetime.striptime(deadline_time, "%Y-%m-%d")
 
     conn.close()
 
@@ -752,7 +744,7 @@ def contest_checklist(contest_name):
     cursor = conn.cursor()
 
     find_user_query = "SELECT username FROM users WHERE username = ?" # replaced profile_id with uesrname
-    competitor = cursor.execute(find_user_query, (current_user,)).fetchone()["username"]
+    competitor = cursor.execute(find_user_query, (current_user,)).fetchone()
 
     if not competitor:
         conn.close()
@@ -762,10 +754,9 @@ def contest_checklist(contest_name):
     cursor.execute(query, (competitor, contest_name))
     readbooks = [work_id[0] for work_id in cursor.fetchall()] # Should return just the string out of each tuple in the result...
     # [("workname"), ("workname1"), ...] <-- double check if needed. Should work out the box
-    
-    print("readbooks", readbooks)
 
     conn.close()
+
     return jsonify({"readbooks":readbooks}), 200 # OK
 
 @app.route("/contest/mark/<string:contest_name>/<string:work_id>", methods=["POST"])
@@ -781,11 +772,11 @@ def contest_markdone(contest_name, work_id):
     cursor = conn.cursor()
 
     find_user_query = "SELECT username FROM users WHERE username = ?" # replaced profile_id with uesrname
-    result = cursor.execute(find_user_query, (current_user,)).fetchone()
-    if not result:
+    competitor = cursor.execute(find_user_query, (current_user,)).fetchone()
+
+    if not competitor:
         conn.close()
-        return jsonify({"error": f"user {current_user} not found, not updating contest books read"}), 400
-    competitor = result[0]
+        return jsonify({"error":f"user {current_user} not found, not updating contest books"}), 400 #BAD REQUEST
 
     if not contest_name:
         conn.close()
@@ -802,16 +793,15 @@ def contest_markdone(contest_name, work_id):
         conn.close()
         return jsonify({"error":"Book already read, this should not occur"}), 500 #INTERNAL SERVER ERROR
     
-    query = "INSERT INTO contest_books_read (username, contest_name, work_id) VALUES (?, ?, ?)"
+    query = "INSERT INTO contest_books (username, work_id, contest_name) VALUES (?, ?, ?)"
     try:
-        cursor.execute(query, (competitor, contest_name, work_id))
-        conn.commit()
+        cursor.execute(query, (competitor, work_id, contest_name))
     except sqlite3.Error as e:
         print("PROBLEM: " + str(e))
         conn.close()
         return jsonify({"error":f"{e}"}), 500 #INTERNAL SERVER ERROR
     
-    conn.close()
+    conn.close
     return jsonify({"message":f"Work {work_id} marked as done"}), 200 #OK
 
 #@CONTESTS GET CONTESTS LIST
@@ -849,7 +839,7 @@ def get_contests():
 
         contest_list.append(contest_json)
     conn.close()
-    return jsonify({"contest_list":contest_list}), 200 # OK
+    return jsonify(contest_list), 200 # OK
 
 #@CONTESTS GET CONTEST BOOKS
 @app.route("/contest/<string:contest_name>/books", methods=["GET"])
@@ -945,11 +935,8 @@ def get_participants(contest_name):
             "completed_books" : work_list
         }
         participant_list.append(participant)
-    
-    conn.close()
-    return jsonify({"participant_list":participant_list}), 200 # OK
-
-# -------------------------------- #
+        
+    return jsonify(participant_list), 200 # OK
 
 def fetch_users(searchTerm):
     conn = db_connect()
@@ -1011,7 +998,6 @@ def fetch_contests(searchTerm):
 
 
 
-
 # --- SHELVES ---
 
 # Creates an empty shelf from a new name
@@ -1037,7 +1023,7 @@ def create_shelf():
 
     if not user:
         conn.close()
-        return jsonify({"error":f"user {current_user} not found, no shelf update"}), 400 #BAD REQUEST
+        return jsonify({"error":f"user {current_user} not found, no shelf update"}), 404 #BAD REQUEST
 
     find_shelf_query = "SELECT shelf_name FROM user_shelves WHERE username = ? AND shelf_name = ?"
     shelf = cursor.execute(find_shelf_query, (current_user, shelf_name)).fetchone()
@@ -1102,6 +1088,8 @@ def unshelve_book(shelf_name, work_id):
 
     if not token:
         return jsonify({"error": "Missing authorization token"}), 401
+    
+    print(request)
 
     conn = db_connect()
     cursor = conn.cursor()
@@ -1160,6 +1148,7 @@ def delete_shelf(shelf_name):
     return jsonify({"message": "Shelf deleted successfully", "user_id" : current_user, "shelf name" : shelf_name}), 200 #OK
 
 
+# NOTE: test this
 # Get all books in current user's specific shelf
 @app.route("/shelf/<string:username>/<string:shelf_name>", methods=['GET'])
 def get_shelf(username, shelf_name):
@@ -1182,11 +1171,13 @@ def get_shelf(username, shelf_name):
     zipped_books = [dict(zip(columns, book)) for book in books]
 
     # NOTE : circular logic. you're using the input
-    final = [{"books" : zipped_books}]
+    final = []
+    final += [{"books" : zipped_books}]
 
     conn.close()
-    # print("final" , final)
-
+    print("final" , final)
+    ## ERROR - saying final is not JSON serializable. Also not returning book items, only returns 
+    #work id's in a list
     if final:
         return jsonify(final)
 
@@ -1208,19 +1199,6 @@ def get_user_shelves(username):
     print(zipped_shelves)
 
     return jsonify(zipped_shelves)
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 if __name__ == '__main__':

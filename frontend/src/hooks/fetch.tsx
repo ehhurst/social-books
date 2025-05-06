@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { BookItem, Review, Reviews, User } from "../types";
 import axios from "../../axiosConfig"
-import { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 import { useCompetitions } from "../Contexts/CompetitionContext";
 

@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "../../axiosConfig";
+import LibraryShelfList from "./LibraryShelfList";
+import { ShelfName } from "../types";
 
 
-type ShelfName = {
-    shelf_name: String
-}
 function UserProfileLibrary() {
     var {user} = useParams(); // get which user's profile is loaded
-    const [shelves, setShelves] = useState<String[]>([]);
+    const [shelves, setShelves] = useState<string[]>([]);
     const [loading, setLoading] = useState(true); // add loading state
     const [error, setError] = useState(''); // handle errors gracefully  
 
@@ -16,12 +15,11 @@ function UserProfileLibrary() {
     useEffect(() => {
         setLoading(true);
         setError('');
-        console.log("param" , user);
 
         axios.get(`/shelf/${user}`)
         .then((response) => {
             var list:ShelfName[] = response.data
-            const newlist = list.flatMap((item:ShelfName) => item.shelf_name);
+            const newlist = list.flatMap((item) => item.shelf_name);
             setShelves(newlist);
         }
         ).catch((error) => {
@@ -36,9 +34,8 @@ function UserProfileLibrary() {
             {loading ? (<p>Loading shelves...</p>) : (error) ? (<p style={{ color: "red" }}>{error}</p>) : 
                 (<ul id="book-list-page">
                                 {shelves.length > 0 ? (
-                                    shelves.map((item:String) => (
-                                      
-                                        <Link to={`/${user}/library/${item}`}>{item}</Link>
+                                    shelves.map((item:string) => (
+                                        <LibraryShelfList shelfName={item}/>
                                     ))
                                 ) : (
                                     !loading && !error && <p>No shelves found.</p>

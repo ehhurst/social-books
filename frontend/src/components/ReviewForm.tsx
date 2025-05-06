@@ -1,13 +1,14 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { BookItem,  ReviewStatus, User } from "../types";
-import { faHeart, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { BookItem, User } from "../types";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { FormEvent, useState } from "react";
 import axios from "../../axiosConfig";
 import { faStar as filledStar, faHeart as filledHeart} from "@fortawesome/free-solid-svg-icons";
 import { faStar as emptyStar, faHeart as emptyHeart} from "@fortawesome/free-regular-svg-icons";
 import '../assets/css/ReviewForm.css'
-
+import { toast } from "react-toastify";
+import { toastConfig } from "../utils/toastConfig";
 
 
 function ReviewForm() {
@@ -23,17 +24,27 @@ function ReviewForm() {
     const [liked, setLiked] = useState(false);
     const [likedHover, setLikedHover] = useState(false);
     const [reviewText, setReviewText] = useState('');
-    const [message, setMessage] = useState("");
+
+    const successMessage = () => toast.success('Review posted successfully!', toastConfig);
+    const errorMessage = (message:string) => toast.error(message, toastConfig);
 
   
     const handleSubmit = async (event: FormEvent) => {
       event.preventDefault();
-      console.log(reviewText)
-  
-      if (!token || !currentUser.username || !book) {
-        setMessage("Missing user or book info.");
+
+      if (!token || !currentUser.username ) {
+        navigate('/login');
         return;
       }
+      if (!rating ) {
+        errorMessage('Error: Star Rating is required. Please provide a rating for this book and try again.');
+        return;
+      }
+      if (!reviewText) {
+        errorMessage('Error: Review text is required. Please provide your review for this book and try again.');
+        return;
+      }
+
       const review = {work_id: book.work_id, star_rating: rating, review_text: reviewText, liked: liked}
   
       try {
@@ -46,11 +57,15 @@ function ReviewForm() {
             },
           }
         );
-        setMessage("Review submitted!");
-        navigate(0); // Redirect after success
+
+        successMessage();
+        // trigger page reload after success toast is displayed
+        setTimeout(() => {
+            navigate(0);
+        }, 2000);
       } catch (err) {
         console.error(err);
-        setMessage("Failed to submit review.");
+        errorMessage('Oops! Something went wrong and we were not able to post your review. Please try again later.');
       }
     };
 
@@ -102,7 +117,8 @@ function ReviewForm() {
                                 })}
                                 </div>
                             <div className="liked">
-                                <p>Liked: </p>
+                                <div className="like-tooltip-container">
+                                    <p>Liked: </p>
                                     <label>
                                         <input
                                             type="radio"
@@ -125,13 +141,16 @@ function ReviewForm() {
                                                 onMouseEnter={() => setLikedHover(true)}
                                                 onMouseLeave={() => setLikedHover(false)}/>}
                                     </label>
- 
+                                    <span className="tooltip-text">
+                                        Indicte if you enjoyed this read by liking it.
+                                    </span>
+                                </div>
                             </div>
                             </div>
                             <textarea name='inputText' placeholder="" value={reviewText} onChange={(e) => setReviewText(e.target.value)}></textarea>
                         <button className='primary'>Submit</button>
                     </form>
-                {message && <p>{message}</p>}</div>
+                    </div>
             </div>
     );
 };

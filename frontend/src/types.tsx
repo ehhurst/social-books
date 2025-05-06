@@ -12,7 +12,6 @@ export interface BookItem {
 }
 
 
-
 export interface Reviews {
     work_id: string;
     avg_rating: string;
@@ -29,12 +28,7 @@ export interface Review {
 }
 
 
-
 //getting status back from post request
-export interface ReviewStatus {
-    success: boolean, 
-    review: Review
-}
 export interface CategoryItem {
     query: string, 
     title: string

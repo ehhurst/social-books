@@ -30,8 +30,6 @@ function CompStatus() {
                 <button className="clear" onClick={() => dispatch({type:ListTypes.CLEAR})}>Clear List</button>
                 <button className="secondary" onClick={() => nav('/competitions/create')}>I'm Finished Adding Books</button>
             </div>
-           
-           
         </div>
     ) 
 }

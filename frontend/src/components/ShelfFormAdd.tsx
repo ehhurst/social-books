@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { User } from "../types";
 import axios from "../../axiosConfig";
 import '../assets/css/ShelfFormAdd.css';
+import { toast } from "react-toastify";
+import { toastConfig } from "../utils/toastConfig";
 
 
 function ShelfFormAdd() {
@@ -12,7 +14,11 @@ function ShelfFormAdd() {
     const [shelfName, setShelfName] = useState('');
     const token = sessionStorage.getItem('access_token');
     const [errorMessage, setErrorMessage] = useState("");
+    const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}");
 
+    const successMessage = () => toast(`Successfully added bookshelf "${shelfName}" to your library.`, toastConfig);
+    const errorMessagePopup = () => toast.error(errorMessage, toastConfig);
+    
     async function handleSubmit(event:FormEvent) {
         event.preventDefault();
         if (shelfName === "") {
@@ -20,18 +26,20 @@ function ShelfFormAdd() {
             return;
         }
         try {
-            const response = await axios.post("/shelf", {
+            await axios.post("/shelf", {
                 shelfName
             }, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
-            }).then((resp) => {
-                console.log(resp.data)
-            })
+            }).then(() => {
+                successMessage();
+
+            }).finally(() => navigate(`/${currentUser.username}/library/${shelfName}`));
             } catch (error) {
-                console.error(error);
+                console.error("Error creating bookshelf" ,error);
                 setErrorMessage("Error creating book shelf. Please try again later.");
+                errorMessagePopup();
             }
     }
 

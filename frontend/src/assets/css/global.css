@@ -48,10 +48,14 @@ a {
 }
 
 a:hover {
-    color: var(--light-accent-color)
+    color: #6c63ff;
 }
 
+.user-icon:hover { 
+    cursor: pointer;
+    color: #6c63ff;
 
+}
 
 
 /* Button styles */
@@ -63,7 +67,7 @@ button {
 
 button:hover {
     cursor: pointer;
-    font-weight: bold;
+
 }
 
 button.primary {
@@ -154,6 +158,36 @@ a.reviews-cta {
 }
 
 
+/* tooltip styling */
+.like-tooltip-container {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    width: 200px;
+    background-color: #333;
+    color: var(--light-primary-color);
+    border-radius: 6px;
+    padding: 6px 10px;
+    position: absolute;
+    z-index: 100;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    font-size: 0.8em;
+    text-align: center;
+}
+
+.like-tooltip-container:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
 @media (prefers-color-scheme: light) {
     :root {
       color: var(--secondary-font-color);
@@ -162,7 +196,6 @@ a.reviews-cta {
     :root {
         background-color: #20232d;
         
-    
         --default-font-color: #eaeee6;
         --secondary-font-color: #20232d;
     
@@ -177,8 +210,6 @@ a.reviews-cta {
         font-family: Arial, Helvetica, sans-serif;
     
     }
-
-
   }
 
 
