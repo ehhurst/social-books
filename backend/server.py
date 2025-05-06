@@ -707,47 +707,56 @@ def unfollow_user(username):
 @app.route("/contest/create", methods=["POST"])
 @jwt_required()
 def create_contest():
-    """ Creates a contest with the provided name """
-    current_user = get_jwt_identity()  # Get the current user's identity from the JWT
+    current_user = get_jwt_identity()
     token = request.headers.get("Authorization")
-        
+    
     if not token:
         return jsonify({"error": "Missing authorization token"}), 401
-    
-    conn = db_connect()
-    cursor = conn.cursor()
 
-    find_user_query = "SELECT username FROM users WHERE username = ?" # replaced profile_id with uesrname
-    organizer = cursor.execute(find_user_query, (current_user,)).fetchone()
-
-    if not organizer:
-        conn.close()
-        return jsonify({"error":f"user {current_user} not found, not creating contest"}), 400 #BAD REQUEST
-    
-    r_metadata = request.json
-    contest_name = r_metadata['contest_name']
-    work_ids = r_metadata['work_ids'] # array of work_ids
-    end_date = r_metadata['end_date'] # end date, format YYYY-MM-DD
-    num_works = len(work_ids)
-
-    if not contest_name:
-        conn.close()
-        return jsonify({"error": "Null contest_name"}), 400 #BAD REQUEST
-    if not end_date:
-        conn.close()
-        return jsonify({"error": "Null end_date"}), 400 #BAD REQUEST
-    if num_works < 1:
-        conn.close()
-        return jsonify({"error": "num_works < 1"}), 400 #BAD REQUEST
-    
     try:
-        query = """
-        INSERT INTO contests (contest_name, book_count, end_date) values (?, ?, ?)
-        """
-        cursor.execute(query, (contest_name, num_works, end_date))
+        r_metadata = request.json
+        print("🚀 Incoming contest data:", r_metadata)
+
+        contest_name = r_metadata['contest_name']
+        work_ids = r_metadata['work_ids']
+        end_date = r_metadata['end_date']
+        num_works = len(work_ids)
+
+        if not contest_name or not end_date or num_works < 1:
+            return jsonify({"error": "Invalid input data"}), 400
+
+        conn = db_connect()
+        cursor = conn.cursor()
+
+        print("📝 Inserting into contests:", contest_name, num_works, end_date)
+        cursor.execute(
+            "INSERT INTO contests (contest_name, book_count, end_date) VALUES (?, ?, ?)",
+            (contest_name, num_works, end_date)
+        )
         conn.commit()
-    except sqlite3.Error as e:
-        return jsonify({"error": f"contest_failure {e}"}), 500 #INTERNAL SERVER ERROR
+
+        for work in work_ids:
+            print("📚 Inserting book:", work)
+            cursor.execute(
+                "INSERT INTO contest_books (contest_name, work_id) VALUES (?, ?)",
+                (contest_name, work)
+            )
+
+        print("👤 Inserting organizer:", current_user)
+        cursor.execute(
+            "INSERT INTO contest_participants (contest_name, username, books_read, perm_lvl) VALUES (?, ?, ?, ?)",
+            (contest_name, current_user, 0, 0)
+        )
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({"message": f"contest {contest_name} successfully created"}), 201
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
     
     #ADD WORKS AND CREATOR HERE
 
@@ -895,8 +904,9 @@ def get_contests():
             return jsonify({"error":f"sqlite3err {e} QUERY {query}"}), 500 # INTERNAL SERVER ERROR
 
         # Ensure date is returned as ISO string (for JS Date parsing)
+
         end_date = contest_elem[2]
-        end_date = end_date.format()
+        # end_date = end_date.format()
 
         contest_json = {
             "contest_name": contest_elem[0],

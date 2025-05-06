@@ -28,24 +28,47 @@ function CompetitionDetailPage() {
   const [completedBooks, setCompletedBooks] = useState<string[]>([]);
 
   useEffect(() => {
-    setLoadingBooks(true);
-    setBookError('');
-    axios
-      .get(`contest/${name}/books`)
-      .then((response) => {
-        setBooks(response.data);
-      })
-      .catch((error) => {
-        console.error('Error loading contest books:', error);
+    const fetchData = async () => {
+      setLoadingBooks(true);
+      setLoadingLeaderboard(true);
+      setBookError('');
+      setLeaderboardError('');
+  
+      try {
+        const [booksRes, participantsRes] = await Promise.all([
+          axios.get(`contest/${name}/books`),
+          axios.get(`contest/${name}/participants`)
+        ]);
+  
+        setBooks(booksRes.data);
+  
+        const participants = participantsRes.data.participant_list;
+        setLeaderBoard(participants);
+  
+        const found = participants.some(
+          (p: ContestParticipant) => p.username === currentUser.username
+        );
+        setUserParticipating(found);
+  
+        const currentUserData = participants.find((p) => p.username === currentUser.username);
+        if (currentUserData) {
+          const completed = currentUserData.completed_books.map((b) => b.work_id);
+          setCompletedBooks(completed);
+        }
+  
+      } catch (error) {
         setBookError("We're having trouble loading this competition's books.");
-      })
-      .finally(() => setLoadingBooks(false));
+        setLeaderboardError("Trouble loading leaderboard.");
+        console.error(error);
+      } finally {
+        setLoadingBooks(false);
+        setLoadingLeaderboard(false);
+      }
+    };
+  
+    fetchData();
   }, [name]);
-
-  useEffect(() => {
-    fetchLeaderboard();
-  }, [name]);
-
+  
   const fetchLeaderboard = () => {
     setLoadingLeaderboard(true);
     setLeaderboardError('');

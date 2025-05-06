@@ -14,17 +14,20 @@ import { toastConfig } from "../utils/toastConfig";
 function CompetitionForm() {
     const navigate = useNavigate();
     const token = sessionStorage.getItem("access_token");
-    const currentUser:User = JSON.parse(sessionStorage.getItem('User') || "{}")
-
+    const currentUser: User = JSON.parse(sessionStorage.getItem('User') || "{}");
+  
     const successMessage = () => toast.success(`Competition created successfully!`, toastConfig);
     const errorMessage = () => toast.error("Error! Unable to create competition. Please make sure you have entered a title and end date for your competition and try again.", toastConfig);
-
-    useEffect(() => {
-          if(!token || !currentUser.username) {
-            navigate('/login');
-        }
-    }, [])
   
+    useEffect(() => {
+      if (!token || !currentUser.username) {
+        console.log("Redirecting to /login from CompetitionForm");
+        navigate('/login');
+      }
+    }, []);
+    
+    // ... rest of code
+    
 
     const { compList, dispatch } = useContext(ListStore);
     const isEmpty = compList.length == 0
