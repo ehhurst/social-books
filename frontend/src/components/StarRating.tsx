@@ -6,8 +6,9 @@ const StarRating = ({rating} :{rating: number}) => {
 
     return(
         <div id='star-rating'>
-            {starsArray.map((filled, index) => (
-            <Star key={index} filled={filled} />))}
+        {starsArray.map((filled, index) => (
+        <Star key={`star-${index}-${filled}`} filled={filled} />
+        ))}
         </div>
     );
 };
