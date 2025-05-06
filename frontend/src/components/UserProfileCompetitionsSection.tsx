@@ -53,7 +53,6 @@ function UserProfileCompetitionsSection() {
 
   return (
     <div className="user-profile-competitions">
-      <h2>My Competitions:</h2>
       {loading ? (
         <p>Loading competitions...</p>
       ) : error ? (
@@ -65,7 +64,7 @@ function UserProfileCompetitionsSection() {
   {contests.map((contest) => (
     <li key={contest.contest_name}>
       <div className="contest-header">
-        <h3>{contest.contest_name}</h3>
+        <h4>{contest.contest_name}</h4>
         <span className="badge">📢 Active</span>
       </div>
       <p className="books">Books: {contest.book_count}</p>
