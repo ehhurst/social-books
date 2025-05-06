@@ -69,8 +69,20 @@ function ReviewCard(review:Review) {
             <StarRating rating={review.star_rating}/> {/*Whole number ratings only*/}
             {(currentUser.username == review.username) ? 
             <div>
-                <FontAwesomeIcon className="delete-icon" icon={faTrash} onClick={handleDelete} color={'var(--main-color)'} />
-                <FontAwesomeIcon className="edit-icon" icon={faPen} onClick={() => setOpen(o => !o)} color={'var(--main-color)'}/>
+                <FontAwesomeIcon
+                data-testid="delete-icon"
+                className="delete-icon"
+                icon={faTrash}
+                onClick={handleDelete}
+                color={'var(--main-color)'}
+                />
+                <FontAwesomeIcon
+                data-testid="edit-icon"
+                className="edit-icon"
+                icon={faPen}
+                onClick={() => setOpen(o => !o)}
+                color={'var(--main-color)'}
+                />
                 <Popup open={open} closeOnDocumentClick onClose={closeModal} modal>
                     <div className="modal">
                     <span id='review-details'> <ReviewFormEdit review_id={review.review_id} work_id={review.work_id} username={review.username} star_rating={review.star_rating} review_text={review.review_text} liked={review.liked}/> 
