@@ -754,6 +754,7 @@ def create_contest():
         return jsonify({"message": f"contest {contest_name} successfully created"}), 201
 
     except Exception as e:
+        conn.close()
         import traceback
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500

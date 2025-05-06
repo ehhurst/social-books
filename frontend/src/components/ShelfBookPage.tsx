@@ -65,7 +65,7 @@ function ShelfBookPage() {
     return(
         <main>
             <div id="shelf-header-container">
-                <button id="back-button" onClick={() => navigate(-1)}><FontAwesomeIcon icon={faLessThan} size={'xs'}/> Back</button>
+                <button id="back-button" onClick={() => navigate(`/${user}/profile`)}><FontAwesomeIcon icon={faLessThan} size={'xs'}/> Back</button>
             {/* only the owner of this shelf can delete it*/}
             {user == currentUser.username ? ( 
                 <span>

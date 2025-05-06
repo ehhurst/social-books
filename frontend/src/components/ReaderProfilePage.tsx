@@ -17,6 +17,7 @@ import UserProfileLibrary from "./UserProfileLibrary";
 import {  toast } from "react-toastify";
 import useShelfBooks from "../hooks/useShelfBooks";
 import { toastConfig } from "../utils/toastConfig";
+import UserProfileCompetitionsSection from "./UserProfileCompetitionsSection";
 
 
 function ReaderProfilePage() {
@@ -191,12 +192,13 @@ function ReaderProfilePage() {
           <li id={(selected == 'Profile')? "selected" : "unselected"} onClick={() => setSelected('Profile')}>Profile</li>
           <li id={(selected == 'Library')? "selected" : "unselected"} onClick={() => setSelected('Library')}>Library</li>
           <li id={(selected == 'Reviews')? "selected" : "unselected"} onClick={() => setSelected('Reviews')}>Reviews</li>
-          <li id={(selected == 'Likes')? "selected" : "unselected"} onClick={() => setSelected('Likes')}>Likes</li>         
+          <li id={(selected == 'Likes')? "selected" : "unselected"} onClick={() => setSelected('Likes')}>Likes</li> 
+          <li id={(selected == 'Competitions')? "selected" : "unselected"} onClick={() => setSelected('Competitions')}>Competitions</li>
           <li id={(selected == 'Network')? "selected" : "unselected"} onClick={() => setSelected('Network')}>Network</li>
         </ul>
       </div>
       <div id='profile-body-content'>
-        {title} {selected}:
+        <h3 className="reader-profile-headers">{title} {selected}</h3>
         {(selected == 'Profile') ?
          <div>
           <div id="profile-container">
@@ -214,6 +216,8 @@ function ReaderProfilePage() {
         <UserReviewsPage reviewData={reviewData} loading={loading} error={error}/>
         : (selected == 'Likes') ?
         <UserLikesList likedBookIds={likedBookIds}/>
+        : (selected == 'Competitions') ?
+        <UserProfileCompetitionsSection/>
         : (selected == 'Network') ? 
         <UserNetwork initialState={followersOrFollowingSelected} followers={followers} following={following} />
         :
