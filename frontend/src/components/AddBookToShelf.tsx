@@ -6,8 +6,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ShelfName, User } from "../types";
 import axios from "../../axiosConfig";
 import '../assets/css/AddBookToShelf.css'
+import { toastConfig } from "../utils/toastConfig";
 
-// Gen. AI used to refactor the JavaScript in this  component. 
+// Gen. AI used to refactor the JavaScript in useEffect and handleSubmit blocks. 
 // We asked it to help refactor the code to improve readability. 
 function AddBookToShelf({ closeModal } : { closeModal: () => void }) {
     const user:User = JSON.parse(sessionStorage.getItem('User') || "{}");
@@ -20,24 +21,9 @@ function AddBookToShelf({ closeModal } : { closeModal: () => void }) {
     
     const [selectedOption, setSelectedOption] = useState<string>("Books I've Read"); // selection option on form dropdown
 
-    // user notification handling
-    const toastConfig = {
-        position: "top-left" as const,
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark" as const,
-        transition: Bounce,
-    }
 
     const successMessage = () => toast.success(`Successfully added book to your library on shelf ${selectedOption}`, toastConfig);
-    
     const addBookErrorMessage = () => toast.error(`Oops! We're having trouble adding books to your library right now. Please try again later.`, toastConfig);
-
-        
     const loadShelvesErrorMessage = () => toast.error(`We're having trouble getting the shelves in your library. Please try again later.`, toastConfig);
 
     // get list of this users' bookshelves to display
