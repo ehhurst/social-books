@@ -13,7 +13,6 @@ function BookListCard(props:BookItem) {
     const preview = props.description?.slice(0, 150) ?? "No summary available.";
     const { compList, dispatch } = useContext(ListStore);
     const compStatus = sessionStorage.getItem("creatingComp");
-    const token = sessionStorage.getItem("access_token");
 
     const addToComp = () => {
         dispatch({type: ListTypes.ADD, item: props, work_id: props.work_id})
