@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "../../axiosConfig";
-import { ContestItem, User } from "../types";
-import '../assets/css/CompetitionsPage.css'
+import { ContestItem } from "../types";
+import '../assets/css/CompetitionsPage.css';
 
 function CompetitionsPage() {
   const nav = useNavigate();
@@ -12,75 +12,70 @@ function CompetitionsPage() {
   const token = sessionStorage.getItem("access_token");
 
   useEffect(() => {
-
     const getCompetitions = async () => {
       setLoading(true);
       setError('');
-
       try {
         const response = await axios.get('/contest/info');
-        setCompetitions(response.data);
+        console.log("Fetched contest info:", response.data); // ✅ debug response
+        const contestList = Array.isArray(response.data)
+        ? response.data
+        : [];
+              setCompetitions(contestList);
       } catch (error) {
-        console.log("Error loading contests")
-        setError('Error loading book competitions. Please try again later.')
+        console.error("Error loading contests", error);
+        setError('Error loading book competitions. Please try again later.');
       } finally {
         setLoading(false);
       }
-    }
-
+    };
     getCompetitions();
   }, []);
 
-  async function joinCompetition(competitionName:string) {
-      setLoading(true);
-      setError('');
-
-      try {
-        const response = await axios.post(`/contest/${competitionName}/add_participant`, {},
-          {headers: { "Authorization": `Bearer ${token}`}}
-        );
-        setCompetitions(response.data);
-      } catch (error) {
-        console.log("Error loading contests")
-        setError('Error loading book competitions. Please try again later.')
-      } finally {
-        setLoading(false);
-      }
-  }
-
-
-  return(
-    <main id='competitions-list'>
-      <div id="header">
+  return (
+    <main id="competitions-list">
+      <section id="header">
         <h2>Competitions</h2>
-        {/*only logged in users can create competitions */} 
-          {token ? (<button className="primary create-comp" onClick={() => {nav('/competitions/create'); 
-            sessionStorage.setItem('creatingComp', JSON.stringify(true));
-          }}>Create Competition</button>) : (<></>)}
-      </div>
-      
-      <ul id="book-list-page">
-        {competitions ? (competitions.length > 0 ? (
-          competitions.map((competition:ContestItem) => 
-          <li key={competition.contest_name}>
-            <Link to={`/competitions/${competition.contest_name}`} state={competition}>
-            <div className="competition-item">
-              <div className="contest-info">
-              <h3>{competition.contest_name}</h3>
-              <p>Organized by {competition.organizer}</p>
-            </div>
-            <p>Ends: {new Date(competition.end_date).toLocaleDateString()}</p>
-            <p>Number of books: {competition.book_count}</p>
-            {token ? ( <button className='secondary' onClick={() => joinCompetition(competition.contest_name)}>Join</button>) : (<></>)}
-          </div>
-          </Link>
-            
-            
-          </li>
-          )
-        ) : (<p>No book contests have been added yet.</p>)) : (<p>Error loading book contests. Please try again later.</p>)}
+        {token && (
+          <button
+            className="primary create-comp"
+            onClick={() => {
+              console.log("Navigating to /competitions/create");
+              nav('/competitions/create');
+              sessionStorage.setItem('creatingComp', JSON.stringify(true));
+            }}
+          >
+            Create Competition
+          </button>
+        )}
+      </section>
 
-      </ul>
+      <section id="competition-grid">
+        {loading ? (
+          <p>Loading competitions...</p>
+        ) : error ? (
+          <p>{error}</p>
+        ) : competitions.length > 0 ? (
+          <ul id="book-list-page">
+            {competitions.map((competition) => (
+              <li key={competition.contest_name}>
+                <Link to={`/competitions/${competition.contest_name}`} state={competition}>
+                  <div className="competition-item">
+                    <h3>{competition.contest_name}</h3>
+                    <div className="contest-info">
+                      <p>Organized by {competition.organizer}</p>
+                      <p>Ends: {new Date(competition.end_date).toLocaleDateString()}</p>
+                      <p>Books: {competition.book_count}</p>
+                    </div>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No competitions available.</p>
+        )}
+      </section>
     </main>
   );
 }
