@@ -30,50 +30,49 @@ function CompetitionsPage() {
   }, []);
 
   return (
-    <main id="competitions-list">
-      <div id="header">
-        <h2>Competitions</h2>
-        {token && (
-          <button
-            className="primary create-comp"
-            onClick={() => {
-              nav('/competitions/create');
-              sessionStorage.setItem('creatingComp', JSON.stringify(true));
-            }}
-          >
-            Create Competition
-          </button>
-        )}
-      </div>
+<main id="competitions-list">
+  <section id="header">
+    <h2>Competitions</h2>
+    {token && (
+      <button
+        className="primary create-comp"
+        onClick={() => {
+          nav('/competitions/create');
+          sessionStorage.setItem('creatingComp', JSON.stringify(true));
+        }}
+      >
+        Create Competition
+      </button>
+    )}
+  </section>
 
+  <section id="competition-grid">
+    {loading ? (
+      <p>Loading competitions...</p>
+    ) : error ? (
+      <p>{error}</p>
+    ) : competitions.length > 0 ? (
       <ul id="book-list-page">
-        {loading ? (
-          <p>Loading competitions...</p>
-        ) : error ? (
-          <p>{error}</p>
-        ) : competitions.length > 0 ? (
-          competitions.map((competition: ContestItem) => (
-            <li key={competition.contest_name}>
-              <Link
-                to={`/competitions/${competition.contest_name}`}
-                state={competition}
-              >
-                <div className="competition-item">
-                  <div className="contest-info">
-                    <h3>{competition.contest_name}</h3>
-                    <p>Organized by {competition.organizer}</p>
-                  </div>
+        {competitions.map((competition) => (
+          <li key={competition.contest_name}>
+            <Link to={`/competitions/${competition.contest_name}`} state={competition}>
+              <div className="competition-item">
+                <h3>{competition.contest_name}</h3>
+                <div className="contest-info">
+                  <p>Organized by {competition.organizer}</p>
                   <p>Ends: {new Date(competition.end_date).toLocaleDateString()}</p>
-                  <p>Number of books: {competition.book_count}</p>
+                  <p>Books: {competition.book_count}</p>
                 </div>
-              </Link>
-            </li>
-          ))
-        ) : (
-          <p>No book contests have been added yet.</p>
-        )}
+              </div>
+            </Link>
+          </li>
+        ))}
       </ul>
-    </main>
+    ) : (
+      <p>No competitions available.</p>
+    )}
+  </section>
+</main>
   );
 }
 

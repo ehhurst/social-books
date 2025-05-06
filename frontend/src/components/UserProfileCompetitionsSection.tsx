@@ -3,11 +3,10 @@ import axios from "../../axiosConfig";
 import "../assets/css/UserProfileCompetitionsSection.css";
 
 type Contest = {
-  id: number;
-  name: string;
-  description: string;
-  start_date: string;
+  contest_name: string;
+  book_count: number;
   end_date: string;
+  organizer: string;
 };
 
 function UserProfileCompetitionsSection() {
@@ -36,9 +35,11 @@ function UserProfileCompetitionsSection() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          withCredentials: true,
         });
+
         console.log("✅ Contests fetched:", response.data);
-        setContests(response.data);
+        setContests(response.data.contests); // 🔧 FIXED: get array from 'contests' key
       } catch (err: any) {
         console.error("❌ Error fetching contests:", err);
         setError("Failed to load competitions.");
@@ -60,17 +61,19 @@ function UserProfileCompetitionsSection() {
       ) : contests.length === 0 ? (
         <p>You haven't joined any competitions yet.</p>
       ) : (
-        <ul>
-          {contests.map((contest) => (
-            <li key={contest.id}>
-              <h3>{contest.name}</h3>
-              <p>{contest.description}</p>
-              <p>
-                🕒 {contest.start_date} – {contest.end_date}
-              </p>
-            </li>
-          ))}
-        </ul>
+<ul>
+  {contests.map((contest) => (
+    <li key={contest.contest_name}>
+      <div className="contest-header">
+        <h3>{contest.contest_name}</h3>
+        <span className="badge">📢 Active</span>
+      </div>
+      <p className="books">Books: {contest.book_count}</p>
+      <p className="organizer">Organizer: {contest.organizer}</p>
+      <p className="end-date">Ends: {contest.end_date}</p>
+    </li>
+  ))}
+</ul>
       )}
     </div>
   );
