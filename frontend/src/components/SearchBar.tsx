@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-import '../assets/css/SearchBar.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
-// import '../assets/css/global.css'
+import '../assets/css/SearchBar.css'
 
 function SearchBar() {
     const [searchTerm, setSearchTerm] = useState("");
@@ -13,8 +11,10 @@ function SearchBar() {
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         if (searchTerm.trim() === "")  return; // Don't navigate if search term is empty
+        const term = searchTerm;
+        setSearchTerm(""); // reset search term
 
-        navigate(`/books?search=${encodeURIComponent(searchTerm)}&limit=9`);
+        navigate(`/books?search=${encodeURIComponent(term)}&limit=9`);
     };
 
         return(
@@ -22,11 +22,14 @@ function SearchBar() {
                 <form id="search-bar" onSubmit={handleSearch}>
                     <input
                         type="text"
-                        placeholder = "Search for books..."
+                        name="search"
+                        placeholder="Search by title or author"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     /> 
-                    <button type="submit"><FontAwesomeIcon id="search-icon"icon={faMagnifyingGlass} color={'grey'} /></button>
+                    <button type="submit" aria-label="Search">
+                        <FontAwesomeIcon icon={faMagnifyingGlass} id="search-icon" color="grey" />
+                    </button>
                 </form>
             </div>
         );

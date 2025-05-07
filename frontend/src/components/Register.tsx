@@ -5,13 +5,19 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import '../assets/css/global.css';
 import '../assets/css/Login.css';
+import { toast } from 'react-toastify';
+import { toastConfig } from '../utils/toastConfig';
 
 function Register() {
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
 
+    const successMessage = () => toast(`Log in successful. Welcome to your account, ${firstName}!`, toastConfig);
+    
     async function handleSubmit(event: FormEvent) {
         event.preventDefault();
 
@@ -21,17 +27,9 @@ function Register() {
         }
 
         try {
-            const readerProfileResponse = await axios.post(
-                `/users/add/${username}`,
-                {
-                  headers: { "Content-Type": "application/json" },
-                }
-              );
-              console.log("test" , readerProfileResponse);
-
             const response = await axios.post(
               "/auth/register",
-              { username, password },
+              { username, password, firstName, lastName },
               {
                 headers: { "Content-Type": "application/json" },
               }
@@ -46,24 +44,68 @@ function Register() {
               }
             );
             console.log("login" , loginRes.data.access_token)
-          
-            localStorage.setItem("access_token", loginRes.data.access_token);
-            localStorage.setItem("username", username);
-            navigate("/reader-profile");
-          
-        } catch (error: any) {
+            sessionStorage.setItem("access_token", loginRes.data.access_token);
+            axios.get('/user', {
+                headers: {
+                        "Authorization": `Bearer ${loginRes.data.access_token}`
+                }
+                }).then((response) => {
+                    const resp = response.data
+                    console.log(resp.username)
+                    sessionStorage.setItem('User', JSON.stringify({username: resp.username, first_name: resp.first_name, last_name: resp.last_name, goal: resp.goal}))
+                }).catch((error) => {
+                    console.log(error)
+            });
+            //create bookshelves that apply to all users
+            console.log(loginRes.data.access_token)
+            axios.post('/shelf',{shelfName: "Favorite Books"},  {
+                headers: {
+                    "Authorization": `Bearer ${loginRes.data.access_token}`
+            }
+            }).then((response) => console.log(response.data)).catch((error) => console.error(error));
+            axios.post('/shelf', {shelfName:"Books I've Read"} , {
+                headers: {
+                    "Authorization": `Bearer ${loginRes.data.access_token}`
+                } 
+            }).then((response) => {
+                console.log(response.data);
+                successMessage();
+                navigate(`/${username}/profile`)}
+            ).catch((error) => console.error(error));
+            } catch (error: any) {
             console.error(error);
             setErrorMessage(
               error.response?.data?.error || "Registration failed. Try again."
-            );
+            ); 
         }
     }
 
     return (
         <main>
-            <div id='login-form'>
+            <div id='registration-form'>
                 <form onSubmit={handleSubmit} method='post'>
-                    <label htmlFor='username'>Username</label>
+                    <p id='required'>* = required</p>
+                    <label htmlFor='first_name'>First Name*</label>
+                        <input
+                            type='text'
+                            name='first_name'
+                            id='first_name'
+                            autoComplete='first_name'
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                        />
+                    <label htmlFor='last_name'>Last Name*</label>
+                        <input
+                            type='text'
+                            name='last_name'
+                            id='last_name'
+                            autoComplete='last_name'
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                        />
+
+
+                    <label htmlFor='username'>Username*</label>
                     <input
                         type='text'
                         name='username'
@@ -73,7 +115,7 @@ function Register() {
                         onChange={(e) => setUsername(e.target.value)}
                     />
 
-                    <label htmlFor='password'>Password</label>
+                    <label htmlFor='password'>Password*</label>
                     <input
                         type='password'
                         name='password'
@@ -93,7 +135,7 @@ function Register() {
 
                     <button className='primary'>Register</button>
                 </form>
-
+                
                 <div id='alt'>
                     <p>Already have an account?</p>
                     <Link to='/login'>Sign In</Link>

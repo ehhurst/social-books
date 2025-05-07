@@ -1,0 +1,88 @@
+.user-profile-competitions {
+  max-width: 800px;
+  margin: 3rem auto;
+  padding: 1rem;
+  color: #ffffff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.user-profile-competitions h3 {
+  font-size: 1.7rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 2.5rem;
+  background: linear-gradient(90deg, #ff8a00, #e52e71);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* List styling reset */
+.user-profile-competitions ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Competition card */
+.user-profile-competitions li {
+  background: linear-gradient(135deg, #1f1f2e, #2a2d3e);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.user-profile-competitions li:hover {
+  transform: scale(1.02);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6);
+}
+
+/* Header with badge */
+.contest-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.user-profile-competitions h4 {
+  font-size: 1.5rem;
+  margin: 0;
+  color: #ffcc70;
+}
+
+.badge {
+  background-color: #ff4f5a;
+  color: white;
+  font-size: 0.9rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(255, 79, 90, 0.4);
+}
+
+/* Detail lines */
+.user-profile-competitions p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+  color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Emojis */
+p.books::before {
+  content: '📚';
+}
+
+p.organizer::before {
+  content: '👤';
+}
+
+p.end-date::before {
+  content: '📅';
+}
+
+

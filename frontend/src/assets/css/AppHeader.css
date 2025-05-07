@@ -1,18 +1,14 @@
 header {
-    width: 97vw;
     max-height: 6vh;
-    background-color: #1e1e1e;
+
     border-bottom-style: solid;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1em;
+
+    position: sticky;
+    top: 0;
 }
 
 /* Logo styles */
 header img {
-    width: 50%;
-    margin-left: 1em;
     max-height: 6vh;
 }
 
@@ -21,7 +17,7 @@ header img {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 20px;
+    padding: 0.6em;
     background-color: #1e1e1e;
 }
 
@@ -40,7 +36,6 @@ button {
     height: 2.5em;
     margin: 0.5em;
 }
-
 
 /* Nav styles specific to the header */
 header nav ul p {
@@ -71,4 +66,36 @@ div#user-info a {
 
 #user-icon {
     padding-right: 0.5em;
+}
+
+div#user-status {
+    display: none;
+}
+
+div.menu-icon svg {
+    height: 90%;
+    color: var(--light-primary-color)
+}
+div.menu-icon {
+    padding-left: 1
+}
+
+@media all and (min-width: 768px) {
+
+
+    /* Logo styles */
+    header img {
+        width: 50%;
+        margin-left: 1em;
+    }
+
+    header .app-header {
+        padding: 10px 20px;
+    }
+}
+
+@media all and (min-width: 934px) {
+    div#user-status {
+        display: inline
+    }
 }

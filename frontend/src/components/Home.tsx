@@ -1,26 +1,26 @@
 import { faBookOpen } from "@fortawesome/free-solid-svg-icons/faBookOpen";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStar, faStarHalf } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import '../assets/css/global.css'
 import '../assets/css/Home.css'
-import { faStar, faStarHalf } from "@fortawesome/free-solid-svg-icons";
-
 
 
 function Home() {
   const nav = useNavigate();
-
+  const token = sessionStorage.getItem('access_token');
+  
   return (
     <main>
       <div id='home-container-top'>
         <h1>Welcome to ShelfLife</h1>
-        <h2>Connect through your reading journey</h2>
+        <p>Connect through your reading journey</p>
       </div>
       <div id='home-container-bottom'>
         <div id="description-review-container">
           <div id='site-description-container'>
-            <h3><FontAwesomeIcon icon={faBookOpen}/> ShelfLife</h3>
-            <p> is...Site description paragraph goes here</p>
+            <h2><FontAwesomeIcon icon={faBookOpen}/> ShelfLife</h2>
+            <p> a place for readers to log, review, and discover books and connect with others through discussions and competitions.</p>
           </div>
           <div id="example-review-container-background">
             <div id="example-review-container">
@@ -47,14 +47,15 @@ function Home() {
               </div>
             </div>
           </div>
+            
         </div>
-        <div id="cta-buttons">
+        {(!token) ? <div id="cta-buttons">
           <p>Ready to get started?</p>
           <div>
             <button className='primary' onClick={() => nav("login")}>Sign In</button>
             <button className='secondary' onClick={() => nav("register")}>Register</button>
           </div>
-        </div>
+        </div>: <></>}
       </div> 
       
     </main>

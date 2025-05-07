@@ -2,29 +2,44 @@ import { BookItem } from "../types";
 import { Link } from "react-router-dom";
 import '../assets/css/BookListCard.css'
 import '../assets/css/global.css'
-import { useEffect } from "react"; // used for testing
+import '../assets/css/CompStatus.css'
+import { useContext } from "react"; // used for testing
+import { ListStore } from "../Contexts/CompetitionBookListContext";
+import { ListTypes } from "../Reducers/CompetitionBookListReducer";
 
 
 function BookListCard(props:BookItem) {
-    const preview = props.description.slice(0, 150); //shorten description to fit into book container
+    //shorten description to fit into book container
+    const preview = props.description?.slice(0, 150) ?? "No summary available.";
+    const { compList, dispatch } = useContext(ListStore);
+    const compStatus = sessionStorage.getItem("creatingComp");
 
-    useEffect (() => console.log(props))
+    const addToComp = () => {
+        dispatch({type: ListTypes.ADD, item: props, work_id: props.work_id})
+    }
+    const removeFromComp = () => {
+        dispatch({type:ListTypes.REMOVE, item:props, work_id: props.work_id})
+    }
+
+    const isInList = compList.find((item) => item.work_id === props.work_id)
 
     return(
         <div id="category-book-box">
                 <div id="book-cover-background">
-                    <Link id="image-link" to={`/books/${props.work_id}`}>
+                    <Link id="image-link" to={`/books/${props.work_id}`} state={props}>
                         <img id="cover" src={props.img_M} height={'115px'} alt="Book cover image"/>
                     </Link>
                 </div>
                 <div id="book-info-container">
                     <div id='title-author'>
-                        <Link id="title-link" to={`/books/${props.work_id}`}>
+                        <Link id="title-link" to={`/books/${props.work_id}`} state={props}>
                             <h3>{props.title}</h3>
                         </Link>
                         <h4>by <Link id="author-link" to={`${props.author}`}>{props.author}</Link></h4>
                     </div>
                     <p>{preview} ...<Link id="description-link" to={`/books/${props.work_id}`} state={props}>See more</Link></p>
+                    {compStatus ? (isInList ? (<button className='clear' onClick={removeFromComp}>Remove from Competition</button>) : (<button className='primary list' onClick={addToComp}>Add to Competition</button>)
+                    ) : (<></>)}
                 </div>
         </div>
     );

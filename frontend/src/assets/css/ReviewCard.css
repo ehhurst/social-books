@@ -4,7 +4,7 @@ div.container.review {
     min-height: 5vh;
     max-height: max-content;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     margin: 1em;
 }
 
@@ -41,5 +41,24 @@ p#review-text {
     display: block;
 }
 
+
+div.review-data{
+    width: 100%;
+}
+
+.delete-icon, .edit-icon {
+    margin: 0.25em 0.5em;
+}
+
+.delete-icon:hover , .edit-icon:hover {
+    cursor: pointer;
+}
+.delete-icon:hover {
+    color: var(--error-color);
+}
+
+.edit-icon:hover, div#review-content-top a:hover {
+    color: #6c63ff;
+}
 
 
