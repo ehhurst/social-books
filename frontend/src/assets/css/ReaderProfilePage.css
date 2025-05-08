@@ -1,0 +1,145 @@
+/* This page does not use main as its base element, 
+so we have to style the div that contains all of the
+page elements */
+div#profile-page-container {
+    display: flex;
+    min-height: 78.3vh;
+    flex-direction: column;
+    align-items: center;
+}
+div#settings {
+    width: 100vw;
+    text-align-last: end;
+}
+
+div#settings svg {
+    margin: 5% 5% 2% 0;
+}
+
+div#settings svg:hover {
+    color: var(--light-accent-color);
+    cursor: pointer;;
+}
+
+div#profile-header-content {
+    display: flex;
+    flex-direction: column;
+
+    padding: 1rem;
+    margin-bottom: 3%;
+    align-items: center;
+    margin-top: 2em;
+}
+
+div#user-container {
+    display: flex;
+    align-items: center;;
+}
+
+div#user h2 {
+    float: right;
+    padding-left: 0.75rem;
+    padding-right: 2rem;
+}
+
+div#header-stats {
+    display: flex;
+
+}
+div.stats {
+    text-align: center;
+    padding: 0.5rem 1rem;
+    border-right-style: solid;
+    border-width: thin;
+    border-color: var(--main-color);
+}
+
+div.stats.followers {
+    border: none;
+}
+
+div#profile-body-content {
+    width: 70%;
+    height: max-content;
+    min-height: 40vh;
+}
+
+li#selected {
+    color: #6c63ff;
+    font-weight: bold;
+    border-bottom-style: solid;
+    border-color: #6c63ff;
+}
+
+li#selected:hover, li#unselected:hover {
+    cursor: pointer;
+    color:#6c63ff;
+    text-decoration: none;;
+}
+
+
+div#profile-nav {
+    border-style: solid;
+    border-width: thin;
+    border-color: var(--main-color);
+    width: 70%;
+    margin-bottom: 2%;
+}
+div#profile-nav ul {
+    margin: 0;
+    padding: 0.5em;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+div.stats:hover {
+    color: #6c63ff;
+    cursor: pointer;
+}
+
+div#reader-goals {
+    display: flex;
+    max-height: 30vh;
+    align-items: center;
+    justify-content: space-evenly;
+    max-height: min-content;
+}
+
+
+div#reader-goals span div#goals {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    height: min-content;
+}
+div#profile-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2em;
+}
+
+h3.reader-profile-headers {
+    font-size: 1.7rem;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 0.5em;
+    background: linear-gradient(80deg, #ff8a00, #e52e71);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+
+
+@media all and (min-width: 768px) {
+    div#profile-header-content {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        
+        padding: 1rem;
+        margin-bottom: 3%;
+        align-items: center;
+        margin-top: 2em;
+    }
+
+}

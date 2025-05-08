@@ -1,6 +1,41 @@
+import '../assets/css/global.css';
+import '../assets/css/AppHeader.css';
+import AppLogo from '../assets/images/logo.svg';
+import { Link, useNavigate } from 'react-router-dom';
+import NavBar from './NavBar';
+import SearchBar from "./SearchBar";
+import { useEffect } from 'react';
+import HamburgerMenu from './HamburgerMenu';
+import UserLoginStatus from './UserLoginStatus';
 
 function AppHeader() {
-    return(<></>);
-}
+    const nav = useNavigate();
+    // const par = useParams();
+    const token = sessionStorage.getItem('access_token');
 
+    useEffect(() => {
+        if (!token && sessionStorage.getItem('User')) {
+            logOut();
+        }
+    }, []);
+    
+    function logOut(){
+        sessionStorage.removeItem('User');
+        sessionStorage.removeItem("access_token");
+        localStorage.removeItem("CompBookList");
+        nav('/login');
+    }
+
+    return (<header className="app-header">
+            <Link to="/">
+                <img src={AppLogo} alt="Logo"/>
+            </Link>
+            <div className='header-content'>
+                <SearchBar />  
+                <HamburgerMenu/>
+                <NavBar />
+                <UserLoginStatus/>
+            </div>
+        </header>);
+}
 export default AppHeader;

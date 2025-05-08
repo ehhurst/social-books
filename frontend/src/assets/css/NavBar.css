@@ -1,0 +1,23 @@
+ul {
+    margin: 2em 0 1em 0;
+    text-align: center;
+}
+
+p, li {
+    display: inline;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+/* don't show nav on mobile */
+header nav#primary-nav {
+        display: none;
+}
+
+@media all and (min-width: 934px) {
+    /* show nav bar on non-mobile devices */
+    header nav#primary-nav {
+        display: inline;
+    }
+}

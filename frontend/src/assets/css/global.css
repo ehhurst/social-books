@@ -1,6 +1,6 @@
 :root {
     color-scheme: light dark;
-    background-color: #20232d;
+    background-color:  #1c1c2b;
 
     --default-font-color: #eaeee6;
     --secondary-font-color: #20232d;
@@ -8,9 +8,14 @@
     --light-accent-color: #829584;
     --main-color: #577678;
     --dark-accent-color: #6f7588;
+    --accent-color: #5c55e7;
 
     --light-primary-color: #eaeee6;
     --dark-primary-color: #20232d;
+
+    --error-color: rgb(229, 82, 82);
+    font-family: Arial, Helvetica, sans-serif;
+
 }
 
 div#root {
@@ -31,7 +36,7 @@ h1, h2, h3, p, div {
 
 /* Remove list styling */
 ol,
-ul {
+ul, form ul {
     list-style: none;
     padding: 0;
     margin: 0;
@@ -43,27 +48,42 @@ a {
 }
 
 a:hover {
-    color: var(--light-accent-color)
+    color: #6c63ff;
 }
 
+.user-icon:hover { 
+    cursor: pointer;
+    color: #6c63ff;
+
+}
+
+
+/* Button styles */
 button {
     border-radius: 8px;
     border: thin solid var(--light-primary-color);
     color: var(--default-font-color);
-    box-shadow:rgb(from color r g b);
 }
 
 button:hover {
     cursor: pointer;
-    font-weight: bold;
+
 }
 
 button.primary {
     background-color: var(--main-color);
+    box-shadow: 5px 5px 7px rgba(0, 0, 0, 0.4);
+    font-size: 1.25em;
 }
 
 button.secondary {
     background-color: var(--light-accent-color);
+    box-shadow: 5px 5px 7px rgba(0, 0, 0, 0.4);
+    font-size: 1.25em;
+}
+
+form input[type="submit"]:hover{
+    cursor: pointer;
 }
 
 /* creates an inverted button on hover */
@@ -79,17 +99,138 @@ button.secondary:hover {
     border: solid var(--light-accent-color);
 }
 
+div.container {
+    background-color: var(--light-primary-color);
+    color: var(--secondary-font-color);
+    border-radius: 8px;
+    padding: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+main {
+    min-height: 78.3vh;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+button#back-button {
+    background-color: transparent;
+    border:none;
+    font-weight: bold;
+    color: var(--default-font-color);
+}
+
+button#back-button:hover {
+    color: var(--light-accent-color);
+    text-decoration: underline;
+}
+/* For large text sizes, you typically want to decrease your line height. */
+h1,
+h2,
+h3 {
+    line-height: 1;
+}
+
+/* For small text sizes, you typically want to increase your line height. */
+p {
+    line-height: 1.5;
+    font-size: 0.75em;
+}
+
+h1 {
+    font-size: 2.5em;
+}
+
+h2 {
+    font-size: 1.1em; 
+}
+h3 {
+    font-size: 0.8em
+}
+
+
+a.reviews-cta {
+    color: red;
+}
+
+
+/* tooltip styling */
+.like-tooltip-container {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    width: 200px;
+    background-color: #333;
+    color: var(--light-primary-color);
+    border-radius: 6px;
+    padding: 6px 10px;
+    position: absolute;
+    z-index: 100;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    font-size: 0.8em;
+    text-align: center;
+}
+
+.like-tooltip-container:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
 
 @media (prefers-color-scheme: light) {
     :root {
       color: var(--secondary-font-color);
       background-color: var(--light-primary-color);
     }
-
+    :root {
+        background-color: #20232d;
+        
+        --default-font-color: #eaeee6;
+        --secondary-font-color: #20232d;
+    
+        --light-accent-color: #829584;
+        --main-color: #577678;
+        --dark-accent-color: #6f7588;
+    
+        --light-primary-color: #eaeee6;
+        --dark-primary-color: #20232d;
+    
+        --error-color: rgb(229, 82, 82);
+        font-family: Arial, Helvetica, sans-serif;
+    
+    }
   }
 
 
-@media all and (min-width: 378px) {
+@media all and (min-width: 768px) {
+    button.primary, button.secondary{
+        font-size: 1em;
+    }
 
+    p {
+        font-size: 1em; /* 16px/16=0.875em */
+    }
 
+    h1 {
+        font-size: 3.5em; /* 40px/16=2.5em */
+      }
+      
+    h2 {
+        font-size: 1.875em; /* 30px/16=1.875em */
+    }
+
+    h3 {
+        font-size: 1.25em;
+    }
 }

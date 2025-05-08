@@ -1,0 +1,208 @@
+/*styles for the top of the home page*/
+div#home-container-top {
+    background-color: var(--light-primary-color);
+    color: var(--secondary-font-color);
+    height: max-content;
+    width: 95vw;
+    text-align: center;
+    padding: 2.5em 0;
+    margin: 3em;
+    align-content: center;;
+}
+
+
+div#home-container-top p {
+    color: var(--main-color);
+    padding-top: 1%;
+    font-size: 1.2em;
+    font-weight: normal;
+}
+/* end styles for top of home page*/
+
+
+/*Styles for the bottom of the home page*/
+div#home-container-bottom {
+    background-color: var(--light-primary-color);
+    min-height: max-content;
+    height: 40vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    padding: 1em;
+}
+
+div#description-review-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 2% 0 1% 0;
+}
+
+div#site-description-container {
+    background-color: var(--dark-accent-color);
+    padding: 0.75em;
+    border-radius: 8px;
+    height:max-content;
+    max-width: 90%;
+    font-size: 1.5em;
+    margin: 1em;
+    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+
+
+/*Example review styling*/
+div#example-review-container-background{
+    background-color: var(--main-color);
+    border-radius: 8px;
+    padding: 1em;
+    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.4);
+    width: fit-content;
+    height: fit-content;
+    max-width: 90%;
+    margin: 1em;
+}
+
+div#example-review-container {
+    background-color: var(--light-primary-color);
+    padding: 0.75em;
+    border-radius: 8px;
+    display: grid;
+    grid-template-columns: 0.6fr 1.4fr;
+    align-items: center;
+    height: max-content;
+}
+
+div#book-image-container {
+    background-color: #82958453;
+    border-radius: 8px;
+    padding: 0;
+    width: max-content;
+    height: max-content;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+div#book-image-container img {
+    padding: 0.75em;
+}
+
+div#example-review-container h3 {
+    color: var(--main-color);
+    font-size: 1em;
+}
+div#example-review-container h4 {
+    color: var(--light-accent-color);
+    font-size: 0.75em;
+    display: inline;
+    padding-left: 0.5em;
+}
+
+div#review-info {
+    padding-left: 0.5em;
+}
+
+div#review-info p {
+    color: var(--secondary-font-color);
+    padding-bottom: 0.5em;
+    font-size: 0.75em;
+}
+
+div#review-content {
+    width: 100%;
+    border-top-style: solid;
+    border-width: thin;
+    margin: 0.25em 0 0 0;
+    padding: 0.25em 0 0 0;
+    border-color: grey;
+    display: inline;
+    float: left;
+}
+
+p#review-content {
+    clear: both;
+    display: block;
+}
+
+h5#username{
+    padding: 0.25em 0.5em 0 0;
+    color: var(--light-accent-color);
+    font-size: 0.75em;
+    margin: 0;
+    width: max-content;
+    float: left;
+}
+
+
+/*Call to action styling */
+div#cta-buttons {
+    text-align: center;
+    padding-top: 1%;
+}
+
+div#cta-buttons p {
+    color: var(--secondary-font-color);
+    font-size: 1.5em;
+}
+
+div#cta-buttons div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 1.5em 0;
+
+}
+
+div#cta-buttons div button {
+    width: 70%;
+}
+
+
+@media all and (min-width: 768px) {
+    div#description-review-container {
+        flex-direction: row;
+    }
+    
+    div#site-description-container {
+        max-width: 25%;
+        font-size: 1em;
+        margin: 0;
+        padding: 1em;
+    }
+
+    div#example-review-container {
+        background-color: var(--light-primary-color);
+        padding: 1em;
+        border-radius: 8px;
+        display: grid;
+        grid-template-columns: 0.6fr 1.4fr;
+        align-items: center;
+        max-width: 24em;
+    }
+
+    div#example-review-container-background{
+        padding: 1em;
+        min-width:24em;
+    }
+
+    div#cta-buttons p {
+        color: var(--secondary-font-color);
+        font-size: 1.3em;
+    }
+
+    div#cta-buttons div {
+     flex-direction: row;
+     justify-content: center;
+    }
+
+    div#cta-buttons div button {
+        width: 6em;
+        height: 2.5em;
+    }
+
+    div#home-container-top {
+        height: 29vh;
+    }
+}

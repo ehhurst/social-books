@@ -1,7 +1,42 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM"],
+
+    /* Module resolution settings */
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+
+    /* JSX support */
+    "jsx": "react-jsx",
+
+    /* Output & Type Checking */
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+
+    /* Linting */
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitAny": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": false,
+
+    /* For Jest */
+    "types": ["jest", "node"]
+  },
+  "include": [
+    "src",
+    "vite.config.ts",
+    "src/axiosConfig.tsx",
+    "src/hooks/fetch.tsx",
+    "src/components/__tests__"
+  ],
+  "exclude": ["node_modules", "dist", "src/**/*.js"]
 }

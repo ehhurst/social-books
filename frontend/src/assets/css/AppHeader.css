@@ -1,0 +1,101 @@
+header {
+    max-height: 6vh;
+
+    border-bottom-style: solid;
+
+    position: sticky;
+    top: 0;
+}
+
+/* Logo styles */
+header img {
+    max-height: 6vh;
+}
+
+/* Adjustment to spacing */
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6em;
+    background-color: #1e1e1e;
+}
+
+ /* Navigation and buttons container */
+.header-content {  
+    width: 85%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap:0.5em;
+}
+
+button {
+    width: 6em;
+    height: 2.5em;
+    margin: 0.5em;
+}
+
+/* Nav styles specific to the header */
+header nav ul p {
+    display: none;
+}
+
+header ul, header nav {
+    display: inline;
+}
+
+header li {
+    margin: 0.5em;
+} 
+
+
+div#user-info {
+    background-color: var(--light-primary-color);
+    color: var(--secondary-font-color);
+    padding: 0.25em 0.5em;
+    border-radius: 8px;
+}
+div#user-info a {
+    color: var(--main-color);
+    padding-left: 0.5em;
+    text-decoration: underline;
+    font-size: 14px;
+}
+
+#user-icon {
+    padding-right: 0.5em;
+}
+
+div#user-status {
+    display: none;
+}
+
+div.menu-icon svg {
+    height: 90%;
+    color: var(--light-primary-color)
+}
+div.menu-icon {
+    padding-left: 1
+}
+
+@media all and (min-width: 768px) {
+
+
+    /* Logo styles */
+    header img {
+        width: 50%;
+        margin-left: 1em;
+    }
+
+    header .app-header {
+        padding: 10px 20px;
+    }
+}
+
+@media all and (min-width: 934px) {
+    div#user-status {
+        display: inline
+    }
+}
